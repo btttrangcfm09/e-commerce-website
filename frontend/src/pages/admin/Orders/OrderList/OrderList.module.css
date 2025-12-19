@@ -1,0 +1,39 @@
+.container {
+    @apply w-full max-w-7xl mx-auto p-6 space-y-6;
+}
+
+.header {
+    @apply flex justify-between items-center mb-6;
+}
+
+.title {
+    @apply text-2xl font-bold tracking-tight;
+}
+
+.exportButton {
+    @apply hidden md:flex;
+}
+
+.filters {
+    @apply flex justify-end mb-6;
+}
+
+.statusFilter {
+    @apply w-[180px];
+}
+
+.error {
+    @apply text-red-500 p-4 rounded-md bg-red-50 border border-red-200;
+}
+
+.pagination {
+    @apply flex flex-col md:flex-row items-center justify-between gap-4 mt-6;
+}
+
+.pageInfo {
+    @apply text-sm text-muted-foreground;
+}
+
+.pageControls {
+    @apply flex gap-2;
+}

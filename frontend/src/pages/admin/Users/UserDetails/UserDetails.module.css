@@ -1,0 +1,74 @@
+.container {
+    @apply space-y-6;
+}
+
+.backButton {
+    @apply mb-6;
+}
+
+.card {
+    @apply p-6 space-y-8;
+}
+
+.header {
+    @apply flex justify-between items-center pb-6 border-b;
+}
+
+.avatarSection {
+    @apply flex items-center space-x-4;
+}
+
+.avatar {
+    @apply h-32 w-32;
+}
+
+.userMeta {
+    @apply space-y-2 ml-2;
+}
+
+.userName {
+    @apply text-3xl font-semibold tracking-tight;
+}
+
+.userRole {
+    @apply text-sm font-medium text-muted-foreground;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.field {
+    @apply space-y-1;
+}
+
+.field dt {
+    @apply text-sm font-medium text-muted-foreground;
+}
+
+.field dd {
+    @apply text-base font-medium;
+}
+
+.fullWidth {
+    grid-column: span 1 / span 1;
+}
+
+@media (min-width: 768px) {
+    .fullWidth {
+        grid-column: span 2 / span 2;
+    }
+}
+
+.loading {
+    @apply flex items-center justify-center h-[50vh] text-muted-foreground;
+}

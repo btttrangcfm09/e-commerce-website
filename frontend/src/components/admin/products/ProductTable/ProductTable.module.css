@@ -1,0 +1,139 @@
+.container {
+    @apply w-full max-w-7xl mx-auto;
+}
+
+.header {
+    @apply flex justify-between items-center mb-6;
+}
+
+.titleSection {
+    @apply space-y-1;
+}
+
+.title {
+    @apply text-2xl font-bold;
+}
+
+.productCount {
+    @apply text-sm text-muted-foreground;
+}
+
+.filters {
+    @apply flex gap-4 mb-6;
+}
+
+.searchContainer {
+    @apply relative flex-1;
+}
+
+.searchIcon {
+    @apply absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground;
+}
+
+.searchInput {
+    @apply pl-10;
+}
+
+.filterSelect {
+    @apply w-[180px];
+}
+
+.tableContainer {
+    @apply bg-card rounded-lg border shadow-sm;
+}
+
+.productInfo {
+    @apply flex items-center gap-3;
+}
+
+.productImage {
+    @apply w-10 h-10 rounded-md object-cover;
+}
+
+.productName {
+    @apply font-medium;
+}
+
+.bulkActions {
+    @apply flex items-center justify-between p-4 bg-muted/50 rounded-lg mb-6;
+}
+
+.selectedCount {
+    @apply text-sm font-medium;
+}
+
+.bulkButtons {
+    @apply flex items-center gap-2;
+}
+
+.statusBadge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.actionButton {
+    @apply h-8 w-8 p-0;
+}
+
+.dropdownButton {
+    @apply w-full flex items-center px-2 py-1.5 text-sm;
+}
+
+.dropdownDanger {
+    @apply text-red-600 hover:text-red-700 hover:bg-red-50;
+}
+
+.noResults {
+    @apply text-center py-8 text-muted-foreground;
+}
+
+.sortableHeader {
+    @apply cursor-pointer hover:bg-muted/50;
+}
+
+.iconButton {
+    @apply h-8 w-8 p-1.5;
+}
+
+.paginationContainer {
+    @apply flex items-center justify-between px-2 py-4 border-t;
+}
+
+.paginationInfo {
+    @apply text-sm text-muted-foreground;
+}
+
+.paginationControls {
+    @apply flex items-center gap-1;
+}
+
+.tableWrapper {
+    @apply overflow-x-auto;
+}
+
+.loadingOverlay {
+    @apply absolute inset-0 bg-background/50 flex items-center justify-center;
+}
+
+.checkbox {
+    @apply h-4 w-4 rounded border-muted-foreground/20;
+}
+
+.thumbnailWrapper {
+    @apply relative overflow-hidden rounded-md;
+}
+
+.thumbnailPlaceholder {
+    @apply bg-muted flex items-center justify-center;
+}
+
+.editButton {
+    @apply text-primary hover:text-primary-foreground hover:bg-primary;
+}
+
+.deleteButton {
+    @apply text-red-600 hover:text-red-50 hover:bg-red-600;
+}
+
+.viewButton {
+    @apply text-green-600 hover:text-green-50 hover:bg-green-600;
+}

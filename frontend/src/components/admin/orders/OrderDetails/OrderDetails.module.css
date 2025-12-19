@@ -1,0 +1,79 @@
+.container {
+    @apply w-full max-w-7xl mx-auto;
+}
+
+.header {
+    @apply flex items-center justify-between mb-6;
+}
+
+.title {
+    @apply text-2xl font-bold tracking-tight;
+}
+
+.date {
+    @apply text-sm text-muted-foreground;
+}
+
+.gridContainer {
+    @apply p-6 space-y-8;
+}
+
+.fullWidth {
+    @apply md:col-span-2;
+}
+
+.infoGrid {
+    @apply grid gap-4 grid-cols-1 sm:grid-cols-2;
+}
+
+.label {
+    @apply text-sm text-muted-foreground;
+}
+
+.value {
+    @apply font-medium;
+}
+
+.address {
+    @apply space-y-1;
+}
+
+.orderSummary {
+    @apply mt-6 space-y-4;
+}
+
+.summaryItem {
+    @apply flex justify-between text-sm;
+}
+
+.summaryTotal {
+    @apply flex justify-between font-medium text-lg mt-4;
+}
+
+.timeline {
+    @apply space-y-6;
+}
+
+.timelineItem {
+    @apply flex gap-4;
+}
+
+.timelineIcon {
+    @apply flex h-8 w-8 items-center justify-center rounded-full bg-muted;
+}
+
+.timelineContent {
+    @apply flex-1;
+}
+
+.timelineTitle {
+    @apply font-medium;
+}
+
+.timelineDate {
+    @apply text-sm text-muted-foreground;
+}
+
+.timelineNote {
+    @apply text-sm mt-1;
+}

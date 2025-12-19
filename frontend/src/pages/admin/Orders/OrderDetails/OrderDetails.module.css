@@ -1,0 +1,78 @@
+.container {
+    @apply w-full max-w-7xl mx-auto;
+}
+
+.header {
+    @apply flex justify-between items-center mb-6;
+}
+
+.title {
+    @apply text-2xl font-bold;
+}
+
+.orderId {
+    @apply text-sm text-muted-foreground mt-1;
+}
+
+.grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.customerInfo {
+    @apply space-y-2;
+}
+
+.customerName {
+    @apply font-semibold text-lg;
+}
+
+.timeline {
+    @apply space-y-4;
+}
+
+.timelineItem {
+    @apply flex items-start gap-4;
+}
+
+.timelineIcon {
+    @apply p-2 rounded-full bg-primary/10;
+}
+
+.icon {
+    @apply w-5 h-5 text-primary;
+}
+
+.timelineContent {
+    @apply flex-1;
+}
+
+.timelineStatus {
+    @apply font-medium;
+}
+
+.timelineDate {
+    @apply text-sm text-muted-foreground;
+}
+
+.orderItems {
+    @apply md:col-span-2;
+}
+
+.paymentSummary {
+    @apply space-y-2;
+}
+
+.paymentRow {
+    @apply flex justify-between items-center text-sm;
+}
+
+.paymentTotal {
+    @apply flex justify-between items-center font-semibold text-lg;
+}

@@ -1,0 +1,35 @@
+/* AdminLayout.module.css */
+.layout {
+    @apply flex min-h-screen bg-background;
+}
+
+.mainContent {
+    @apply flex flex-col flex-1;
+}
+
+.contentArea {
+    @apply flex-1 p-6 overflow-auto;
+}
+
+/* Standard scrollbar styling */
+.contentArea::-webkit-scrollbar {
+    @apply w-2;
+}
+
+.contentArea::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.contentArea::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+}
+
+.contentArea::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+}
+
+/* Firefox scrollbar styling */
+.contentArea {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}

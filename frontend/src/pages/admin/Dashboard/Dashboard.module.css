@@ -1,0 +1,15 @@
+.container {
+    @apply space-y-6;
+}
+
+.statsSection {
+    @apply w-full;
+}
+
+.chartSection {
+    @apply w-full;
+}
+
+.ordersSection {
+    @apply w-full;
+}

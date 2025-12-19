@@ -1,0 +1,16 @@
+.tableContainer {
+    @apply w-full overflow-auto border rounded-lg;
+}
+
+.sortableHeader {
+    @apply cursor-pointer hover:bg-muted/50;
+}
+
+.roleChip {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    @apply bg-primary/10 text-primary;
+}
+
+.pagination {
+    @apply flex items-center justify-between px-4 py-3 border-t;
+}

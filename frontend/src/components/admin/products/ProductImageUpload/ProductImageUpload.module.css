@@ -1,0 +1,79 @@
+.container {
+  @apply space-y-4;
+}
+
+.labelWrapper {
+  @apply flex items-center justify-between text-sm font-medium;
+}
+
+.counter {
+  @apply text-muted-foreground text-sm font-normal;
+}
+
+.dropzone {
+  @apply border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors hover:border-primary/50 hover:bg-muted/50;
+}
+
+.dropzone[data-active="true"] {
+  @apply border-primary bg-primary/10;
+}
+
+.dropzone[data-disabled="true"] {
+  @apply cursor-not-allowed opacity-50;
+}
+
+.dropzoneContent {
+  @apply flex flex-col items-center justify-center space-y-4 text-center;
+}
+
+.uploadIcon {
+  @apply h-10 w-10 text-muted-foreground;
+}
+
+.dropzoneText {
+  @apply space-y-1;
+}
+
+.hint {
+  @apply text-sm text-muted-foreground;
+}
+
+.imageGrid {
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6;
+}
+
+.imageCard :global(.group) {
+  @apply relative overflow-hidden;
+}
+
+.imageWrapper {
+  @apply relative aspect-square overflow-hidden rounded-t-lg;
+}
+
+.image {
+  @apply w-full h-full object-cover;
+}
+
+.overlay {
+  @apply absolute inset-0 bg-background/80 opacity-0 transition-opacity flex items-center justify-center;
+}
+
+:global(.group:hover) .overlay {
+  @apply opacity-100;
+}
+
+.deleteButton {
+  @apply absolute top-2 right-2;
+}
+
+.imageInfo {
+  @apply p-3 space-y-1;
+}
+
+.imageName {
+  @apply text-sm font-medium truncate;
+}
+
+.imageSize {
+  @apply text-xs text-muted-foreground;
+}

@@ -1,0 +1,67 @@
+.container {
+    @apply w-full mx-auto p-6 space-y-6 bg-background min-h-screen;
+}
+
+.header {
+    @apply space-y-4;
+}
+
+.breadcrumbSection {
+    @apply flex justify-between items-center;
+}
+
+.headerCard {
+    @apply bg-card/50 border-muted;
+}
+
+.productStats {
+    @apply flex items-center justify-between py-2;
+}
+
+.statItem {
+    @apply flex flex-col items-center px-4 text-center;
+}
+
+.statLabel {
+    @apply text-sm text-muted-foreground;
+}
+
+.statValue {
+    @apply font-medium mt-1;
+}
+
+.formSection {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6;
+}
+
+.formContainer {
+    @apply lg:col-span-2;
+}
+
+.sidePanel {
+    @apply space-y-6;
+}
+
+.activityLog {
+    @apply space-y-4;
+}
+
+.activityItem {
+    @apply flex items-start space-x-3;
+}
+
+.activityContent {
+    @apply flex-1;
+}
+
+.activityText {
+    @apply text-sm font-medium;
+}
+
+.activityTime {
+    @apply text-xs text-muted-foreground;
+}
+
+.quickActions {
+    @apply space-y-2;
+}

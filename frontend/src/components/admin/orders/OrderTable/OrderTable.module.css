@@ -1,0 +1,75 @@
+.container {
+  @apply relative rounded-md border;
+}
+
+.headerCell {
+  @apply cursor-pointer;
+}
+
+.headerContent {
+  @apply flex items-center;
+}
+
+.headerContentRight {
+  @apply flex items-center justify-end;
+}
+
+.sortIcon {
+  @apply ml-2 h-4 w-4;
+}
+
+.row {
+  @apply hover:bg-muted/50;
+}
+
+.header {
+  @apply bg-muted/50;
+}
+
+.idCell {
+  @apply font-medium;
+}
+
+.customerInfo {
+  @apply flex flex-col;
+}
+
+.customerName {
+  @apply font-medium;
+}
+
+.customerEmail {
+  @apply text-sm text-muted-foreground;
+}
+
+.address {
+  @apply max-w-[200px] truncate;
+}
+
+.statusContainer {
+  @apply flex flex-col gap-1;
+}
+
+.total {
+  @apply text-right font-medium;
+}
+
+.actionButton {
+  @apply h-8 w-8 p-0;
+}
+
+.actionMenu {
+  @apply w-[160px];
+}
+
+.emptyState {
+  @apply h-32 text-center text-muted-foreground;
+}
+
+.icon {
+  @apply mr-2 h-4 w-4;
+}
+
+.deleteAction {
+  @apply text-red-600;
+}

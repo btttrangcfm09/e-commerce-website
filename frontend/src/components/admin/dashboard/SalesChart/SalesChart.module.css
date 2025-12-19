@@ -1,0 +1,39 @@
+.salesCard {
+    @apply bg-card;
+}
+
+.chartContainer {
+    @apply mt-4;
+}
+
+.customTooltip {
+    @apply bg-white p-3 rounded-lg shadow-lg border border-border;
+}
+
+.tooltipDate {
+    @apply text-sm font-medium mb-1 text-muted-foreground;
+}
+
+.tooltipSales {
+    @apply text-sm text-blue-600 mb-1;
+}
+
+.tooltipOrders {
+    @apply text-sm text-green-600;
+}
+
+.summaryStats {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 p-4 bg-muted/50 rounded-lg;
+}
+
+.stat {
+    @apply flex flex-col items-center justify-center p-2;
+}
+
+.statLabel {
+    @apply text-sm text-muted-foreground;
+}
+
+.statValue {
+    @apply text-lg font-semibold mt-1;
+}

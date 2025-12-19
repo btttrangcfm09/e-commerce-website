@@ -1,0 +1,11 @@
+.tableContainer {
+    @apply relative w-full overflow-auto;
+}
+
+.tableRow {
+    @apply hover:bg-muted/50 transition-colors;
+}
+
+.tableRow:last-child td {
+    @apply border-b-0;
+}

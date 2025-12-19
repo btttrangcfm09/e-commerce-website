@@ -1,0 +1,48 @@
+/* AdminHeader.module.css */
+.header {
+    @apply sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 py-3 border-b;
+}
+
+.searchContainer {
+    @apply relative flex items-center max-w-md w-full;
+}
+
+.searchInput {
+    @apply pl-8 w-full;
+}
+
+.actions {
+    @apply flex items-center space-x-2;
+}
+
+.actionButton {
+    @apply relative hover:bg-accent hover:text-accent-foreground rounded-full;
+}
+
+.notificationBadge {
+    @apply absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center;
+}
+
+.profile {
+    @apply flex items-center space-x-2 hover:bg-accent hover:text-accent-foreground rounded-lg;
+}
+
+.profileName {
+    @apply hidden md:inline-block text-sm font-medium;
+}
+
+/* Add smooth transitions */
+.header *:not(.notificationBadge) {
+    @apply transition-all duration-200;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .searchContainer {
+        @apply max-w-[160px];
+    }
+
+    .actionButton {
+        @apply h-9 w-9;
+    }
+}

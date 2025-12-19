@@ -1,0 +1,1 @@
+export { default as RecentOrders } from './RecentOrders';

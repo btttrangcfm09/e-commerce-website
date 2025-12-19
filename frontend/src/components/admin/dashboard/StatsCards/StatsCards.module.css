@@ -1,0 +1,71 @@
+.statsGrid {
+    @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+}
+
+.statsCard {
+    @apply relative overflow-hidden transition-all duration-300 hover:shadow-lg;
+}
+
+.statsCard:hover {
+    @apply transform -translate-y-1;
+}
+
+.cardHeader {
+    @apply flex items-center justify-between mb-4;
+}
+
+.iconWrapper {
+    @apply p-2 rounded-full transition-transform duration-300;
+}
+
+.statsCard:hover .iconWrapper {
+    @apply transform scale-110;
+}
+
+.icon {
+    @apply h-5 w-5 transition-all duration-300;
+}
+
+.trendWrapper {
+    @apply flex items-center gap-1 text-sm font-medium transition-opacity duration-300;
+}
+
+.statsCard:hover .trendWrapper {
+    @apply opacity-80;
+}
+
+.trendUp {
+    @apply text-green-600 font-semibold;
+}
+
+.trendDown {
+    @apply text-red-600 font-semibold;
+}
+
+.cardContent {
+    @apply space-y-1 transition-all duration-300;
+}
+
+.valueWrapper {
+    @apply space-y-1;
+}
+
+.value {
+    @apply text-2xl font-bold tracking-tight transition-all duration-300;
+}
+
+.statsCard:hover .value {
+    @apply scale-105 transform;
+}
+
+.title {
+    @apply text-sm font-medium text-muted-foreground;
+}
+
+.description {
+    @apply text-sm text-muted-foreground opacity-80 transition-opacity duration-300;
+}
+
+.statsCard:hover .description {
+    @apply opacity-100;
+}
