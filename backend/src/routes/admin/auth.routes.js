@@ -4,6 +4,7 @@ const adminAuthController = require('../../controllers/admin/auth.controller');
 const authorizeAdmin = require('../../middleware/auth/authorize');
 
 route.post('/login', adminAuthController.login);
-route.get('/logout', authorizeAdmin, adminAuthController.logout);
+// Logout không cần authentication - cho phép logout ngay cả khi token hết hạn
+route.get('/logout', adminAuthController.logout);
 
 module.exports = route;
