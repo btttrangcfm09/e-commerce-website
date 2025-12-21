@@ -1,31 +1,40 @@
-const db = require('../config/database');
+const ProductRepository = require('../repositories/product.repository');
 
 class Product {
+    /**
+     * Get products with filters
+     * This is a thin wrapper around repository for backward compatibility
+     */
     static async get(req) {
-        try {            
+        try {
+            // Handle single product by ID
             if (req.query.id) {
-                const result = await db.query('select * from get_product_details($1)', [req.query.id]);
-                return result[0] || null;
-            }            
+                const result = await ProductRepository.findById(parseInt(req.query.id));
+                return result || null;
+            }
 
-            const result = await db.query('select * from get_products($1, $2, $3, $4, $5, $6, $7, $8, $9)', [
-                req.query.search || null,
-                req.query.categoryId || null,
-                req.query.minPrice || null,
-                req.query.maxPrice || null,
-                req.query.includeInactive || false,
-                req.query.page || 1,
-                req.query.pageSize || 10,
-                req.query.sortBy || 'id',
-                req.query.sortOrder || 'asc',
-            ]);
+            // Handle product list with filters
+            const filters = {
+                search: req.query.search || null,
+                categoryId: req.query.categoryId ? parseInt(req.query.categoryId) : null,
+                minPrice: req.query.minPrice ? parseFloat(req.query.minPrice) : null,
+                maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice) : null,
+                includeInactive: req.query.includeInactive === 'true' || false,
+                page: req.query.page ? parseInt(req.query.page) : 1,
+                pageSize: req.query.pageSize ? parseInt(req.query.pageSize) : 10,
+                sortBy: req.query.sortBy || 'id',
+                sortOrder: req.query.sortOrder || 'asc',
+            };
+
+            const result = await ProductRepository.findAll(filters);
+            
             return {
                 products: result,
                 pagination: {
-                    page: parseInt(req.query.page) || 1,
-                    pageSize: parseInt(req.query.pageSize) || 10,
+                    page: filters.page,
+                    pageSize: filters.pageSize,
                     total: result[0]?.total_count || 0,
-                    totalPages: Math.ceil((result[0]?.total_count || 0) / (req.query.pageSize || 10)),
+                    totalPages: Math.ceil((result[0]?.total_count || 0) / filters.pageSize),
                 },
             };
         } catch (err) {
@@ -33,6 +42,9 @@ class Product {
         }
     }
 
+    /**
+     * Create new product
+     */
     static async addNewProduct(req) {
         try {
             const { name, description, price, stock, categoryId, imageUrls = null } = req;
@@ -40,29 +52,33 @@ class Product {
             if (!name || !description || price == null || stock == null || !categoryId) {
                 throw new Error('Missing required fields');
             }
-            const result = await db.query('select * from create_product($1, $2, $3, $4, $5, $6)', [
+
+            const result = await ProductRepository.create({
                 name,
                 description,
                 price,
                 stock,
                 categoryId,
                 imageUrls,
-            ]);
+            });
 
-            if (!result || !result[0]) {
+            if (!result) {
                 throw new Error('Failed to create product');
             }
 
             return {
-                id: result[0].id,
-                name: result[0].name,
-                price: result[0].price,
+                id: result.id,
+                name: result.name,
+                price: result.price,
             };
         } catch (err) {
             throw new Error(err.message);
         }
     }
 
+    /**
+     * Update product
+     */
     static async updateProduct(data) {
         try {
             const id = data.id;
@@ -73,23 +89,23 @@ class Product {
                 throw new Error('Product ID is required');
             }
 
-            const result = await db.query('select * from update_product($1, $2, $3, $4, $5, $6, $7)', [
-                id,
-                name || null,
-                description || null,
-                price || null,
-                stock || null,
-                categoryId || null,
-                imageUrls || null
-            ]);
-            if (!result || !result[0]) {
+            const result = await ProductRepository.update(parseInt(id), {
+                name: name || null,
+                description: description || null,
+                price: price || null,
+                stock: stock || null,
+                categoryId: categoryId || null,
+                imageUrls: imageUrls || null,
+            });
+
+            if (!result) {
                 throw new Error('Failed to update product');
             }
 
             return {
-                id: result[0].product_id,
-                name: result[0].product_name,
-                price: result[0].product_price,
+                id: result.product_id,
+                name: result.product_name,
+                price: result.product_price,
             };
         } catch (err) {
             throw new Error(err.message);
