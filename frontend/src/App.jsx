@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import clientRoutes from './routes/clientRoutes';
 import adminRoutes from './routes/adminRoutes';
+import { CartProvider } from '@/components/features/cart/CartContext/CartContext';
 
 const queryClient = new QueryClient();
 
@@ -25,12 +26,14 @@ function App() {
     };
     return (
         <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-                <Routes>
-                    {renderRoutes(clientRoutes)}
-                    {renderRoutes(adminRoutes)}
-                </Routes>
-            </BrowserRouter>
+            <CartProvider>
+                <BrowserRouter>
+                    <Routes>
+                        {renderRoutes(clientRoutes)}
+                        {renderRoutes(adminRoutes)}
+                    </Routes>
+                </BrowserRouter>
+            </CartProvider>
         </QueryClientProvider>
     );
 }

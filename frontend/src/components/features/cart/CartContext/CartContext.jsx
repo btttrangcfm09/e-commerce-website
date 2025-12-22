@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import axiosInstance from '@/services/api';
 
 const CartContext = createContext();
@@ -7,63 +7,69 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]); // Initialize as an empty array
     const [loading, setLoading] = useState(true);
 
+    const refreshCartItems = useCallback(async () => {
+        try {
+            const response = await axiosInstance.get('/client/cart/info');
+            if (Array.isArray(response?.data?.cart_items)) {
+                setCartItems(response.data.cart_items);
+            } else {
+                console.error('Unexpected response structure:', response?.data);
+                setCartItems([]);
+            }
+        } catch (error) {
+            console.error('Failed to fetch cart items:', error);
+        }
+    }, []);
+
     // Fetch cart items from API when the component mounts
     useEffect(() => {
-        const fetchCartItems = async () => {
+        (async () => {
             try {
-                const userId = localStorage.getItem('userId'); // Get user ID from local storage
-                const response = await axiosInstance.get(`/client/cart/info`, {
-                    headers: {
-                        Authorization: `Bearer ${userId}`, // Include authorization header if needed
-                    },
-                });
-
-                // Set cart items based on the API response structure
-                if (Array.isArray(response.data.cart_items)) {
-                    setCartItems(response.data.cart_items);
-                } else {
-                    console.error('Unexpected response structure:', response.data);
-                }
-            } catch (error) {
-                console.error('Failed to fetch cart items:', error);
+                await refreshCartItems();
             } finally {
                 setLoading(false);
             }
-        };
-
-        fetchCartItems();
-    }, []);
+        })();
+    }, [refreshCartItems]);
 
     const addToCart = async (item) => {
         try {
-            const userId = localStorage.getItem('userId');
+            const productId = Number(item?.productId ?? item?.product_id ?? item?.id);
+            const quantity = Number(item?.quantity ?? 1);
+
+            if (!productId || productId <= 0) {
+                throw new Error('Invalid productId');
+            }
+            if (!quantity || quantity <= 0) {
+                throw new Error('Invalid quantity');
+            }
+
             await axiosInstance.post(
                 `/client/cart/add`,
                 {
-                    productId: item.id,
-                    quantity: item.quantity,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${userId}`,
-                    },
+                    productId,
+                    quantity,
                 }
             );
     
             // Immediately update local cart state
             setCartItems((prev) => {
-                const existingItem = prev.find((i) => i.product_id === item.id);
+                const existingItem = prev.find((i) => Number(i.product_id) === productId);
     
                 if (existingItem) {
                     // If the item already exists, update its quantity
                     return prev.map((i) =>
-                        i.product_id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+                        Number(i.product_id) === productId ? { ...i, quantity: Number(i.quantity || 0) + quantity } : i
                     );
                 }
     
                 // If it's a new item, add it to the cart
-                return [...prev, { ...item, quantity: item.quantity }];
+                return [...prev, { ...item, product_id: productId, quantity }];
             });
+
+            // Ensure we have canonical cart item fields (e.g. product_name, unit_price, total_price)
+            // so UI (checkout totals/info) updates immediately without needing a reload.
+            await refreshCartItems();
         } catch (error) {
             console.error('Failed to add product to cart:', error);
             alert('Error adding product to cart. Please try again.');
@@ -72,7 +78,6 @@ export const CartProvider = ({ children }) => {
 
     const increaseQuantity = async (productId) => {
         try {
-            const userId = localStorage.getItem('userId');
             const currentItem = cartItems.find((item) => item.product_id === productId);
             const newQuantity = currentItem.quantity + 1;
 
@@ -82,11 +87,6 @@ export const CartProvider = ({ children }) => {
                 {
                     productId,
                     quantity: newQuantity,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${userId}`,
-                    },
                 }
             );
 
@@ -94,6 +94,8 @@ export const CartProvider = ({ children }) => {
             setCartItems((prevItems) =>
                 prevItems.map((item) => (item.product_id === productId ? { ...item, quantity: newQuantity } : item))
             );
+
+            await refreshCartItems();
         } catch (error) {
             console.error('Failed to increase quantity:', error);
         }
@@ -101,7 +103,6 @@ export const CartProvider = ({ children }) => {
 
     const decreaseQuantity = async (productId) => {
         try {
-            const userId = localStorage.getItem('userId');
             const currentItem = cartItems.find((item) => item.product_id === productId);
 
             if (currentItem.quantity > 1) {
@@ -113,11 +114,6 @@ export const CartProvider = ({ children }) => {
                     {
                         productId,
                         quantity: newQuantity,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${userId}`,
-                        },
                     }
                 );
 
@@ -125,6 +121,8 @@ export const CartProvider = ({ children }) => {
                 setCartItems((prevItems) =>
                     prevItems.map((item) => (item.product_id === productId ? { ...item, quantity: newQuantity } : item))
                 );
+
+                await refreshCartItems();
             }
         } catch (error) {
             console.error('Failed to decrease quantity:', error);
@@ -133,16 +131,12 @@ export const CartProvider = ({ children }) => {
 
     const removeFromCart = async (productId) => {
         try {
-            const userId = localStorage.getItem('userId');
-            await axiosInstance.delete(`/client/cart/remove`, {
-                headers: {
-                    Authorization: `Bearer ${userId}`,
-                },
-                data: { productId },
-            });
+            await axiosInstance.delete('/client/cart/remove', { data: { productId } });
 
             // Update local cart state by filtering out the removed item
             setCartItems((prev) => prev.filter((item) => item.product_id !== productId));
+
+            await refreshCartItems();
         } catch (error) {
             console.error('Failed to remove product from cart:', error);
         }

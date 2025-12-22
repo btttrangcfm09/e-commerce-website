@@ -9,7 +9,7 @@ import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 
 import Info from '@/components/features/checkout/Info';
 
-export default function InfoMobile({ totalPrice }) {
+export default function InfoMobile({ totalPrice, items }) {
   const [open, setOpen] = useState(false);
 
   const toggleDrawer = (newOpen) => () => {
@@ -24,7 +24,7 @@ export default function InfoMobile({ totalPrice }) {
       >
         <CloseIcon />
       </IconButton>
-      <Info totalPrice={totalPrice} />
+      <Info totalPrice={totalPrice} items={items} />
     </Box>
   );
 

@@ -1,11 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PublicProfile from "@/pages/client/Account/PublicProfile";
 import AccountSettings from "@/pages/client/Account/AccountSettings";
 import MyOrders from "@/pages/client/Account/MyOrders";
 import MyCancellations from "@/pages/client/Account/MyCancellations";
 
 const Account = () => {
-  const [activeSection, setActiveSection] = useState("public-profile"); // Phần mặc định
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const allowedSections = useMemo(
+    () => new Set(["public-profile", "account-settings", "my-orders", "my-cancellations"]),
+    []
+  );
+
+  const [activeSection, setActiveSection] = useState("public-profile"); // default
+
+  useEffect(() => {
+    const sectionFromUrl = (searchParams.get("section") || "").trim();
+    if (allowedSections.has(sectionFromUrl) && sectionFromUrl !== activeSection) {
+      setActiveSection(sectionFromUrl);
+    }
+  }, [searchParams, allowedSections, activeSection]);
+
+  const setSection = (section) => {
+    setActiveSection(section);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("section", section);
+      return next;
+    });
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -35,26 +59,26 @@ const Account = () => {
           <h2 className="pl-3 mb-4 text-2xl font-semibold">Settings</h2>
           <button
             className={getClassName("public-profile")}
-            onClick={() => setActiveSection("public-profile")}
+            onClick={() => setSection("public-profile")}
           >
             Public Profile
           </button>
           <button
             className={getClassName("account-settings")}
-            onClick={() => setActiveSection("account-settings")}
+            onClick={() => setSection("account-settings")}
           >
             Account Settings
           </button>
           <h2 className="pl-3 mb-4 text-2xl font-semibold">My Orders</h2>
           <button
             className={getClassName("my-orders")}
-            onClick={() => setActiveSection("my-orders")}
+            onClick={() => setSection("my-orders")}
           >
             My Orders
           </button>
           <button
             className={getClassName("my-cancellations")}
-            onClick={() => setActiveSection("my-cancellations")}
+            onClick={() => setSection("my-cancellations")}
           >
             My Cancellations
           </button>

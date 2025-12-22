@@ -12,7 +12,7 @@ const FormGrid = styled(Grid)(() => ({
   flexDirection: 'column',
 }));
 
-export default function AddressForm() {
+export default function AddressForm({ address, onChange }) {
   return (
     <Grid container spacing={3}>
       <FormGrid item xs={12} md={6}>
@@ -23,10 +23,11 @@ export default function AddressForm() {
           id="first-name"
           name="first-name"
           type="name"
-          placeholder="John"
           autoComplete="first name"
           required
           size="small"
+          value={address.firstName}
+          onChange={(e) => onChange('firstName', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={12} md={6}>
@@ -37,10 +38,11 @@ export default function AddressForm() {
           id="last-name"
           name="last-name"
           type="last-name"
-          placeholder="Snow"
           autoComplete="last name"
           required
           size="small"
+          value={address.lastName}
+          onChange={(e) => onChange('lastName', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={12}>
@@ -51,10 +53,11 @@ export default function AddressForm() {
           id="address1"
           name="address1"
           type="address1"
-          placeholder="Street name and number"
           autoComplete="shipping address-line1"
           required
           size="small"
+          value={address.address1}
+          onChange={(e) => onChange('address1', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={12}>
@@ -63,9 +66,10 @@ export default function AddressForm() {
           id="address2"
           name="address2"
           type="address2"
-          placeholder="Apartment, suite, unit, etc. (optional)"
           autoComplete="shipping address-line2"
           size="small"
+          value={address.address2}
+          onChange={(e) => onChange('address2', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={6}>
@@ -76,10 +80,11 @@ export default function AddressForm() {
           id="city"
           name="city"
           type="city"
-          placeholder="New York"
           autoComplete="City"
           required
           size="small"
+          value={address.city}
+          onChange={(e) => onChange('city', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={6}>
@@ -90,10 +95,11 @@ export default function AddressForm() {
           id="state"
           name="state"
           type="state"
-          placeholder="NY"
           autoComplete="State"
           required
           size="small"
+          value={address.state}
+          onChange={(e) => onChange('state', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={6}>
@@ -104,10 +110,11 @@ export default function AddressForm() {
           id="zip"
           name="zip"
           type="zip"
-          placeholder="12345"
           autoComplete="shipping postal-code"
           required
           size="small"
+          value={address.zip}
+          onChange={(e) => onChange('zip', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={6}>
@@ -118,10 +125,11 @@ export default function AddressForm() {
           id="country"
           name="country"
           type="country"
-          placeholder="United States"
           autoComplete="shipping country"
           required
           size="small"
+          value={address.country}
+          onChange={(e) => onChange('country', e.target.value)}
         />
       </FormGrid>
       <FormGrid item xs={12}>
