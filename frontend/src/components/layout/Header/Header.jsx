@@ -43,8 +43,11 @@ const Header = () => {
                 />
             </form>
 
-            <div className="relative cursor-pointer" onClick={() => setCartPopupOpen(true)}>
-                <FaShoppingCart className="text-2xl" />
+            <div 
+                className="relative cursor-pointer" 
+                onClick={() => setCartPopupOpen(!cartPopupOpen)}
+            >
+                <FaShoppingCart className="text-2xl hover:text-rose-500 transition" />
                 {cart?.cart_items?.length > 0 && (
                     <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full px-2 py-0.5">
                         {cart.cart_items.length}
@@ -95,7 +98,7 @@ const Header = () => {
             {cartPopupOpen && (
                 <>
                     <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setCartPopupOpen(false)} />
-                    <CartPopup />
+                    <CartPopup onClose={() => setCartPopupOpen(false)} />
                 </>
             )}
 

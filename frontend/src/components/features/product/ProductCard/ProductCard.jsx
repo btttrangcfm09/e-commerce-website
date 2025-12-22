@@ -1,9 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useCartQuery } from '@/hooks/useCart';
 import placeholderImage from '@/assets/aboutpage/banner/ecommerce.jpg';
+
 const ProductCard = ({ product }) => {
     const { addItem } = useCartQuery();
     const productImage = product.product_image_urls?.[0] || placeholderImage;
+
+    const handleAddToCart = () => {
+        addItem({ productId: parseInt(product.product_id), quantity: 1 });
+    };
 
     return (
         <div className="bg-white shadow-sm border rounded-lg p-4 hover:shadow-lg transition-shadow duration-300 flex flex-col h-[420px]">
