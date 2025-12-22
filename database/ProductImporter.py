@@ -1,28 +1,29 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
 import csv
 from typing import Dict, Optional
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 class ProductImporter:
     def __init__(self, db_config: Dict):
-        self.conn = psycopg2.connect(**db_config)
-    
+        self.conn = psycopg.connect(**db_config)
+
     def get_category_id(self, main_cat: str, sub_cat: str) -> Optional[int]:
         with self.conn.cursor() as cur:
             cur.execute("""
-                SELECT c2.id 
-                FROM categories c1 
+                SELECT c2.id
+                FROM categories c1
                 JOIN categories c2 ON c2.parent_category_id = c1.id
                 WHERE c1.name = %s AND c2.name = %s
             """, (main_cat, sub_cat))
-            result = cur.fetchone()
-            return result[0] if result else None
+            row = cur.fetchone()
+            return row[0] if row else None
 
     def import_products(self, csv_path: str):
-        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with self.conn.cursor(row_factory=dict_row) as cur:
             with open(csv_path, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
@@ -45,21 +46,20 @@ class ProductImporter:
                         ))
                         self.conn.commit()
                         print(f"Created product: {row['Name']}")
-
                     except Exception as e:
                         self.conn.rollback()
-                        print(f"Error creating product {row['Name']}: {str(e)}")
+                        print(f"Error creating product {row['Name']}: {e}")
 
     def close(self):
         self.conn.close()
 
 if __name__ == "__main__":
     db_config = {
-        "dbname": os.getenv("DB_NAME"),
-        "user": os.getenv("DB_USER"), 
-        "password": os.getenv("DB_PASSWORD"),
-        "host": os.getenv("DB_HOST"),
-        "port": os.getenv("DB_PORT")
+        "dbname": os.getenv("DB_NAME", "ecommerce"),
+        "user": os.getenv("DB_USER", "postgres"),
+        "password": os.getenv("DB_PASSWORD", "postgres"),
+        "host": os.getenv("DB_HOST", "127.0.0.1"),
+        "port": int(os.getenv("DB_PORT", "15432")),
     }
 
     importer = ProductImporter(db_config)

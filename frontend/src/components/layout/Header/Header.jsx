@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useCallback, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import { ProfilePopup } from '@/components/common/ProfilePopup';
 import CartPopup from '@/components/common/CartPopUp';
@@ -8,25 +8,46 @@ import avatar from '@/assets/images/HomePage/user.png';
 import { AuthButtons } from '@/components/common/Button/Button';
 
 const Header = () => {
+    const navigate = useNavigate();
     const { cart } = useCartQuery();    
     const [menuOpen, setMenuOpen] = useState(false);
     const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
     const [cartPopupOpen, setCartPopupOpen] = useState(false);
+    const searchInputRef = useRef(null);
     const isAuthenticated = localStorage.getItem('auth');
+
+    const handleSearch = useCallback((e) => {
+        e.preventDefault();
+        const query = searchInputRef.current?.value?.trim();
+        
+        if (query) {
+            navigate(`/shop?search=${encodeURIComponent(query)}`);
+            if (searchInputRef.current) {
+                searchInputRef.current.value = '';
+            }
+        }
+    }, [navigate]);
 
     const UserActions = () => (
         <div className="flex items-center gap-6">
-            <div className="flex items-center bg-white text-gray-700 rounded-full px-4 py-2 shadow-md">
-                <FaSearch className="text-gray-500 mr-2" />
+            <form onSubmit={handleSearch} className="flex items-center bg-white text-gray-700 rounded-full px-4 py-2 shadow-md">
+                <button type="submit" className="focus:outline-none">
+                    <FaSearch className="text-gray-500 mr-2 cursor-pointer hover:text-rose-500 transition" />
+                </button>
                 <input
+                    ref={searchInputRef}
                     type="text"
-                    placeholder="Search here..."
+                    placeholder="Search products..."
+                    defaultValue=""
                     className="bg-transparent focus:outline-none text-sm placeholder-gray-500 w-48"
                 />
-            </div>
+            </form>
 
-            <div className="relative cursor-pointer" onClick={() => setCartPopupOpen(true)}>
-                <FaShoppingCart className="text-2xl" />
+            <div 
+                className="relative cursor-pointer" 
+                onClick={() => setCartPopupOpen(!cartPopupOpen)}
+            >
+                <FaShoppingCart className="text-2xl hover:text-rose-500 transition" />
                 {cart?.cart_items?.length > 0 && (
                     <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs rounded-full px-2 py-0.5">
                         {cart.cart_items.length}
@@ -77,7 +98,7 @@ const Header = () => {
             {cartPopupOpen && (
                 <>
                     <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setCartPopupOpen(false)} />
-                    <CartPopup />
+                    <CartPopup onClose={() => setCartPopupOpen(false)} />
                 </>
             )}
 

@@ -59,8 +59,6 @@ const AdminHeader = () => {
             localStorage.removeItem('profile');
             localStorage.removeItem('auth');
             navigate('/');
-        } catch (error) {
-            console.error('Logout failed:', error.response?.data?.message || 'An error occurred');
         }
     };
 

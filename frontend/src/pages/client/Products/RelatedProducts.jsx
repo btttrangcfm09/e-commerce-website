@@ -1,17 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import useProducts from "@/hooks/useAllProducts"; // Ensure this hook fetches all products
+import { useAllProducts } from "@/hooks/useAllProducts";
 
 const RelatedProducts = ({ currentCategoryName }) => {
-    const { products, loading, error } = useProducts(); // Fetch all products
+    const { allProducts, isLoading, error } = useAllProducts();
 
-    // Log fetched products for debugging
-    console.log("All Products:", products);
+    const relatedProducts = allProducts.filter(product => product.category_name === currentCategoryName).slice(0, 4);
 
-    // Filter related products based on the current product's category name
-    const relatedProducts = products.filter(product => product.category_name === currentCategoryName).slice(0, 4);
-
-    if (loading) {
+    if (isLoading) {
         return <div className="text-center text-gray-600 py-10">Loading...</div>;
     }
 

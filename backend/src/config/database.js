@@ -15,6 +15,7 @@ const query = async (text, params) => {
         const result = await pool.query(text, params);
         return result.rows;
     } catch (error) {
+        console.error('Database query error:', error);
         throw error;
     }
 };

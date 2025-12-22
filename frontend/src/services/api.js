@@ -2,8 +2,13 @@
 import axios from 'axios';
 import { API_URL } from '@/utils/constants';
 
+const normalizeBaseUrl = (value) => {
+    if (typeof value !== 'string') return '';
+    return value.trim();
+};
+
 const axiosInstance = axios.create({
-    baseURL: API_URL.trim(),
+    baseURL: normalizeBaseUrl(API_URL) || 'http://localhost:5000',
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',

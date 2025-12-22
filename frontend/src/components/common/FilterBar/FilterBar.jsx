@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { FaTimes, FaSearch } from 'react-icons/fa';
 import { Slider, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import axiosInstance from '@/services/api';
 
-const FilterBar = ({ filters, onFilterChange, onClose }) => {
+const FilterBar = memo(({ filters, onFilterChange, onClose }) => {
     const [categories, setCategories] = useState([]);
     const [expandedCategory, setExpandedCategory] = useState(null);
+    const [searchInput, setSearchInput] = useState(filters.search || '');
+    const [priceRange, setPriceRange] = useState([filters.minPrice || 0, filters.maxPrice || 2000]);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -16,19 +18,65 @@ const FilterBar = ({ filters, onFilterChange, onClose }) => {
         fetchCategories();
     }, []);
 
-    const getParentCategories = () => categories.filter((cat) => !cat.parent_category_id);
-    const getChildCategories = (parentId) => categories.filter((cat) => cat.parent_category_id === parentId);
+    // Sync search input from props (only when externally changed)
+    useEffect(() => {
+        if (filters.search !== searchInput) {
+            setSearchInput(filters.search || '');
+        }
+    }, [filters.search]);
 
-    const handlePriceChange = (_, newValue) => {
+    // Sync price range from props
+    useEffect(() => {
+        setPriceRange([filters.minPrice || 0, filters.maxPrice || 2000]);
+    }, [filters.minPrice, filters.maxPrice]);
+
+    const getParentCategories = useMemo(
+        () => categories.filter((cat) => !cat.parent_category_id),
+        [categories]
+    );
+    
+    const getChildCategories = useCallback(
+        (parentId) => categories.filter((cat) => cat.parent_category_id === parentId),
+        [categories]
+    );
+
+    const handlePriceSliderChange = useCallback((_, newValue) => {
+        setPriceRange(newValue);
         onFilterChange({
             minPrice: newValue[0],
             maxPrice: newValue[1],
         });
-    };
+    }, [onFilterChange]);
 
-    const handleCategoryChange = (categoryId) => {
-        onFilterChange({ categoryId: categoryId === filters.categoryId ? null : categoryId });
-    };
+    const handleCategoryChange = useCallback(
+        (categoryId) => {
+            onFilterChange({ categoryId: categoryId === filters.categoryId ? null : categoryId });
+        },
+        [onFilterChange, filters.categoryId]
+    );
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchInput !== filters.search) {
+                onFilterChange({ search: searchInput });
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
+    const handleSearchChange = useCallback((e) => {
+        setSearchInput(e.target.value);
+    }, []);
+
+    const handleSearchSubmit = useCallback(
+        (e) => {
+            e.preventDefault();
+            if (searchInput !== filters.search) {
+                onFilterChange({ search: searchInput });
+            }
+        },
+        [searchInput, filters.search, onFilterChange]
+    );
 
     return (
         <div className="w-96 h-auto max-h-screen px-6 py-5 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-y-auto">
@@ -40,6 +88,20 @@ const FilterBar = ({ filters, onFilterChange, onClose }) => {
                 </button>
             </div>
 
+            {/* Search */}
+            <div className="mb-4">
+                <form onSubmit={handleSearchSubmit} className="relative">
+                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchInput}
+                        onChange={handleSearchChange}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                    />
+                </form>
+            </div>
+
             {/* Categories */}
             <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -47,7 +109,7 @@ const FilterBar = ({ filters, onFilterChange, onClose }) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <div className="space-y-2">
-                        {getParentCategories().map((parent) => (
+                        {getParentCategories.map((parent) => (
                             <div key={parent.id}>
                                 <div className="flex items-center">
                                     <input
@@ -104,16 +166,17 @@ const FilterBar = ({ filters, onFilterChange, onClose }) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <Slider
-                        value={[filters.minPrice, filters.maxPrice]}
-                        onChange={handlePriceChange}
+                        value={priceRange}
+                        onChange={handlePriceSliderChange}
                         valueLabelDisplay="auto"
                         min={0}
-                        max={10000}
+                        max={2000}
+                        step={10}
                         disableSwap
                     />
                     <div className="flex justify-between mt-2 text-sm text-gray-700">
-                        <span>${filters.minPrice}</span>
-                        <span>${filters.maxPrice}</span>
+                        <span>${priceRange[0]}</span>
+                        <span>${priceRange[1]}</span>
                     </div>
                 </AccordionDetails>
             </Accordion>
@@ -126,6 +189,8 @@ const FilterBar = ({ filters, onFilterChange, onClose }) => {
             </button>
         </div>
     );
-};
+});
+
+FilterBar.displayName = 'FilterBar';
 
 export default FilterBar;

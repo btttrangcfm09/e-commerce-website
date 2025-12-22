@@ -18,11 +18,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend API
+  #Backend API
   backend:
     build: ./backend
     container_name: ecommerce-backend
-    restart: no
+    restart: unless-stopped
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 5000
