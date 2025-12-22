@@ -12,10 +12,11 @@ import axiosInstance from '@/services/api';
 const Shop = () => {
     const [searchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
+    const categoryParam = searchParams.get('category');
     
     const [filters, setFilters] = useState({
         search: searchQuery,
-        categoryId: null,
+        categoryId: categoryParam ? parseInt(categoryParam) : null,
         minPrice: 0,
         maxPrice: 2000,
         page: 1,
@@ -26,7 +27,6 @@ const Shop = () => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [categories, setCategories] = useState([]);
 
-    // Fetch categories for filtering
     useEffect(() => {
         const fetchCategories = async () => {
             const response = await axiosInstance.get('/categories');
@@ -37,12 +37,20 @@ const Shop = () => {
 
     const { allProducts, isLoading } = useAllProducts();
 
-    // Update filters when URL search params change
     useEffect(() => {
+        const updates = {};
         if (searchQuery && searchQuery !== filters.search) {
-            setFilters((prev) => ({ ...prev, search: searchQuery, page: 1 }));
+            updates.search = searchQuery;
+            updates.page = 1;
         }
-    }, [searchQuery]);
+        if (categoryParam && parseInt(categoryParam) !== filters.categoryId) {
+            updates.categoryId = parseInt(categoryParam);
+            updates.page = 1;
+        }
+        if (Object.keys(updates).length > 0) {
+            setFilters((prev) => ({ ...prev, ...updates }));
+        }
+    }, [searchQuery, categoryParam]);
 
     const { products, pagination } = useMemo(() => {
         let filtered = filterProducts(allProducts, filters, categories);

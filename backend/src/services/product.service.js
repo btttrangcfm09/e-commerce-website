@@ -270,5 +270,17 @@ class ProductService {
         );
         return uploadResults;
     }
+
+    /**
+     * Get best selling products
+     */
+    static async getBestSellingProducts(limit = 10) {
+        try {
+            const products = await ProductRepository.findBestSelling(limit);
+            return products;
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 module.exports = ProductService;

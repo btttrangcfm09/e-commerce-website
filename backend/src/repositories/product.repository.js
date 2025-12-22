@@ -296,6 +296,56 @@ class ProductRepository {
     }
 
     /**
+     * Get best selling products based on order quantity
+     */
+    static async findBestSelling(limit = 10) {
+        const query = `
+            SELECT 
+                p.id as product_id,
+                p.name as product_name,
+                p.description as product_description,
+                p.price as product_price,
+                p.stock as product_stock,
+                p.image_urls as product_image_urls,
+                p.category_id as category_id,
+                c.name as category_name,
+                (
+                    WITH RECURSIVE cat_path AS (
+                        SELECT id, name, parent_category_id, name::text as path
+                        FROM categories
+                        WHERE id = p.category_id
+                        
+                        UNION ALL
+                        
+                        SELECT c2.id, c2.name, c2.parent_category_id, 
+                               c2.name || ' > ' || cp.path
+                        FROM categories c2
+                        INNER JOIN cat_path cp ON c2.id = cp.parent_category_id
+                    )
+                    SELECT path FROM cat_path WHERE parent_category_id IS NULL
+                ) as category_path,
+                p.is_active,
+                COALESCE(SUM(oi.quantity), 0) as total_sold
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN order_items oi ON p.id = oi.product_id
+            WHERE p.is_active = true
+            GROUP BY p.id, c.name
+            HAVING COALESCE(SUM(oi.quantity), 0) > 0
+            ORDER BY total_sold DESC
+            LIMIT $1
+        `;
+
+        try {
+            const result = await db.query(query, [limit]);
+            return result;
+        } catch (error) {
+            console.error('Error in ProductRepository.findBestSelling:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Update stock quantity
      */
     static async updateStock(productId, quantity) {

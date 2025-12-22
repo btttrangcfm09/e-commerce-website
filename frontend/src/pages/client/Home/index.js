@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axiosInstance from "@/services/api";
 import Fashion from "@/assets/homepage/Categories/fashion.jpg";
 import Electronics from "@/assets/homepage/Categories/electronics.jpg";
 import HomeAppliances from "@/assets/homepage/Categories/home_appliances.jpg";
@@ -7,129 +9,104 @@ import Cosmetics from "@/assets/homepage/Categories/cosmetics.jpg";
 import Litterature from "@/assets/homepage/Categories/litterature.jpg";
 import Furniture from "@/assets/homepage/Categories/furnitures.jpg";
 
-import WirelessEarbuds from "@/assets/homepage/Products/wireless_earbuds.jpg";
-import TV from "@/assets/homepage/Products/TV_4K.jpg";
-import SnackBar from "@/assets/homepage/Products/snack_bar.jpg";
-import SportsShoes from "@/assets/homepage/Products/shoes.jpg";
-import HairDryer from "@/assets/homepage/Products/hair_dryer.jpg";
-import GamingLaptop from "@/assets/homepage/Products/gaming_laptop.jpg";
-import Drawer from "@/assets/homepage/Products/drawer.jpg";
-import Candle from "@/assets/homepage/Products/candle.jpg";
-import Book from "@/assets/homepage/Products/book.jpg";
+const categoryImages = {
+  "Fashion": Fashion,
+  "Clothing": Fashion,
+  "Electronics": Electronics,
+  "Home Appliances": HomeAppliances,
+  "Home & Living": HomeAppliances,
+  "Food": Foods,
+  "Foods": Foods,
+  "Books & Stationery": Litterature,
+  "Books": Litterature,
+  "Furniture": Furniture,
+  "Cosmetics": Cosmetics,
+};
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [bestSellingProducts, setBestSellingProducts] = useState([]);
+  const [statistics, setStatistics] = useState([
+    { value: "0", label: "Products" },
+    { value: "0", label: "Categories" },
+    { value: "0+", label: "Customers" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoriesRes, productsRes, bestSellingRes] = await Promise.all([
+          axiosInstance.get("/categories"),
+          axiosInstance.get("/products", { params: { pageSize: 100, page: 1 } }),
+          axiosInstance.get("/products/best-selling", { params: { limit: 8 } })
+        ]);
+
+        const fetchedCategories = categoriesRes.data.categories || [];
+        const fetchedProducts = productsRes.data.products || [];
+        const fetchedBestSelling = bestSellingRes.data.products || [];
+
+        const parentCategories = fetchedCategories.filter(cat => !cat.parent_category_id);
+        
+        const formattedCategories = parentCategories.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          image: categoryImages[cat.name] || Electronics,
+          description: `Explore our collection of ${cat.name.toLowerCase()} products.`
+        }));
+
+        const formattedProducts = fetchedProducts.map(product => ({
+          id: product.product_id,
+          name: product.product_name,
+          image: product.product_image_urls?.[0] || "https://via.placeholder.com/300x200",
+          price: parseFloat(product.product_price).toFixed(2),
+          description: product.product_description || "No description available.",
+          categoryId: product.category_id
+        }));
+
+        const formattedBestSelling = fetchedBestSelling.map(product => ({
+          id: product.product_id,
+          name: product.product_name,
+          image: product.product_image_urls?.[0] || "https://via.placeholder.com/300x200",
+          price: parseFloat(product.product_price).toFixed(2),
+          description: product.product_description || "No description available.",
+          categoryId: product.category_id,
+          totalSold: product.total_sold
+        }));
+
+        const shuffledProducts = [...formattedProducts].sort(() => Math.random() - 0.5);
+
+        setCategories(formattedCategories);
+        setProducts(shuffledProducts);
+        setBestSellingProducts(formattedBestSelling.length > 0 ? formattedBestSelling : shuffledProducts.slice(0, 4));
+        setStatistics([
+          { value: `${fetchedProducts.length}+`, label: "Products" },
+          { value: `${parentCategories.length}+`, label: "Categories" },
+          { value: "1000+", label: "Customers" },
+        ]);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching home data:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleExploreMore = () => {
     navigate("/shop");
   };
-
-  const statistics = [
-    { value: "1000+", label: "Products" },
-    { value: "500+", label: "Brands" },
-    { value: "1000+", label: "Customers" },
-  ];
-
-  const categories = [
-    {
-      name: "Fashion",
-      image: Fashion,
-      description: "Stylish clothing and accessories for every season.",
-    },
-    {
-      name: "Electronics",
-      image: Electronics,
-      description: "Latest gadgets and devices to keep you connected.",
-    },
-    {
-      name: "Home Appliances",
-      image: HomeAppliances,
-      description: "Upgrade your home with our premium appliances.",
-    },
-    {
-      name: "Foods",
-      image: Foods,
-      description: "Delicious and healthy foods for every meal.",
-    },
-    {
-      name: "Books & Stationery",
-      image: Litterature,
-      description: "Books and stationery for your reading and writing needs.",
-    },
-    {
-      name: "Furniture",
-      image: Furniture,
-      description: "Stylish and functional furniture for your home.",
-    },
-    {
-      name: "Cosmetics",
-      image: Cosmetics,
-      description: "High-quality cosmetics for your beauty needs.",
-    },
-  ];
-
-  const products = [
-    {
-      id: 1,
-      name: "AirPods Pro",
-      image: WirelessEarbuds,
-      price: 49.99,
-    },
-    {
-      id: 2,
-      name: "4K Ultra HD TV",
-      image: TV,
-      price: 899.99,
-    },
-    {
-      id: 3,
-      name: "MSI Gaming Laptop",
-      image: GamingLaptop,
-      price: 1299.99,
-    },
-    {
-      id: 4,
-      name: "Nike Jordan 5",
-      image: SportsShoes,
-      price: 79.99,
-    },
-    {
-      id: 5,
-      name: "The loss ticket book",
-      image: Book,
-      price: 49.99,
-    },
-    {
-      id: 6,
-      name: "IKEA Drawer",
-      image: Drawer,
-      price: 899.99,
-    },
-    {
-      id: 7,
-      name: "Feastables Snack Bar",
-      image: SnackBar,
-      price: 1299.99,
-    },
-    {
-      id: 8,
-      name: "Negative Ion Dryer",
-      image: HairDryer,
-      price: 79.99,
-    },
-    {
-      id: 9,
-      name: "Candle",
-      image: Candle,
-      price: 49.99,
-    }
-  ];
 
   return {
     handleExploreMore,
     statistics,
     categories,
     products,
+    bestSellingProducts,
+    loading,
   };
 };
 
