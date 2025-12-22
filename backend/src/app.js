@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const attachedRoutes = require('./routes/index');
@@ -26,6 +27,9 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.use(cookieParser());
+
+// Serve uploaded files (local fallback for profile image uploads)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Middleware để parse dữ liệu JSON trong request body
 app.use('/', attachedRoutes);
