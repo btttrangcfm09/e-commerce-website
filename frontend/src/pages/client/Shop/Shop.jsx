@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBars, FaFilter, FaTh } from 'react-icons/fa';
 import { useProducts } from '@/hooks/useProducts';
+import useCategories from '@/hooks/useCategories';
 import BannerImg from '@/assets/shoppage/banner.jpg';
 import FilterBar from '@/components/common/FilterBar';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
@@ -22,14 +23,15 @@ const Shop = () => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
 
     const { products, pagination, isLoading } = useProducts(filters);
+    const { categories, loading: categoriesLoading } = useCategories();
 
-    const updateFilters = (newFilters) => {
+    const updateFilters = useCallback((newFilters) => {
         setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
-    };
+    }, []);
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = useCallback((newPage) => {
         setFilters((prev) => ({ ...prev, page: newPage }));
-    };
+    }, []);
 
     if (isLoading) return <LoadingSpinner />;
 
@@ -102,14 +104,15 @@ const Shop = () => {
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-6 py-8">
                 <div className="flex gap-8">
-                    {/* Filter Sidebar */}
-                    {isFilterVisible && (
-                        <FilterBar
-                            filters={filters}
-                            onFilterChange={updateFilters}
-                            onClose={() => setIsFilterVisible(false)}
-                        />
-                    )}
+                    {/* Filter Sidebar - Always rendered */}
+                    <FilterBar
+                        filters={filters}
+                        categories={categories}
+                        categoriesLoading={categoriesLoading}
+                        onFilterChange={updateFilters}
+                        onClose={() => setIsFilterVisible(false)}
+                        isVisible={isFilterVisible}
+                    />
 
                     {/* Product Grid */}
                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
