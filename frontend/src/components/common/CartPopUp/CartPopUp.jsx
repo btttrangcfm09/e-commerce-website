@@ -27,7 +27,7 @@ const CartPopup = ({ onClose }) => {
                             <li key={item.product_id} className="flex items-center justify-between border-b pb-2">
                                 <div className="flex items-center gap-4">
                                     <img
-                                        src={item.image}
+                                        src={item.image_urls?.[0] || '/placeholder.jpg'}
                                         alt={item.product_name}
                                         className="w-12 h-12 rounded object-cover"
                                     />

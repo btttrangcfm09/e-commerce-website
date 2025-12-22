@@ -34,6 +34,7 @@ create table public.products (
     stock integer not null default 0,
     image_urls text[],
     category_id int,
+    is_active boolean default true,
     created_at timestamp not null default now(),
     constraint pk_products primary key (id),
     constraint fk_category_id foreign key (category_id) references categories(id),
@@ -47,6 +48,7 @@ create table public.orders (
     shipping_address text not null,
     order_status public.order_status not null,
     payment_status public.payment_status not null,
+    is_active boolean default true,
     created_at timestamp not null default now(),
     constraint pk_orders primary key (id),
     constraint fk_customer_id foreign key (customer_id) references users(id),
@@ -122,3 +124,16 @@ create table public.payments (
 
 alter table public.cart_items add unique (cart_id, product_id);
 alter table public.order_items drop constraint if exists order_items_order_id_key;
+
+-- ====================================
+-- INDEXES FOR PERFORMANCE
+-- ====================================
+
+-- Indexes for is_active filtering
+CREATE INDEX IF NOT EXISTS idx_products_is_active ON products(is_active);
+CREATE INDEX IF NOT EXISTS idx_orders_is_active ON orders(is_active);
+
+-- Composite indexes for common queries
+CREATE INDEX IF NOT EXISTS idx_products_category_active ON products(category_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_orders_customer_active ON orders(customer_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_orders_status_active ON orders(order_status, is_active);
