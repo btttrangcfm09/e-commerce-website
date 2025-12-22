@@ -38,6 +38,7 @@ const Cart = () => {
                                         price: item.unit_price,
                                         quantity: item.quantity,
                                         total: item.total_price,
+                                        image: item.image_urls?.[0] || '/placeholder.jpg',
                                     }}
                                     onUpdateQuantity={(quantity) =>
                                         updateItem({
