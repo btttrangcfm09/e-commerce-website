@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const crypto = require('crypto');
 
 class CartRepository {
     /**
@@ -7,6 +8,7 @@ class CartRepository {
     static async findCartItems(userId) {
         const query = `
             SELECT 
+                ci.id as cart_item_id,
                 ci.cart_id,
                 ci.product_id,
                 p.name as product_name,
@@ -14,12 +16,13 @@ class CartRepository {
                 ci.quantity,
                 (p.price * ci.quantity) as total_price,
                 p.stock,
-                p.image_urls
+                p.image_urls,
+                ci.created_at
             FROM cart_items ci
             INNER JOIN carts c ON ci.cart_id = c.id
             INNER JOIN products p ON ci.product_id = p.id
             WHERE c.customer_id = $1 AND p.is_active = true
-            ORDER BY ci.added_at DESC
+            ORDER BY ci.created_at DESC
         `;
 
         try {
@@ -45,8 +48,10 @@ class CartRepository {
             }
 
             // Create new cart if doesn't exist
-            const createQuery = 'INSERT INTO carts (customer_id) VALUES ($1) RETURNING id';
-            result = await db.query(createQuery, [userId]);
+            // Generate cart ID (32 chars MD5 hash)
+            const cartId = crypto.createHash('md5').update(userId + Date.now().toString()).digest('hex');
+            const createQuery = 'INSERT INTO carts (id, customer_id) VALUES ($1, $2) RETURNING id';
+            result = await db.query(createQuery, [cartId, userId]);
             return result[0].id;
         } catch (error) {
             throw new Error('Failed to get or create cart: ' + error.message);
@@ -90,13 +95,14 @@ class CartRepository {
                 const result = await db.query(updateQuery, [cartId, productId, quantity]);
                 return result[0];
             } else {
-                // Insert new item
+                // Insert new item - generate ID
+                const itemId = crypto.randomBytes(12).toString('hex'); // 24 characters
                 const insertQuery = `
-                    INSERT INTO cart_items (cart_id, product_id, quantity)
-                    VALUES ($1, $2, $3)
+                    INSERT INTO cart_items (id, cart_id, product_id, quantity)
+                    VALUES ($1, $2, $3, $4)
                     RETURNING id, quantity
                 `;
-                const result = await db.query(insertQuery, [cartId, productId, quantity]);
+                const result = await db.query(insertQuery, [itemId, cartId, productId, quantity]);
                 return result[0];
             }
         } catch (error) {

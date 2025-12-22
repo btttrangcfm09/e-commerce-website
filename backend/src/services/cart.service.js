@@ -6,8 +6,8 @@ class CartService {
      */
     static async getCart(userId) {
         try {
-            // Validate userId
-            if (!userId || !Number.isInteger(userId) || userId <= 0) {
+            // Validate userId (can be UUID string or integer)
+            if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
                 throw new Error('Invalid user ID');
             }
 
@@ -27,7 +27,7 @@ class CartService {
     static async addProduct(userId, productId, quantity) {
         try {
             // Validate inputs
-            if (!userId || !Number.isInteger(userId) || userId <= 0) {
+            if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
                 throw new Error('Invalid user ID');
             }
 
@@ -64,7 +64,7 @@ class CartService {
     static async updateCartItem(userId, productId, quantity) {
         try {
             // Validate inputs
-            if (!userId || !Number.isInteger(userId) || userId <= 0) {
+            if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
                 throw new Error('Invalid user ID');
             }
 
@@ -101,7 +101,7 @@ class CartService {
     static async removeProduct(userId, productId) {
         try {
             // Validate inputs
-            if (!userId || !Number.isInteger(userId) || userId <= 0) {
+            if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
                 throw new Error('Invalid user ID');
             }
 
@@ -127,7 +127,7 @@ class CartService {
     static async clearCart(userId) {
         try {
             // Validate userId
-            if (!userId || !Number.isInteger(userId) || userId <= 0) {
+            if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
                 throw new Error('Invalid user ID');
             }
 
@@ -146,7 +146,7 @@ class CartService {
     static async getCartSummary(userId) {
         try {
             // Validate userId
-            if (!userId || !Number.isInteger(userId) || userId <= 0) {
+            if (!userId || (typeof userId !== 'string' && typeof userId !== 'number')) {
                 throw new Error('Invalid user ID');
             }
 
