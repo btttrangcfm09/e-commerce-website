@@ -8,30 +8,50 @@ import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-const addresses = ['1 MUI Drive', 'Reactville', 'Anytown', '99999', 'USA'];
-const payments = [
-  { name: 'Card type:', detail: 'Visa' },
-  { name: 'Card holder:', detail: 'Mr. John Smith' },
-  { name: 'Card number:', detail: 'xxxx-xxxx-xxxx-1234' },
-  { name: 'Expiry date:', detail: '04/2024' },
-];
+const maskCardNumber = (value = '') => {
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  const last4 = digits.slice(-4).padStart(4, '•');
+  return `•••• •••• •••• ${last4}`;
+};
 
-export default function Review() {
+export default function Review({ address, paymentInfo, totals }) {
+  const addressLines = [
+    `${address.firstName || ''} ${address.lastName || ''}`.trim(),
+    address.address1,
+    address.address2,
+    [address.city, address.state, address.zip].filter(Boolean).join(', '),
+    address.country,
+  ].filter(Boolean);
+
+  const paymentDetails =
+    paymentInfo.paymentType === 'bankTransfer'
+      ? [
+          { name: 'Method:', detail: 'Bank transfer / Manual settlement' },
+          { name: 'Status:', detail: 'Pending until confirmed' },
+        ]
+      : [
+          { name: 'Method:', detail: 'Card' },
+          { name: 'Card holder:', detail: paymentInfo.cardName || '—' },
+          { name: 'Card number:', detail: maskCardNumber(paymentInfo.cardNumber) || '—' },
+          { name: 'Expiry date:', detail: paymentInfo.expirationDate || '—' },
+        ];
+
   return (
     <Stack spacing={2}>
       <List disablePadding>
         <ListItem sx={{ py: 1, px: 0 }}>
-          <ListItemText primary="Products" secondary="4 selected" />
-          <Typography variant="body2">$134.98</Typography>
+          <ListItemText primary="Products" />
+          <Typography variant="body2">{totals.itemsTotal}</Typography>
         </ListItem>
         <ListItem sx={{ py: 1, px: 0 }}>
           <ListItemText primary="Shipping" secondary="Plus taxes" />
-          <Typography variant="body2">$9.99</Typography>
+          <Typography variant="body2">{totals.shipping}</Typography>
         </ListItem>
         <ListItem sx={{ py: 1, px: 0 }}>
           <ListItemText primary="Total" />
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            $144.97
+            {totals.grandTotal}
           </Typography>
         </ListItem>
       </List>
@@ -46,9 +66,11 @@ export default function Review() {
           <Typography variant="subtitle2" gutterBottom>
             Shipment details
           </Typography>
-          <Typography gutterBottom>John Smith</Typography>
+          <Typography gutterBottom>
+            {`${address.firstName || ''} ${address.lastName || ''}`.trim() || '—'}
+          </Typography>
           <Typography gutterBottom sx={{ color: 'text.secondary' }}>
-            {addresses.join(', ')}
+            {addressLines.join(', ') || '—'}
           </Typography>
         </div>
         <div>
@@ -56,7 +78,7 @@ export default function Review() {
             Payment details
           </Typography>
           <Grid container>
-            {payments.map((payment) => (
+            {paymentDetails.map((payment) => (
               <React.Fragment key={payment.name}>
                 <Stack
                   direction="row"

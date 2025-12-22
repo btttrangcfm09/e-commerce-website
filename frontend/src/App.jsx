@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import clientRoutes from './routes/clientRoutes';
 import adminRoutes from './routes/adminRoutes';
+import { CartProvider } from '@/components/features/cart/CartContext/CartContext';
 
 const queryClient = new QueryClient();
 
@@ -28,10 +29,12 @@ function App() {
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <AuthProvider>
-                    <Routes>
-                        {renderRoutes(clientRoutes)}
-                        {renderRoutes(adminRoutes)}
-                    </Routes>
+                    <CartProvider>
+                        <Routes>
+                            {renderRoutes(clientRoutes)}
+                            {renderRoutes(adminRoutes)}
+                        </Routes>
+                    </CartProvider>
                 </AuthProvider>
             </BrowserRouter>
         </QueryClientProvider>

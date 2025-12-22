@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -66,28 +66,21 @@ const FormGrid = styled('div')(() => ({
   flexDirection: 'column',
 }));
 
-export default function PaymentForm() {
-  const [paymentType, setPaymentType] = useState('creditCard');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [expirationDate, setExpirationDate] = useState('');
-
-  const handlePaymentTypeChange = (event) => {
-    setPaymentType(event.target.value);
-  };
+export default function PaymentForm({ paymentInfo, onPaymentTypeChange, onPaymentFieldChange }) {
+  const paymentType = paymentInfo.paymentType;
 
   const handleCardNumberChange = (event) => {
     const value = event.target.value.replace(/\D/g, '');
     const formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
     if (value.length <= 16) {
-      setCardNumber(formattedValue);
+      onPaymentFieldChange('cardNumber', formattedValue);
     }
   };
 
   const handleCvvChange = (event) => {
     const value = event.target.value.replace(/\D/g, '');
     if (value.length <= 3) {
-      setCvv(value);
+      onPaymentFieldChange('cvv', value);
     }
   };
 
@@ -95,7 +88,7 @@ export default function PaymentForm() {
     const value = event.target.value.replace(/\D/g, '');
     const formattedValue = value.replace(/(\d{2})(?=\d{2})/, '$1/');
     if (value.length <= 4) {
-      setExpirationDate(formattedValue);
+      onPaymentFieldChange('expirationDate', formattedValue);
     }
   };
 
@@ -106,7 +99,7 @@ export default function PaymentForm() {
           aria-label="Payment options"
           name="paymentType"
           value={paymentType}
-          onChange={handlePaymentTypeChange}
+          onChange={(event) => onPaymentTypeChange(event.target.value)}
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
@@ -114,7 +107,7 @@ export default function PaymentForm() {
           }}
         >
           <Card selected={paymentType === 'creditCard'}>
-            <CardActionArea onClick={() => setPaymentType('creditCard')}>
+            <CardActionArea onClick={() => onPaymentTypeChange('creditCard')}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CreditCardRoundedIcon
                   fontSize="small"
@@ -127,7 +120,7 @@ export default function PaymentForm() {
             </CardActionArea>
           </Card>
           <Card selected={paymentType === 'bankTransfer'}>
-            <CardActionArea onClick={() => setPaymentType('bankTransfer')}>
+            <CardActionArea onClick={() => onPaymentTypeChange('bankTransfer')}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <AccountBalanceRoundedIcon
                   fontSize="small"
@@ -173,7 +166,7 @@ export default function PaymentForm() {
                   placeholder="0000 0000 0000 0000"
                   required
                   size="small"
-                  value={cardNumber}
+                  value={paymentInfo.cardNumber}
                   onChange={handleCardNumberChange}
                 />
               </FormGrid>
@@ -187,7 +180,7 @@ export default function PaymentForm() {
                   placeholder="123"
                   required
                   size="small"
-                  value={cvv}
+                  value={paymentInfo.cvv}
                   onChange={handleCvvChange}
                 />
               </FormGrid>
@@ -203,6 +196,8 @@ export default function PaymentForm() {
                   placeholder="John Smith"
                   required
                   size="small"
+                  value={paymentInfo.cardName}
+                  onChange={(e) => onPaymentFieldChange('cardName', e.target.value)}
                 />
               </FormGrid>
               <FormGrid sx={{ flexGrow: 1 }}>
@@ -215,7 +210,7 @@ export default function PaymentForm() {
                   placeholder="MM/YY"
                   required
                   size="small"
-                  value={expirationDate}
+                  value={paymentInfo.expirationDate}
                   onChange={handleExpirationDateChange}
                 />
               </FormGrid>

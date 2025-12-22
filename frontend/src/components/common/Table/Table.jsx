@@ -16,6 +16,14 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
@@ -85,7 +93,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-function EnhancedTableToolbar({ title, numSelected, onDelete, onFilter }) {
+function EnhancedTableToolbar({ title, numSelected, onDelete, onFilter, deleteTooltip = 'Delete' }) {
   return (
     <Toolbar
       sx={[
@@ -103,7 +111,7 @@ function EnhancedTableToolbar({ title, numSelected, onDelete, onFilter }) {
         </Typography>
       )}
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title={deleteTooltip}>
           <IconButton onClick={onDelete}>
             <DeleteIcon />
           </IconButton>
@@ -124,14 +132,31 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onDelete: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
+  deleteTooltip: PropTypes.string,
 };
 
-export default function CommonTable({ rows, headCells, title, onDelete, onFilter }) {
+export default function CommonTable({
+  rows,
+  headCells,
+  title,
+  onDelete,
+  onFilter,
+  deleteTooltip = 'Delete',
+  confirmTitle = 'Confirm',
+  confirmMessage = 'Are you sure you want to proceed?',
+  confirmCancelText = 'Cancel',
+  confirmOkText = 'Confirm',
+  successMessage = 'Action completed successfully',
+  errorMessage = 'Action failed',
+}) {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [snack, setSnack] = React.useState({ open: false, severity: 'success', message: '' });
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -175,14 +200,36 @@ export default function CommonTable({ rows, headCells, title, onDelete, onFilter
     [order, orderBy, page, rowsPerPage, rows]
   );
 
+  const handleRequestDelete = () => {
+    if (selected.length === 0) return;
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await Promise.resolve(onDelete(selected));
+      setSelected([]);
+      setConfirmOpen(false);
+      setSnack({ open: true, severity: 'success', message: successMessage });
+    } catch (e) {
+      console.error(e);
+      const serverMessage = e?.response?.data?.message;
+      setSnack({ open: true, severity: 'error', message: serverMessage || errorMessage });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar
           title={title}
           numSelected={selected.length}
-          onDelete={() => onDelete(selected)}
+          onDelete={handleRequestDelete}
           onFilter={onFilter}
+          deleteTooltip={deleteTooltip}
         />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
@@ -234,6 +281,32 @@ export default function CommonTable({ rows, headCells, title, onDelete, onFilter
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>{confirmTitle}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{confirmMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)} disabled={isDeleting}>
+            {confirmCancelText}
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={isDeleting}>
+            {confirmOkText}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={2000}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snack.severity} onClose={() => setSnack((s) => ({ ...s, open: false }))}>
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
@@ -244,4 +317,11 @@ CommonTable.propTypes = {
   title: PropTypes.string.isRequired,
   onDelete: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
+  deleteTooltip: PropTypes.string,
+  confirmTitle: PropTypes.string,
+  confirmMessage: PropTypes.string,
+  confirmCancelText: PropTypes.string,
+  confirmOkText: PropTypes.string,
+  successMessage: PropTypes.string,
+  errorMessage: PropTypes.string,
 };

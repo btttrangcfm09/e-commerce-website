@@ -7,11 +7,11 @@ export const useProfilePopupLogic = () => {
     const isAdmin = profile?.role === 'ADMIN';
 
     const handleNavigateToProfile = () => {
-        navigate('/account');
+        navigate('/account?section=public-profile');
     };
 
     const handleNavigateToOrders = () => {
-        navigate('/orders');
+        navigate('/account?section=my-orders');
     };
 
     const handleNavigateToAdmin = () => {

@@ -19,7 +19,7 @@ exports.getOrderById = async (req, res, next) => {
     try {
         const id = req.user.userId;
         const order_id = req.params.id;
-        const result = await OrderService.getOrderById(id, order_id);
+        const result = await OrderService.getOrderById(order_id, id);
         return res.status(200).json({
             message: result,
         });
@@ -34,7 +34,7 @@ exports.updateOrderStatus = async (req, res, next) => {
         const id = req.user.userId; //still get admin id from the  token decoded
         const order_id = req.params.id;
         const status = req.body.status;
-        result = await OrderService.updateOrderStatusService(order_id, status, id);
+        const result = await OrderService.updateOrderStatusService(order_id, status, id);
         if (result) {
             res.status(200).json({
                 message: 'Update order status successful',

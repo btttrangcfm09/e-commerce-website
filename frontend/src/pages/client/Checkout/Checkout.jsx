@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -18,31 +20,181 @@ import InfoMobile from '@/components/features/checkout/InfoMobile';
 import PaymentForm from '@/components/features/checkout/PaymentForm';
 import Review from '@/components/features/checkout/Review';
 import SitemarkIcon from '@/components/features/checkout/SitemarkIcon';
+import axiosInstance from '@/services/api';
+import { CheckoutProvider, useCheckout } from '@/context/CheckoutContext';
+import { useCartQuery } from '@/hooks/useCart';
+import { useQueryClient } from '@tanstack/react-query';
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return <AddressForm />;
-    case 1:
-      return <PaymentForm />;
-    case 2:
-      return <Review />;
-    default:
-      throw new Error('Unknown step');
-  }
-}
+function CheckoutContent() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { cart } = useCartQuery();
+  const cartItems = cart?.cart_items ?? [];
+  const {
+    address,
+    setAddress,
+    paymentInfo,
+    setPaymentInfo,
+    orderData,
+    setOrderData,
+    resetCheckout,
+  } = useCheckout();
 
-export default function Checkout() {
   const [activeStep, setActiveStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
-  const handleNext = () => {
+  const totals = useMemo(() => {
+    const itemsTotalNumber = (cartItems || []).reduce((sum, item) => {
+      const lineTotal = item?.total_price ?? (Number(item?.unit_price || 0) * Number(item?.quantity || 0));
+      return sum + Number(lineTotal || 0);
+    }, 0);
+
+    // Demo-friendly shipping rule:
+    // - Free shipping for orders >= $100
+    // - Otherwise flat $9.99 (if there are items)
+    const FREE_SHIPPING_THRESHOLD = 100;
+    const SHIPPING_FEE = 9.99;
+
+    const shippingNumber =
+      itemsTotalNumber <= 0 ? 0 : itemsTotalNumber >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+    const grandTotalNumber = itemsTotalNumber + shippingNumber;
+
+    const formatMoney = (n) => `$${Number(n || 0).toFixed(2)}`;
+
+    return {
+      itemsTotal: formatMoney(itemsTotalNumber),
+      shipping: shippingNumber === 0 ? 'Free' : formatMoney(shippingNumber),
+      grandTotal: formatMoney(grandTotalNumber),
+    };
+  }, [cartItems]);
+
+  const handleAddressChange = (field, value) => {
+    setAddress((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePaymentTypeChange = (value) => {
+    setPaymentInfo((prev) => ({ ...prev, paymentType: value }));
+  };
+
+  const handlePaymentFieldChange = (field, value) => {
+    setPaymentInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const isAddressValid = () => {
+    const required = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip', 'country'];
+    return required.every((key) => Boolean(address[key] && String(address[key]).trim()));
+  };
+
+  const isPaymentValid = () => {
+    if (paymentInfo.paymentType === 'bankTransfer') return true;
+    const required = ['cardNumber', 'cvv', 'expirationDate', 'cardName'];
+    return required.every((key) => Boolean(paymentInfo[key] && String(paymentInfo[key]).trim()));
+  };
+
+  const buildShippingAddress = () => [
+    `${address.firstName || ''} ${address.lastName || ''}`.trim(),
+    address.address1,
+    address.address2,
+    address.city,
+    address.state,
+    address.zip,
+    address.country,
+  ].filter(Boolean).join(', ');
+
+  const handlePlaceOrder = async () => {
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      const shippingAddress = buildShippingAddress();
+      const { data: orderResp } = await axiosInstance.post('/client/orders/create', { shippingAddress });
+      const orderId = orderResp?.orderId;
+
+      let paymentId = null;
+      if (orderId) {
+        const { data: paymentResp } = await axiosInstance.post('/client/orders/payments', {
+          orderId,
+          paymentMethod: paymentInfo.paymentType,
+        });
+        paymentId = paymentResp?.paymentId || null;
+      }
+
+      setOrderData({ orderId, paymentId });
+      setActiveStep(steps.length);
+
+      // create_order_from_cart clears the cart server-side; refresh cache so UI updates without reload
+      queryClient.invalidateQueries(['cart']);
+
+      // reset address/payment fields for future checkouts but keep orderData for success screen
+      setAddress({
+        firstName: '',
+        lastName: '',
+        address1: '',
+        address2: '',
+        city: '',
+        state: '',
+        zip: '',
+        country: '',
+      });
+      setPaymentInfo({
+        paymentType: 'creditCard',
+        cardNumber: '',
+        cvv: '',
+        expirationDate: '',
+        cardName: '',
+      });
+    } catch (error) {
+      setSubmitError(error?.response?.data?.message || 'Failed to place order');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = async () => {
+    setSubmitError(null);
+
+    if (activeStep === 0 && !isAddressValid()) {
+      setSubmitError('Please complete shipping details.');
+      return;
+    }
+
+    if (activeStep === 1 && !isPaymentValid()) {
+      setSubmitError('Please complete payment details.');
+      return;
+    }
+
+    if (activeStep === steps.length - 1) {
+      await handlePlaceOrder();
+      return;
+    }
+
     setActiveStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
+    setSubmitError(null);
     setActiveStep((prev) => prev - 1);
+  };
+
+  const getStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return <AddressForm address={address} onChange={handleAddressChange} />;
+      case 1:
+        return (
+          <PaymentForm
+            paymentInfo={paymentInfo}
+            onPaymentTypeChange={handlePaymentTypeChange}
+            onPaymentFieldChange={handlePaymentFieldChange}
+          />
+        );
+      case 2:
+        return <Review address={address} paymentInfo={paymentInfo} totals={totals} />;
+      default:
+        throw new Error('Unknown step');
+    }
   };
 
   return (
@@ -50,24 +202,23 @@ export default function Checkout() {
       <CssBaseline enableColorScheme />
 
       <Grid
-  container
-  sx={{
-    height: {
-      xs: '100%',
-      sm: 'calc(100dvh - var(--template-frame-height, 0px))',
-    },
-    overflow: 'auto', // Đảm bảo có scroll nếu nội dung dài
-    mt: {
-      xs: 4,
-      sm: 0,
-    },
-    pb: {
-      xs: 8, // Thêm khoảng cách dưới để tránh đè vào footer
-      sm: 10,
-    },
-  }}
->
-
+        container
+        sx={{
+          height: {
+            xs: '100%',
+            sm: 'calc(100dvh - var(--template-frame-height, 0px))',
+          },
+          overflow: 'auto',
+          mt: {
+            xs: 4,
+            sm: 0,
+          },
+          pb: {
+            xs: 8,
+            sm: 10,
+          },
+        }}
+      >
         <Grid
           item
           xs={12}
@@ -95,7 +246,7 @@ export default function Checkout() {
               maxWidth: 500,
             }}
           >
-            <Info totalPrice={activeStep >= 2 ? '$144.97' : '$134.98'} />
+            <Info totalPrice={totals.grandTotal} items={cartItems} />
           </Box>
         </Grid>
         <Grid
@@ -162,13 +313,12 @@ export default function Checkout() {
                 <Typography variant="subtitle2" gutterBottom>
                   Selected products
                 </Typography>
-                <Typography variant="body1">
-                  {activeStep >= 2 ? '$144.97' : '$134.98'}
-                </Typography>
+                <Typography variant="body1">{totals.grandTotal}</Typography>
               </div>
-              <InfoMobile totalPrice={activeStep >= 2 ? '$144.97' : '$134.98'} />
+              <InfoMobile totalPrice={totals.grandTotal} items={cartItems} />
             </CardContent>
           </Card>
+          {submitError && <Alert severity="error">{submitError}</Alert>}
           <Box
             sx={{
               display: 'flex',
@@ -209,12 +359,13 @@ export default function Checkout() {
                 <Typography variant="h5">Thank you for your order!</Typography>
                 <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                   Your order number is
-                  <strong>&nbsp;#140396</strong>. We have emailed your order
+                  <strong>&nbsp;#{orderData.orderId}</strong>. We have emailed your order
                   confirmation and will update you once it ships.
                 </Typography>
                 <Button
                   variant="contained"
                   sx={{ alignSelf: 'start', width: { xs: '100%', sm: 'auto' } }}
+                  onClick={() => navigate('/account?section=my-orders')}
                 >
                   Go to my orders
                 </Button>
@@ -264,6 +415,7 @@ export default function Checkout() {
                     variant="contained"
                     endIcon={<ChevronRightRoundedIcon />}
                     onClick={handleNext}
+                    disabled={isSubmitting}
                     sx={{ width: { xs: '100%', sm: 'fit-content' } }}
                   >
                     {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
@@ -275,5 +427,13 @@ export default function Checkout() {
         </Grid>
       </Grid>
     </>
+  );
+}
+
+export default function Checkout() {
+  return (
+    <CheckoutProvider>
+      <CheckoutContent />
+    </CheckoutProvider>
   );
 }

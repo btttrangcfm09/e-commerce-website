@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import CommonTable from '@/components/common/Table';
+import OrdersService from '@/services/orders';
 
 const headCells = [
   { id: 'orderId', numeric: false, disablePadding: true, label: 'Order ID' },
@@ -8,20 +10,95 @@ const headCells = [
   { id: 'totalPrice', numeric: true, disablePadding: false, label: 'Total Price' },
 ];
 
-const rows = [
-  { id: 1, orderId: 'ORD001', date: '2024-12-05', status: 'Completed', totalPrice: '$100' },
-  { id: 2, orderId: 'ORD002', date: '2024-12-04', status: 'Pending', totalPrice: '$150' },
-  { id: 3, orderId: 'ORD003', date: '2024-12-03', status: 'Shipped', totalPrice: '$200' },
-];
+const formatMoney = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value ?? '$0.00';
+  return `$${n.toFixed(2)}`;
+};
+
+const formatDate = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toISOString().slice(0, 10);
+};
+
+const normalizeStatus = (value) => {
+  const s = String(value || '').trim();
+  if (!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+};
+
+const mapOrdersToRows = (orders) =>
+  (orders || []).map((o, idx) => {
+    const orderId = o?.order_id ?? o?.orderId ?? o?.id ?? '';
+    const createdAt = o?.created_at ?? o?.createdAt ?? o?.order_date ?? o?.date;
+    const status = o?.status ?? o?.order_status ?? o?.orderStatus;
+    const total = o?.total_price ?? o?.totalPrice ?? o?.total ?? o?.grand_total;
+    return {
+      id: orderId || idx,
+      orderId: orderId,
+      date: formatDate(createdAt),
+      status: normalizeStatus(status),
+      totalPrice: formatMoney(total),
+    };
+  });
 
 export default function MyOrders() {
-  const handleDelete = (selected) => {
-    console.log('Delete rows:', selected);
+  const navigate = useNavigate();
+  const [rows, setRows] = React.useState([]);
+
+  const loadOrders = React.useCallback(async () => {
+    try {
+      const orders = await OrdersService.getMyOrders({ limit: 100, offset: 0 });
+      setRows(mapOrdersToRows(orders));
+    } catch (err) {
+      console.error('Failed to load orders', err);
+      setRows([]);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    (async () => {
+      await loadOrders();
+    })();
+    return undefined;
+  }, [loadOrders]);
+
+  const handleDelete = async (selected) => {
+    try {
+      // CommonTable stores selected ids. We use orderId as row.id
+      await Promise.all((selected || []).map((orderId) => OrdersService.cancelOrder(orderId)));
+      await loadOrders();
+
+      // After cancel, switch to the cancellations section (demo-friendly)
+      setTimeout(() => {
+        navigate('/account?section=my-cancellations');
+      }, 600);
+    } catch (err) {
+      console.error('Failed to cancel orders', err);
+      throw err;
+    }
   };
 
   const handleFilter = () => {
     console.log('Filter applied');
   };
 
-  return <CommonTable rows={rows} headCells={headCells} title="My Orders" onDelete={handleDelete} onFilter={handleFilter} />;
+  return (
+    <CommonTable
+      rows={rows}
+      headCells={headCells}
+      title="My Orders"
+      deleteTooltip="Cancel order"
+      confirmTitle="Cancel order"
+      confirmMessage="Are you sure you want to cancel the selected order(s)?"
+      confirmCancelText="Keep"
+      confirmOkText="Cancel order"
+      successMessage="Order canceled"
+      errorMessage="Failed to cancel order"
+      onDelete={handleDelete}
+      onFilter={handleFilter}
+    />
+  );
 }

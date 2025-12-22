@@ -4,31 +4,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 
-const products = [
-  {
-    name: 'Professional plan',
-    desc: 'Monthly subscription',
-    price: '$15.00',
-  },
-  {
-    name: 'Dedicated support',
-    desc: 'Included in the Professional plan',
-    price: 'Free',
-  },
-  {
-    name: 'Hardware',
-    desc: 'Devices needed for development',
-    price: '$69.99',
-  },
-  {
-    name: 'Landing page template',
-    desc: 'License',
-    price: '$49.99',
-  },
-];
+const formatMoney = (value) => {
+  const n = Number(value || 0);
+  if (Number.isNaN(n)) return String(value ?? '');
+  return `$${n.toFixed(2)}`;
+};
 
-
-export default function Info({ totalPrice }) {
+export default function Info({ totalPrice, items = [] }) {
   return (
     <React.Fragment>
       <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
@@ -38,15 +20,15 @@ export default function Info({ totalPrice }) {
         {totalPrice}
       </Typography>
       <List disablePadding>
-        {products.map((product) => (
-          <ListItem key={product.name} sx={{ py: 1, px: 0 }}>
+        {(items || []).map((item) => (
+          <ListItem key={item.cart_item_id || item.product_id || item.name} sx={{ py: 1, px: 0 }}>
             <ListItemText
               sx={{ mr: 2 }}
-              primary={product.name}
-              secondary={product.desc}
+              primary={item.product_name || item.name || 'Item'}
+              secondary={`Qty: ${item.quantity || 0}`}
             />
             <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-              {product.price}
+              {formatMoney(item.total_price ?? (Number(item.unit_price || 0) * Number(item.quantity || 0)))}
             </Typography>
           </ListItem>
         ))}

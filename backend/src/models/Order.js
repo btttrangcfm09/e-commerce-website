@@ -1,15 +1,17 @@
-const db = require('../config/database');
+const OrderRepository = require('../repositories/order.repository');
+
+const VALID_ORDER_STATUSES = ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELED'];
+const VALID_PAYMENT_METHODS = ['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL'];
+
+const isValidStatus = (status) => VALID_ORDER_STATUSES.includes(String(status).toUpperCase());
+const normalizePaymentMethod = (method) => String(method || '').toUpperCase();
+const isValidPaymentMethod = (method) => VALID_PAYMENT_METHODS.includes(normalizePaymentMethod(method));
 
 class Order {
     // Tạo đơn hàng từ giỏ hàng
     static async createOrderFromCart(userId, shippingAddress) {
         try {
-            const query = `
-        SELECT * from public.create_order_from_cart($1, $2);
-      `;
-            const result = await db.query(query, [userId, shippingAddress]);
-
-            return result[0].create_order_from_cart;
+            return await OrderRepository.createOrderFromCart(userId, shippingAddress);
         } catch (err) {
             throw new Error(err.message);
         }
@@ -18,11 +20,7 @@ class Order {
     // Lấy thông tin đơn hàng theo ID cho người dùng cụ thể
     static async getOrderById(orderId, userId) {
         try {
-            const query = `
-      SELECT * FROM public.get_order($1, $2);
-    `;
-            const result = await db.query(query, [userId, orderId]);
-            return result[0];
+            return await OrderRepository.getOrderById(orderId, userId);
         } catch (err) {
             throw new Error(err.message);
         }
@@ -31,11 +29,13 @@ class Order {
     // Tạo thanh toán cho đơn hàng
     static async createPayment(orderId, amount, paymentMethod) {
         try {
-            const query = `
-        SELECT public.create_payment($1, $2, $3);
-      `;
-            const result = await db.query(query, [orderId, amount, paymentMethod]);
-            return result[0].create_payment;
+            const normalizedMethod = normalizePaymentMethod(paymentMethod);
+
+            if (!isValidPaymentMethod(normalizedMethod)) {
+                throw new Error('Unsupported payment method');
+            }
+
+            return await OrderRepository.createPayment(orderId, amount, normalizedMethod);
         } catch (err) {
             throw new Error(err.message);
         }
@@ -43,28 +43,40 @@ class Order {
 
     static async getCustomerPayments(userId, limit = 50, offset = 0) {
         try {
-            const query = `
-        SELECT * 
-        FROM public.get_customer_payments($1, $2, $3);
-    `;
-            const result = await db.query(query, [userId, limit, offset]);
-            return result[0].getCustomerPayments;
+            return await OrderRepository.getCustomerPayments(userId, limit, offset);
         } catch (error) {
             throw new Error(`Error fetching customer payments: ${error.message}`);
         }
     }
 
+    static async getCustomerOrders(userId, limit = 50, offset = 0, status = null) {
+        try {
+            const normalizedStatus = status ? status.toUpperCase() : null;
+            return await OrderRepository.getCustomerOrders(userId, limit, offset, normalizedStatus);
+        } catch (error) {
+            throw new Error(`Error fetching customer orders: ${error.message}`);
+        }
+    }
+
     static async getAllOrder(options) {
         const { id, offset, limit, status } = options;
-        return await db.query('SELECT * FROM get_all_orders($1, $2, $3, $4)', [id, limit, offset, status || null]);
+        const normalizedStatus = status ? status.toUpperCase() : null;
+        return await OrderRepository.getAllOrders({ id, offset, limit, status: normalizedStatus });
     }
 
     static async updateOrderStatus(orderId, status, userId) {
         try {
             if (isValidStatus(status)) {
-                await db.query('CALL update_order_status($1, $2, $3', [orderId, status, userId]);
-                return true;
+                return await OrderRepository.updateOrderStatus(orderId, status.toUpperCase(), userId);
             } else throw new Error('Invalid order status, cannot update');
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async cancelOrder(orderId, userId) {
+        try {
+            return await OrderRepository.cancelOrder(orderId, userId);
         } catch (error) {
             throw error;
         }
@@ -72,9 +84,7 @@ class Order {
 
     static async getDashboardStats() {
         try {
-            const query = 'SELECT * FROM public.get_dashboard_stats()';
-            const result = await db.query(query);
-            return result[0];
+            return await OrderRepository.getDashboardStats();
         } catch (error) {
             throw new Error(`Error fetching dashboard stats: ${error.message}`);
         }
@@ -82,9 +92,7 @@ class Order {
 
     static async getSalesOverview(days) {
         try {
-            const query = 'SELECT * FROM public.get_sales_overview($1)';
-            const result = await db.query(query, [days]);
-            return result;
+            return await OrderRepository.getSalesOverview(days);
         } catch (error) {
             throw new Error(`Error fetching sales overview: ${error.message}`);
         }
@@ -92,22 +100,7 @@ class Order {
 
     static async getRecentOrders(limit) {
         try {
-            const query = `
-                SELECT 
-                    o.*,
-                    json_build_object(
-                        'username', u.username,
-                        'email', u.email,
-                        'first_name', u.first_name,
-                        'last_name', u.last_name
-                    ) as customer_info
-                FROM public.orders o
-                JOIN public.users u ON u.id = o.customer_id
-                ORDER BY o.created_at DESC
-                LIMIT $1
-            `;
-            const result = await db.query(query, [limit]);
-            return result;
+            return await OrderRepository.getRecentOrders(limit);
         } catch (error) {
             throw new Error(`Error fetching recent orders: ${error.message}`);
         }
