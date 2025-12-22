@@ -1,36 +1,102 @@
-// src/context/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { checkAuth } from '@/services/auth';
+import { useNavigate } from 'react-router-dom';
+import axiosInstance from '@/services/api';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
+  // 1. Tự động nạp user từ localStorage khi F5 trang
   useEffect(() => {
-    const fetchUser = async () => {
-      const loggedInUser = await checkAuth(); // Kiểm tra token trong cookies
-      setUser(loggedInUser);
+    const checkLoggedIn = () => {
+      try {
+        const storedProfile = localStorage.getItem('profile');
+        if (storedProfile) {
+          setUser(JSON.parse(storedProfile));
+        }
+      } catch (error) {
+        console.error("Error parsing user profile:", error);
+        localStorage.removeItem('profile');
+      } finally {
+        setLoading(false);
+      }
     };
-
-    fetchUser();
+    checkLoggedIn();
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
+  // 2. Hàm Login: Nhận thêm tham số 'isAdmin' để biết gọi API nào
+  const login = async (username, password, isAdminLogin = false) => {
+    try {
+      let endpoint = '/client/signin'; // Mặc định là khách hàng
+      
+      // Nếu là đăng nhập Admin thì đổi đường dẫn
+      if (isAdminLogin) {
+        endpoint = '/admin/auth/login';
+      }
+
+      const res = await axiosInstance.post(endpoint, { username, password });
+      console.log('AuthProvider: Login response:', res);
+      if (res.status === 200) {
+        // Backend Admin và Client có thể trả về cấu trúc hơi khác nhau
+        // Nhưng thường đều trả về { profile, token } hoặc tương tự
+        const { profile, token } = res.data;
+
+        // Cập nhật State
+        setUser(profile);
+
+        // Lưu vào LocalStorage
+        localStorage.setItem('profile', JSON.stringify(profile));
+        localStorage.setItem('auth', token); 
+
+        return { success: true, role: profile.role };
+      }
+
+    } catch (error) {
+      console.error("Login failed:", error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed. Please try again.' 
+      };
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  // 3. Hàm Logout: Vẫn giữ logic thông minh check role
+  const logout = async () => {
+    try {
+      if (user?.role === 'ADMIN') {
+        await axiosInstance.post('/admin/auth/logout');
+      } else {
+        await axiosInstance.post('/client/logout'); // Dùng API logout của client
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Luôn xóa sạch data
+      setUser(null);
+      localStorage.removeItem('profile');
+      localStorage.removeItem('auth');
+      navigate('/'); 
+    }
+  };
+
+  const value = {
+    user,
+    login,
+    logout,
+    loading,
+    isAdmin: user?.role === 'ADMIN'
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  return React.useContext(AuthContext);
+  return useContext(AuthContext);
 };

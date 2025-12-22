@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/signin', UserController.signIn);
 router.post('/signup', UserController.createAccount);
-router.get('/signout', authenticate, UserController.signOut);
+router.post('/logout', UserController.signOut);
 router.put('/profile', authenticate, uploadProfileImage, UserController.updateProfile);
 router.put('/password', authenticate, UserController.updatePassword);
 router.get('/check', authenticate, (req, res) => {

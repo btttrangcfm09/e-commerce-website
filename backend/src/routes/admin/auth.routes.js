@@ -4,6 +4,6 @@ const adminAuthController = require('../../controllers/admin/auth.controller');
 const authorizeAdmin = require('../../middleware/auth/authorize');
 
 route.post('/login', adminAuthController.login);
-route.get('/logout', authorizeAdmin, adminAuthController.logout);
+route.post('/logout', adminAuthController.logout);
 
 module.exports = route;

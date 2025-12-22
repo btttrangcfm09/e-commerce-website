@@ -55,7 +55,7 @@ const AdminHeader = () => {
 
     const handleLogout = async () => {
         try {
-            await axiosInstance.get('/admin/auth/logout');
+            await axiosInstance.post('/admin/auth/logout');
             localStorage.removeItem('profile');
             localStorage.removeItem('auth');
             navigate('/');

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginForm() {
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function LoginForm() {
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const {login} = useAuth();
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -27,28 +29,23 @@ export default function LoginForm() {
         setIsLoading(true);
 
         try {
-            const endpoint = selectedRole === 'ADMIN' ? `/admin/auth/login` : `/client/signin`;
+            // Xác định xem có phải đang đăng nhập Admin không
+            const isAdminLogin = selectedRole === 'ADMIN';
 
-            const response = await axiosInstance.post(endpoint, {
-                username: formData.username,
-                password: formData.password,
-                remember: formData.rememberMe,
-            });
+            // GỌI HÀM LOGIN CỦA CONTEXT
+            // (Nó sẽ tự gọi API, tự lưu localStorage, tự cập nhật state toàn app)
+            const result = await login(formData.username, formData.password, isAdminLogin);
 
-            if (response.data.token){
-                const token = response.data.token;
-                localStorage.setItem('auth', token);
-            }
-
-            if (response.data.profile) {
-                localStorage.setItem('profile', JSON.stringify(response.data.profile));
-            }
-
-            // Redirect based on role
-            if (selectedRole === 'ADMIN') {
-                navigate('/admin/dashboard');
+            console.log('LoginForm: Login result:', result);
+            if (result.success){
+                            // Redirect based on role
+                if (selectedRole === 'ADMIN') {
+                    navigate('/admin/dashboard');
+                } else {
+                    navigate('/');
+                }
             } else {
-                navigate('/');
+                setError(result.message);
             }
         } catch (err) {
             setError(err.response?.data?.message || err.message || 'An error occurred during login');
@@ -141,11 +138,10 @@ export default function LoginForm() {
                         <input
                             name="username"
                             className="w-full border-2 border-gray-100 p-3 rounded-xl mt-1 bg-transparent"
-                            type="text"
+                            type="username"
                             placeholder="Enter your username"
                             value={formData.username}
                             onChange={handleInputChange}
-                            autoComplete="username"
                             required
                         />
                     </div>
@@ -158,7 +154,6 @@ export default function LoginForm() {
                             placeholder="Enter your password"
                             value={formData.password}
                             onChange={handleInputChange}
-                            autoComplete="current-password"
                             required
                         />
                     </div>

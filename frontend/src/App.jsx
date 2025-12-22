@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import clientRoutes from './routes/clientRoutes';
 import adminRoutes from './routes/adminRoutes';
 
@@ -26,10 +27,12 @@ function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
-                <Routes>
-                    {renderRoutes(clientRoutes)}
-                    {renderRoutes(adminRoutes)}
-                </Routes>
+                <AuthProvider>
+                    <Routes>
+                        {renderRoutes(clientRoutes)}
+                        {renderRoutes(adminRoutes)}
+                    </Routes>
+                </AuthProvider>
             </BrowserRouter>
         </QueryClientProvider>
     );

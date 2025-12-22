@@ -20,7 +20,7 @@ export const useProfilePopupLogic = () => {
 
     const handleLogout = async () => {
         try {
-            await axiosInstance.get('/client/signout');
+            await axiosInstance.post('/client/logout');
             localStorage.removeItem('auth');
             localStorage.removeItem('profile');
             navigate('/');
