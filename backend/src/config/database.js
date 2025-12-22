@@ -15,7 +15,7 @@ const pool = new Pool({
     } : false,
     max: 20, // Số connection tối đa
     idleTimeoutMillis: 30000, // Timeout cho idle connection
-    connectionTimeoutMillis: 2000, // Timeout khi connect
+    connectionTimeoutMillis: 10000, // Timeout khi connect
 });
 
 // Handle pool errors
