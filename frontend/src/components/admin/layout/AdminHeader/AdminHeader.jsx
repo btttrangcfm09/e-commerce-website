@@ -55,12 +55,17 @@ const AdminHeader = () => {
 
     const handleLogout = async () => {
         try {
-            await axiosInstance.get('/admin/auth/logout');
+            // Gọi API logout, nhưng không quan trọng có thành công hay không
+            await axiosInstance.get('/admin/auth/logout').catch(() => {
+                // Bỏ qua lỗi từ API
+            });
+        } catch (error) {
+            console.log('Logout API call failed, proceeding with client logout');
+        } finally {
+            // Luôn luôn xóa dữ liệu local và chuyển trang
             localStorage.removeItem('profile');
             localStorage.removeItem('auth');
             navigate('/');
-        } catch (error) {
-            console.error('Logout failed:', error.response?.data?.message || 'An error occurred');
         }
     };
 
