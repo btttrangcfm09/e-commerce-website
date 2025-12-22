@@ -9,7 +9,8 @@ services:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "15432:5432" 
+      # của mọi người là "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend API
+  #Backend API
   backend:
     build: ./backend
     container_name: ecommerce-backend

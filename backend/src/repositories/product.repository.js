@@ -49,6 +49,7 @@ class ProductRepository {
                 p.price as product_price,
                 p.stock as product_stock,
                 p.image_urls as product_image_urls,
+                p.category_id as category_id,
                 c.name as category_name,
                 (
                     WITH RECURSIVE cat_path AS (

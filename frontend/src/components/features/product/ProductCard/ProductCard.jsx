@@ -11,7 +11,7 @@ const ProductCard = ({ product }) => {
     };
 
     return (
-        <div className="bg-white shadow-sm border rounded-lg p-4 hover:shadow-lg transition-shadow duration-300">
+        <div className="bg-white shadow-sm border rounded-lg p-4 hover:shadow-lg transition-shadow duration-300 flex flex-col h-[420px]">
             <Link to={`/products/${product.product_id}`} className="block">
                 <img
                     src={productImage}
@@ -21,20 +21,20 @@ const ProductCard = ({ product }) => {
             </Link>
 
             <Link to={`/products/${product.product_id}`} className="block mb-2">
-                <h3 className="text-gray-800 text-xl font-semibold leading-tight hover:text-rose-600 transition-colors">
+                <h3 className="text-gray-800 text-lg font-semibold leading-tight hover:text-rose-600 transition-colors line-clamp-2 min-h-[3.5rem]">
                     {product.product_name}
                 </h3>
             </Link>
 
-            <div className="mb-2 flex items-start justify-between">
+            <div className="mb-2">
                 <span className="text-rose-600 text-xl font-semibold">${product.product_price}</span>
             </div>
 
-            <p className="text-gray-600 leading-normal font-light line-clamp-2">{product.product_description}</p>
+            <p className="text-gray-600 text-sm leading-normal font-light line-clamp-3 mb-3 flex-grow">{product.product_description}</p>
 
             <button
-                onClick={handleAddToCart}
-                className="mt-3 w-full bg-rose-500 text-white py-2 rounded-lg hover:bg-rose-600 transition-colors"
+                onClick={() => addItem({ productId: product.product_id, quantity: 1 })}
+                className="w-full bg-rose-500 text-white py-2 rounded-lg hover:bg-rose-600 transition-colors mt-auto"
             >
                 Add to Cart
             </button>

@@ -86,8 +86,8 @@ class ProductService {
                 throw new Error('Page must be greater than 0');
             }
 
-            if (filters.pageSize < 1 || filters.pageSize > 100) {
-                throw new Error('Page size must be between 1 and 100');
+            if (filters.pageSize < 1 || filters.pageSize > 10000) {
+                throw new Error('Page size must be between 1 and 10000');
             }
 
             // Get products from repository

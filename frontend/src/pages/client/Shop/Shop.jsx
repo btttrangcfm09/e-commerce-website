@@ -1,35 +1,62 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FaBars, FaFilter, FaTh } from 'react-icons/fa';
-import { useProducts } from '@/hooks/useProducts';
+import { useAllProducts, filterProducts, sortProducts, paginateProducts } from '@/hooks/useAllProducts';
 import BannerImg from '@/assets/shoppage/banner.jpg';
 import FilterBar from '@/components/common/FilterBar';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Pagination } from '@/components/common/Pagination';
 import { ProductCard } from '@/components/features/product/ProductCard';
+import axiosInstance from '@/services/api';
 
 const Shop = () => {
+    const [searchParams] = useSearchParams();
+    const searchQuery = searchParams.get('search') || '';
+    
     const [filters, setFilters] = useState({
-        search: '',
+        search: searchQuery,
         categoryId: null,
         minPrice: 0,
-        maxPrice: 10000,
+        maxPrice: 2000,
         page: 1,
         pageSize: 8,
         sortBy: 'id',
         sortOrder: 'asc',
     });
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [categories, setCategories] = useState([]);
 
-    const { products, pagination, isLoading } = useProducts(filters);
+    // Fetch categories for filtering
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const response = await axiosInstance.get('/categories');
+            setCategories(response.data.categories);
+        };
+        fetchCategories();
+    }, []);
 
-    const updateFilters = (newFilters) => {
+    const { allProducts, isLoading } = useAllProducts();
+
+    // Update filters when URL search params change
+    useEffect(() => {
+        if (searchQuery && searchQuery !== filters.search) {
+            setFilters((prev) => ({ ...prev, search: searchQuery, page: 1 }));
+        }
+    }, [searchQuery]);
+
+    const { products, pagination } = useMemo(() => {
+        let filtered = filterProducts(allProducts, filters, categories);
+        filtered = sortProducts(filtered, filters.sortBy, filters.sortOrder);
+        return paginateProducts(filtered, filters.page, filters.pageSize);
+    }, [allProducts, filters, categories]);
+
+    const updateFilters = useCallback((newFilters) => {
         setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
-    };
+    }, []);
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = useCallback((newPage) => {
         setFilters((prev) => ({ ...prev, page: newPage }));
-    };
+    }, []);
 
     if (isLoading) return <LoadingSpinner />;
 
