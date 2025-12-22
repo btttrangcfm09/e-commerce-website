@@ -19,6 +19,6 @@ router.get('/', authenticate, OrderController.getCustomerOrders);
 router.patch('/:orderId/cancel', authenticate, OrderController.cancelOrder);
 
 // Lấy thông tin đơn hàng theo ID
-router.get('/:orderId', authenticate, OrderController.getOrderById);
+router.get('/:orderId',authenticate, OrderController.getOrderById);
 
 module.exports = router;

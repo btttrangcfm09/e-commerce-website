@@ -1,52 +1,23 @@
-const OrderRepository = require('../repositories/order.repository');
-
-const VALID_ORDER_STATUSES = ['PENDING', 'SHIPPED', 'DELIVERED', 'CANCELED'];
-const VALID_PAYMENT_METHODS = ['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL'];
-
-const isValidStatus = (status) => VALID_ORDER_STATUSES.includes(String(status).toUpperCase());
-const normalizePaymentMethod = (method) => String(method || '').toUpperCase();
-const isValidPaymentMethod = (method) => VALID_PAYMENT_METHODS.includes(normalizePaymentMethod(method));
+const { OrderRepository } = require('../repositories/order.repository');
 
 class Order {
     // Tạo đơn hàng từ giỏ hàng
     static async createOrderFromCart(userId, shippingAddress) {
-        try {
-            return await OrderRepository.createOrderFromCart(userId, shippingAddress);
-        } catch (err) {
-            throw new Error(err.message);
-        }
+        return await OrderRepository.createOrderFromCart(userId, shippingAddress);
     }
 
     // Lấy thông tin đơn hàng theo ID cho người dùng cụ thể
     static async getOrderById(orderId, userId) {
-        try {
-            return await OrderRepository.getOrderById(orderId, userId);
-        } catch (err) {
-            throw new Error(err.message);
-        }
+        return await OrderRepository.getOrderById(orderId, userId);
     }
 
     // Tạo thanh toán cho đơn hàng
     static async createPayment(orderId, amount, paymentMethod) {
-        try {
-            const normalizedMethod = normalizePaymentMethod(paymentMethod);
-
-            if (!isValidPaymentMethod(normalizedMethod)) {
-                throw new Error('Unsupported payment method');
-            }
-
-            return await OrderRepository.createPayment(orderId, amount, normalizedMethod);
-        } catch (err) {
-            throw new Error(err.message);
-        }
+        return await OrderRepository.createPayment(orderId, amount, paymentMethod);
     }
 
     static async getCustomerPayments(userId, limit = 50, offset = 0) {
-        try {
-            return await OrderRepository.getCustomerPayments(userId, limit, offset);
-        } catch (error) {
-            throw new Error(`Error fetching customer payments: ${error.message}`);
-        }
+        return await OrderRepository.getCustomerPayments(userId, limit, offset);
     }
 
     static async getCustomerOrders(userId, limit = 50, offset = 0, status = null) {
@@ -60,18 +31,11 @@ class Order {
 
     static async getAllOrder(options) {
         const { id, offset, limit, status } = options;
-        const normalizedStatus = status ? status.toUpperCase() : null;
-        return await OrderRepository.getAllOrders({ id, offset, limit, status: normalizedStatus });
+        return await OrderRepository.getAllOrders({ id, offset, limit, status });
     }
 
     static async updateOrderStatus(orderId, status, userId) {
-        try {
-            if (isValidStatus(status)) {
-                return await OrderRepository.updateOrderStatus(orderId, status.toUpperCase(), userId);
-            } else throw new Error('Invalid order status, cannot update');
-        } catch (error) {
-            throw error;
-        }
+        return await OrderRepository.updateOrderStatus(orderId, status, userId);
     }
 
     static async cancelOrder(orderId, userId) {
@@ -83,27 +47,15 @@ class Order {
     }
 
     static async getDashboardStats() {
-        try {
-            return await OrderRepository.getDashboardStats();
-        } catch (error) {
-            throw new Error(`Error fetching dashboard stats: ${error.message}`);
-        }
+        return await OrderRepository.getDashboardStats();
     }
 
     static async getSalesOverview(days) {
-        try {
-            return await OrderRepository.getSalesOverview(days);
-        } catch (error) {
-            throw new Error(`Error fetching sales overview: ${error.message}`);
-        }
+        return await OrderRepository.getSalesOverview(days);
     }
 
     static async getRecentOrders(limit) {
-        try {
-            return await OrderRepository.getRecentOrders(limit);
-        } catch (error) {
-            throw new Error(`Error fetching recent orders: ${error.message}`);
-        }
+        return await OrderRepository.getRecentOrders(limit);
     }
 }
 
