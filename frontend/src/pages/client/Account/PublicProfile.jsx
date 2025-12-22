@@ -43,6 +43,7 @@ const PublicProfile = () => {
 
   const [avatar, setAvatar] = useState("");
   const [form, setForm] = useState({
+    username: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -60,6 +61,7 @@ const PublicProfile = () => {
         const p = JSON.parse(cached);
         setForm((prev) => ({
           ...prev,
+          username: p?.username || "",
           firstName: p?.firstName || "",
           lastName: p?.lastName || "",
           email: p?.email || "",
@@ -78,6 +80,7 @@ const PublicProfile = () => {
         const p = await getMyProfile();
         setForm((prev) => ({
           ...prev,
+          username: p?.username || "",
           firstName: p?.firstName || "",
           lastName: p?.lastName || "",
           email: p?.email || "",
@@ -145,13 +148,13 @@ const PublicProfile = () => {
 
       // Backend hiện support các field này. (profession/bio đang chỉ là UI, chưa có cột DB)
       const p = await updateMyProfile({
+        username: form.username,
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
       });
 
       localStorage.setItem("profile", JSON.stringify(p));
-      setStatus({ type: "success", message: "Lưu thông tin profile thành công" });
     } catch (e) {
       setStatus({
         type: "error",
@@ -239,6 +242,14 @@ const PublicProfile = () => {
             value={form.lastName}
             onChange={handleChange("lastName")}
           />
+          <FormLabel>User Name</FormLabel>
+          <OutlinedInput
+            placeholder="Your username"
+            fullWidth
+            sx={{ marginBottom: "16px" }}
+            value={form.username}
+            onChange={handleChange("username")}
+          />
           <FormLabel required>Email</FormLabel>
           <OutlinedInput
             type="email"
@@ -248,14 +259,14 @@ const PublicProfile = () => {
             value={form.email}
             onChange={handleChange("email")}
           />
-          <FormLabel>Profession</FormLabel>
+          {/* <FormLabel>Profession</FormLabel>
           <OutlinedInput
             placeholder="Your profession"
             fullWidth
             sx={{ marginBottom: "16px" }}
             value={form.profession}
             onChange={handleChange("profession")}
-          />
+          /> */}
           <FormLabel>Bio</FormLabel>
           <OutlinedInput
             placeholder="Write your bio here..."

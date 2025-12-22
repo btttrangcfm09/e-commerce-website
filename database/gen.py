@@ -9,13 +9,16 @@ import os
 fake = Faker()
 load_dotenv()
 
+# 
+
 db_config = {
-    "dbname": os.getenv("DB_NAME"),
-    "user": os.getenv("DB_USER"), 
-    "password": os.getenv("DB_PASSWORD"),
-    "host": os.getenv("DB_HOST"),
-    "port": os.getenv("DB_PORT")
+    "dbname": os.getenv("DB_NAME", "ecommerce"),
+    "user": os.getenv("DB_USER", "postgres"),
+    "password": os.getenv("DB_PASSWORD", "postgres"),
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
+    "port": int(os.getenv("DB_PORT", "15432")),
 }
+
 categories = {
     "Electronics": ["Phone Accessories", "Laptop Accessories", "Gaming Accessories", "Camera Gear", "Audio Equipment"],
     "Clothing": ["Men's Fashion", "Women's Fashion", "Kids' Fashion", "Athletic Wear", "Fashion Accessories"],
