@@ -8,9 +8,4 @@ router.get('/check', authenticateJWT, (req, res) => {
   res.status(200).json({ message: 'User is authenticated', user: req.user });
 });
 
-router.post('/logout', (req, res) => {
-  res.clearCookie('auth', { path: '/' });
-  res.status(200).json({ message: 'Logged out successfully' });
-});
-
 module.exports = router;

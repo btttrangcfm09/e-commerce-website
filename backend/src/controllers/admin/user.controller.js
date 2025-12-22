@@ -1,23 +1,26 @@
 const UserService = require('../../services/user.service');
 
-exports.getAllUser = async (req, res, next) => {
+// Viết dạng function thường
+const getAllUser = async (req, res) => {
     try {
-        return res.status(200).json({
-            users: await UserService.getAllUserService()
-        });
+        const users = await UserService.getAllUserService();
+        res.status(200).json(users);
     } catch (error) {
-        res.status(500).json({ message: error.message});
+        res.status(500).json({ message: error.message });
     }
 };
 
-exports.getUserById = async (req, res, next) => {
+const getUserById = async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await UserService.getUserByIdService(id);
-        return res.status(200).json({
-            user: result,
-        });
+        const { id } = req.params;
+        const user = await UserService.getUserByIdService(id);
+        res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ message: error.message});
+        res.status(500).json({ message: error.message });
     }
+};
+
+module.exports = {
+    getAllUser,
+    getUserById
 };

@@ -20,15 +20,12 @@ export const useProfilePopupLogic = () => {
 
     const handleLogout = async () => {
         try {
-            // Gọi API logout, nhưng không quan trọng có thành công hay không
-            await axiosInstance.get('/client/signout').catch(() => {
-                // Bỏ qua lỗi từ API, vẫn logout ở client
-            });
+            await axiosInstance.post('/client/logout');
+            localStorage.removeItem('auth');
+            localStorage.removeItem('profile');
+            navigate('/');
         } catch (error) {
-            // Bỏ qua lỗi
-            console.log('Logout API call failed, proceeding with client logout');
-        } finally {
-            // Luôn luôn xóa dữ liệu local và chuyển trang
+            console.error('Logout failed:', error);
             localStorage.removeItem('auth');
             localStorage.removeItem('profile');
             navigate('/');

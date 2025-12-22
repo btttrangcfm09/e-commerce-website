@@ -1,10 +1,30 @@
 /* AdminSidebar.module.css */
 .sidebar {
-    @apply flex flex-col h-screen w-64 bg-background border-r transition-all duration-300 ease-in-out;
+    /* Mặc định cho Mobile: Ẩn menu ra khỏi màn hình bên trái */
+    @apply fixed inset-y-0 left-0 z-50 flex flex-col h-screen w-64 bg-background border-r 
+           transition-transform duration-300 ease-in-out -translate-x-full;
 }
 
+/* Khi trên màn hình lớn (lg: 1024px trở lên) */
+@screen lg {
+    .sidebar {
+        @apply sticky top-0 translate-x-0; /* Hiện lại và giữ cố định khi cuộn */
+    }
+}
+
+/* Class để ép hiện Sidebar trên mobile khi bấm nút Menu */
+.sidebarOpen {
+    @apply translate-x-0;
+}
+
+/* Thêm class này để khi nhấn nút thu gọn (collapsed) nó nhỏ lại */
 .collapsed {
-    @apply w-20;
+    @apply lg:w-20; /* Khi thu gọn trên desktop */
+}
+
+/* Lớp phủ mờ khi mở menu trên mobile */
+.overlay {
+    @apply fixed inset-0 bg-black/50 z-40 lg:hidden;
 }
 
 .header {
