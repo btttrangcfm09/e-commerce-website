@@ -208,10 +208,14 @@ export default function CommonTable({
   const handleConfirmDelete = async () => {
     try {
       setIsDeleting(true);
-      await Promise.resolve(onDelete(selected));
+      const result = await Promise.resolve(onDelete(selected));
       setSelected([]);
       setConfirmOpen(false);
-      setSnack({ open: true, severity: 'success', message: successMessage });
+      const dynamicMessage =
+        (typeof result === 'string' && result.trim()) ||
+        (result && typeof result === 'object' && typeof result.message === 'string' && result.message.trim()) ||
+        successMessage;
+      setSnack({ open: true, severity: 'success', message: dynamicMessage });
     } catch (e) {
       console.error(e);
       const serverMessage = e?.response?.data?.message;

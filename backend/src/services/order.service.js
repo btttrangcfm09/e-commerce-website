@@ -1,38 +1,116 @@
-const Order = require('../models/Order');
+const { OrderRepository, ORDER_STATUS } = require('../repositories/order.repository');
+
+const SUPPORTED_PAYMENT_METHODS = Object.freeze(['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'BANK_TRANSFER']);
+
+const normalizePaymentMethod = (paymentMethod) => {
+    const input = String(paymentMethod || '').trim();
+    if (!input) return '';
+
+    // Convert camelCase -> snake_case, then normalize separators.
+    const snake = input
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .replace(/[\s\-]+/g, '_')
+        .toUpperCase();
+
+    // Common aliases from frontend/UI
+    const ALIASES = {
+        CREDITCARD: 'CREDIT_CARD',
+        CREDIT_CARD: 'CREDIT_CARD',
+        DEBITCARD: 'DEBIT_CARD',
+        DEBIT_CARD: 'DEBIT_CARD',
+        PAYPAL: 'PAYPAL',
+        BANKTRANSFER: 'DEBIT_CARD',
+        BANK_TRANSFER: 'DEBIT_CARD',
+    };
+
+    // Remove underscores for a second lookup (e.g. CREDIT_CARD -> CREDITCARD)
+    const compact = snake.replace(/_/g, '');
+    return ALIASES[snake] || ALIASES[compact] || snake;
+};
+
+const normalizeOrderStatus = (status) => {
+    return String(status || '').trim().toUpperCase();
+};
 
 class OrderService {
-    // Tạo đơn hàng từ giỏ hàng
     static async createOrderFromCart(userId, shippingAddress) {
-        return await Order.createOrderFromCart(userId, shippingAddress);
+        if (!shippingAddress) {
+            throw new Error('Shipping address is required');
+        }
+        return await OrderRepository.createOrderFromCart(userId, shippingAddress);
     }
 
-    // Lấy thông tin đơn hàng theo ID
     static async getOrderById(orderId, userId) {
-        return await Order.getOrderById(orderId, userId);
+        if (!orderId) {
+            throw new Error('Order id is required');
+        }
+        return await OrderRepository.getOrderById(orderId, userId);
     }
 
-    static async createPayment(orderId, amount, paymentMethod) {
-        return await Order.createPayment(orderId, amount, paymentMethod);
-    }
-
-    static async getCustomerPayments(userId, limit, offset) {
-        return await Order.getCustomerPayments(userId, limit, offset);
-    }
-
-    static async getCustomerOrders(userId, limit, offset, status) {
-        return await Order.getCustomerOrders(userId, limit, offset, status);
-    }
-
-    static async getAllOrdersService(options) {
-        return await Order.getAllOrder(options);
-    }
-
-    static async updateOrderStatusService(orderId, status, userId) {
-        return await Order.updateOrderStatus(orderId, status, userId);
+    static async getCustomerOrders(userId, limit = 50, offset = 0, status = null) {
+        return await OrderRepository.getCustomerOrders(userId, limit, offset, status);
     }
 
     static async cancelOrderService(orderId, userId) {
-        return await Order.cancelOrder(orderId, userId);
+        if (!orderId) {
+            throw new Error('Order id is required');
+        }
+        return await OrderRepository.cancelOrder(orderId, userId);
+    }
+
+    static async createPayment(orderId, amount, paymentMethod, userId) {
+        if (!orderId) {
+            throw new Error('Order id is required');
+        }
+
+        const normalizedMethod = normalizePaymentMethod(paymentMethod);
+        if (!SUPPORTED_PAYMENT_METHODS.includes(normalizedMethod)) {
+            throw new Error(
+                `Unsupported payment method: ${String(paymentMethod)}. Supported: ${SUPPORTED_PAYMENT_METHODS.join(', ')}`
+            );
+        }
+
+        let resolvedAmount = amount;
+        if (resolvedAmount === undefined || resolvedAmount === null || resolvedAmount === '') {
+            const order = await this.getOrderById(orderId, userId);
+            resolvedAmount = order?.total_price;
+        }
+
+        return await OrderRepository.createPayment(orderId, resolvedAmount, normalizedMethod, userId);
+    }
+
+    static async getCustomerPayments(userId, limit = 50, offset = 0) {
+        return await OrderRepository.getCustomerPayments(userId, limit, offset);
+    }
+
+    static async getAllOrdersService(options) {
+        const normalizedStatus = options?.status ? normalizeOrderStatus(options.status) : null;
+        return await OrderRepository.getAllOrders({
+            ...options,
+            status: normalizedStatus,
+        });
+    }
+
+    static async updateOrderStatusService(orderId, status, userId) {
+        const normalizedStatus = normalizeOrderStatus(status);
+        const allowed = Object.values(ORDER_STATUS);
+
+        if (!allowed.includes(normalizedStatus)) {
+            throw new Error('Invalid order status, cannot update');
+        }
+        return await OrderRepository.updateOrderStatus(orderId, normalizedStatus, userId);
+    }
+
+    static async getDashboardStats() {
+        return await OrderRepository.getDashboardStats();
+    }
+
+    static async getSalesOverview(days = 7) {
+        return await OrderRepository.getSalesOverview(days);
+    }
+
+    static async getRecentOrders(limit = 10) {
+        return await OrderRepository.getRecentOrders(limit);
     }
 }
 
