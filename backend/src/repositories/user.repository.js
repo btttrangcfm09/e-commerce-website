@@ -50,6 +50,20 @@ class UserRepository {
         return rows[0] || null;
     }
 
+    static async isUsernameTaken(username, excludeUserId) {
+        const rows = await db.query(
+            `
+            SELECT 1
+            FROM public.users
+            WHERE username = $1
+              AND id <> $2
+            LIMIT 1
+            `,
+            [username, excludeUserId]
+        );
+        return rows.length > 0;
+    }
+
     static async updateProfile(userId, updateFields) {
         // updateFields: keys in DB column names (email, first_name, last_name, phone, address, image)
         const entries = Object.entries(updateFields).filter(([, v]) => v !== undefined);
@@ -109,6 +123,19 @@ class UserRepository {
                 image
             `,
             [userId]
+        );
+        return rows[0] || null;
+    }
+
+    static async updatePasswordMd5(userId, newPassword) {
+        const rows = await db.query(
+            `
+            UPDATE public.users
+            SET password = md5($2)
+            WHERE id = $1
+            RETURNING id
+            `,
+            [userId, newPassword]
         );
         return rows[0] || null;
     }
