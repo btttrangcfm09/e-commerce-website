@@ -1,9 +1,18 @@
 import React from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
 import { useCartQuery } from '@/hooks/useCart';
+import { useNavigate } from 'react-router-dom';
 
-const CartPopup = () => {
+const CartPopup = ({ onClose }) => {
     const { cart, removeItem } = useCartQuery();
+    const navigate = useNavigate();
+
+    const handleViewCart = () => {
+        navigate('/cart');
+        if (onClose) onClose();
+    };
+
+    const total = cart?.cart_items?.reduce((sum, item) => sum + parseFloat(item.total_price), 0) || 0;
 
     return (
         <div className="absolute top-16 right-4 bg-gradient-to-b from-black from-10% via-zinc-700 to-neutral-700 text-white rounded-lg shadow-lg w-80 p-4 z-50">
@@ -39,7 +48,24 @@ const CartPopup = () => {
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-gray-600 text-center">Your cart is empty.</p>
+                    <p className="text-gray-400 text-center">Your cart is empty.</p>
+                )}
+
+                {cart?.cart_items?.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-600">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className="font-semibold">Total:</span>
+                            <span className="text-xl font-bold text-rose-500">
+                                ${total.toFixed(2)}
+                            </span>
+                        </div>
+                        <button
+                            onClick={handleViewCart}
+                            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                        >
+                            View Cart
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
