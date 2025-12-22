@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import clientRoutes from './routes/clientRoutes';
 import adminRoutes from './routes/adminRoutes';
 import { CartProvider } from '@/components/features/cart/CartContext/CartContext';
@@ -26,14 +27,16 @@ function App() {
     };
     return (
         <QueryClientProvider client={queryClient}>
-            <CartProvider>
-                <BrowserRouter>
-                    <Routes>
-                        {renderRoutes(clientRoutes)}
-                        {renderRoutes(adminRoutes)}
-                    </Routes>
-                </BrowserRouter>
-            </CartProvider>
+            <BrowserRouter>
+                <AuthProvider>
+                    <CartProvider>
+                        <Routes>
+                            {renderRoutes(clientRoutes)}
+                            {renderRoutes(adminRoutes)}
+                        </Routes>
+                    </CartProvider>
+                </AuthProvider>
+            </BrowserRouter>
         </QueryClientProvider>
     );
 }
