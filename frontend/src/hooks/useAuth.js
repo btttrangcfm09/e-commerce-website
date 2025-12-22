@@ -24,6 +24,11 @@ export const useProfilePopupLogic = () => {
             localStorage.removeItem('auth');
             localStorage.removeItem('profile');
             navigate('/');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            localStorage.removeItem('auth');
+            localStorage.removeItem('profile');
+            navigate('/');
         }
     };
 
