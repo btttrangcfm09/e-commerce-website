@@ -1,48 +1,126 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const db = require('../config/database');
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 class UserService {
+// --- ĐĂNG NHẬP (Logic thay thế signin SQL) ---
     static async signIn(username, password) {
-        try {
-            let userId = await User.signIn(username, password);            
-            if (!userId[0].signin) {
-                throw new Error('Invalid login credentials');
-            }
-            userId = userId[0].signin;
-            const profile = await User.getUserDetailByID(userId);
-            const fieldsToExclude = ["password", "is_active", "created_at"];
-            const filteredProfile = Object.fromEntries(
-                Object.entries(profile).filter(([key]) => !fieldsToExclude.includes(key))
-            );
-            const token = jwt.sign({ userId: userId }, JWT_SECRET, { expiresIn: '1d' });
-            return { token, filteredProfile };
-        } catch (err) {
-            throw new Error(err.message);
+        // 1. Tìm user
+        const user = await User.findByUsername(username);
+        if (!user) {
+            throw new Error('Invalid login credentials'); // Không nói rõ lỗi để bảo mật
         }
+
+        // 2. So sánh mật khẩu (Bcrypt compare)
+        // Lưu ý: Code cũ dùng MD5, code mới dùng Bcrypt. 
+        // Nếu bạn đăng nhập tài khoản cũ (tạo bằng Python fake) sẽ bị lỗi vì nó là MD5.
+        // Bạn nên tạo tài khoản mới để test logic này.
+        const isMatch = await bcrypt.compare(password, user.password);
+        
+        // *Fallback cho các user cũ dùng MD5 (chỉ dùng trong giai đoạn chuyển giao)*
+        // Nếu bcrypt check false, thử check MD5 thủ công (chỉ nếu bạn cần giữ user cũ)
+        /* if (!isMatch) {
+            // Logic check MD5 cũ ở đây nếu cần thiết, nhưng tốt nhất là nên reset DB
+        }
+        */
+
+        if (!isMatch) {
+            throw new Error('Invalid login credentials');
+        }
+
+        // 3. Chuẩn bị data trả về (loại bỏ password)
+        const token = jwt.sign(
+            { userId: user.id, role: user.role }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1d' }
+        );
+
+        // Lọc bỏ thông tin nhạy cảm
+        const { password: _, is_active, created_at, ...filteredProfile } = user;
+
+        return { token, filteredProfile };
     }
 
-    static async createAccount(userData) {
-        try {
-            await User.createAccount(userData);
-        } catch (err) {
-            throw new Error(err.message);
-        }
+    static async createAccount(data) {
+        // 1. Kiểm tra Username tồn tại chưa
+        const existingUser = await User.findByUsername(data.username);
+        if (existingUser) throw new Error('Username already exists');
+
+        // 2. Kiểm tra Email tồn tại chưa
+        const existingEmail = await User.findByEmail(data.email);
+        if (existingEmail) throw new Error('Email already exists');
+
+        // 3. Mã hóa mật khẩu (Bcrypt an toàn hơn MD5 nhiều)
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(data.password, salt);
+
+        // 4. Tạo ID mới
+        const newId = uuidv4().replace(/-/g, ''); // Xóa dấu gạch ngang cho giống format cũ
+
+        // 5. Chuẩn bị dữ liệu để lưu
+        const userData = {
+            id: newId,
+            username: data.username,
+            password: hashedPassword,
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone,
+            address: data.address,
+            image: data.image,
+            role: 'CUSTOMER' // Mặc định là Customer
+        };
+
+        // 6. Lưu User vào DB
+        const createdUser = await User.create(userData);
+        
+
+        // 7. TẠO GIỎ HÀNG (Thay thế Trigger create_user_cart cũ)
+        // Vì chưa có model Cart, mình viết query trực tiếp tại đây cho gọn
+        const cartId = uuidv4().replace(/-/g, '').substring(0, 32); 
+        await db.query(
+            'INSERT INTO carts (id, customer_id, created_at) VALUES ($1, $2, NOW())',
+            [cartId, createdUser.id]
+        );
+
+        return createdUser;
     }
     
     static async getUserByIdService(id) {
-        try {
-            return await User.getUserDetailByID(id);
-        } catch (error) {
-            throw new Error(error.message);
-        }
+        const user = await User.findById(id);
+        if (!user) throw new Error('User not found');
+        return user;
     }
+
     static async getAllUserService() {
-        try {
-            return await User.getAllUser();
-        } catch (error) {
-            throw new Error(error.message);
-        }
+        return await User.getAll();
+    }
+
+    static async updateProfile(userId, data) {
+        return await User.updateProfile(userId, data);
+    }
+
+    // Logic đổi mật khẩu
+    static async updatePassword(userId, oldPassword, newPassword) {
+        const user = await User.findById(userId);
+        if (!user) throw new Error('User not found');
+
+        // Check pass cũ
+        const queryPass = 'SELECT password FROM users WHERE id = $1';
+        const res = await db.query(queryPass, [userId]);
+        const currentPassHash = res[0].password;
+
+        const isMatch = await bcrypt.compare(oldPassword, currentPassHash);
+        if (!isMatch) throw new Error('Old password is incorrect');
+
+        // Hash pass mới
+        const salt = await bcrypt.genSalt(10);
+        const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await User.updatePassword(userId, newHashedPassword);
     }
 
 }

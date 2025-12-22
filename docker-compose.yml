@@ -9,8 +9,7 @@ services:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
-      - "15432:5432" 
-      # của mọi người là "5432:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -36,7 +35,10 @@ services:
     ports:
       - "5000:5000"
     volumes:
+      - ./backend:/app
       - ./backend/uploads:/app/uploads
+      - /app/node_modules
+    command: npm run dev
     depends_on:
       postgres:
         condition: service_healthy
