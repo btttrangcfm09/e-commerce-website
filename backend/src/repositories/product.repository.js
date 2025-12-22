@@ -367,6 +367,89 @@ class ProductRepository {
             throw error;
         }
     }
+
+    /**
+     * Check if product has orders
+     */
+    static async hasOrders(productId) {
+        const query = `
+            SELECT EXISTS(
+                SELECT 1 FROM order_items WHERE product_id = $1
+            ) as has_orders
+        `;
+
+        try {
+            const result = await db.query(query, [productId]);
+            return result[0].has_orders;
+        } catch (error) {
+            console.error('Error in ProductRepository.hasOrders:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete product (soft or hard delete)
+     */
+    static async deleteProduct(productId, hardDelete = false) {
+        try {
+            if (hardDelete) {
+                // Hard delete - remove from cart first, then delete product
+                await db.query('DELETE FROM cart_items WHERE product_id = $1', [productId]);
+                
+                const query = `
+                    DELETE FROM products 
+                    WHERE id = $1
+                    RETURNING id, name, 'HARD_DELETE' as deletion_type
+                `;
+                const result = await db.query(query, [productId]);
+                
+                if (result.length === 0) {
+                    throw new Error('Product not found');
+                }
+                return result[0];
+            } else {
+                // Soft delete - set is_active = false
+                const query = `
+                    UPDATE products 
+                    SET is_active = false
+                    WHERE id = $1
+                    RETURNING id, name, 'SOFT_DELETE' as deletion_type
+                `;
+                const result = await db.query(query, [productId]);
+                
+                if (result.length === 0) {
+                    throw new Error('Product not found');
+                }
+                return result[0];
+            }
+        } catch (error) {
+            console.error('Error in ProductRepository.deleteProduct:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Restore soft-deleted product
+     */
+    static async restoreProduct(productId) {
+        const query = `
+            UPDATE products 
+            SET is_active = true
+            WHERE id = $1
+            RETURNING id, name
+        `;
+
+        try {
+            const result = await db.query(query, [productId]);
+            if (result.length === 0) {
+                throw new Error('Product not found');
+            }
+            return result[0];
+        } catch (error) {
+            console.error('Error in ProductRepository.restoreProduct:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = ProductRepository;

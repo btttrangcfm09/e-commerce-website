@@ -19,7 +19,7 @@ exports.getOrderById = async (req, res, next) => {
     try {
         const id = req.user.userId;
         const order_id = req.params.id;
-        const result = await OrderService.getOrderById(order_id, id);
+        const result = await OrderService.getOrderById(id, order_id);
         return res.status(200).json({
             message: result,
         });

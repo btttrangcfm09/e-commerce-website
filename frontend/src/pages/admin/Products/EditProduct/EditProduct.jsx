@@ -34,7 +34,6 @@ export default function EditProduct() {
     const [categories, setCategories] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
@@ -66,19 +65,6 @@ export default function EditProduct() {
         }
     };
 
-    const handleDelete = async () => {
-        setIsDeleting(true);
-        try {
-            // await axios.delete(`/admin/product/${id}`);
-            navigate('/admin/products');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Error deleting product');
-        } finally {
-            setIsDeleting(false);
-            setShowDeleteDialog(false);
-        }
-    };
-
     if (isLoading) return <div className="p-6">Loading...</div>;
     if (error)
         return (
@@ -103,30 +89,6 @@ export default function EditProduct() {
                             <ChevronLeft className="h-4 w-4 mr-2" />
                             Back
                         </Button>
-
-                        <Button variant="outline" size="sm" className="text-green-600">
-                            <Eye className="h-4 w-4 mr-2" />
-                            Preview
-                        </Button>
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                    <History className="h-4 w-4 mr-2" />
-                                    View History
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600" onClick={() => setShowDeleteDialog(true)}>
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete Product
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </div>
                 </div>
 
@@ -162,55 +124,9 @@ export default function EditProduct() {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <ProductForm initialData={product} categories={categories} onSuccess={handleSuccess} />
-                </div>
-
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Quick Actions</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                <Button className="w-full" variant="outline">
-                                    <Save className="h-4 w-4 mr-2" />
-                                    Save as Draft
-                                </Button>
-                                <Button className="w-full" variant="secondary">
-                                    <Eye className="h-4 w-4 mr-2" />
-                                    Preview Changes
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+            <div className="lg:col-span-2">
+                <ProductForm initialData={product} categories={categories} onSuccess={handleSuccess} />
             </div>
-
-            {/* Delete Dialog */}
-            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Product</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Are you sure you want to delete this product? This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDelete}
-                            className="bg-red-600 hover:bg-red-700"
-                            disabled={isDeleting}
-                        >
-                            {isDeleting ? 'Deleting...' : 'Delete Product'}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </div>
     );
 }

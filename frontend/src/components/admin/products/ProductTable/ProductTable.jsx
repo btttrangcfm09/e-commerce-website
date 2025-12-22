@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from '@/services/api';
 import {
     Table,
     TableBody,
@@ -14,20 +15,33 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogCancel,
+    AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Edit2, ExternalLink } from 'lucide-react';
+import { MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import styles from './ProductTable.module.css';
 
-const ProductTable = ({ 
-    products, 
+const ProductTable = ({
+    products,
     pagination,
     onPageChange,
     onSort,
-    currentSort 
+    currentSort,
+    onProductDeleted
 }) => {
     const navigate = useNavigate();
-
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const getStockStatus = (stock) => {
         if (stock === 0) return { label: 'Out of Stock', color: 'bg-red-500' };
         if (stock < 10) return { label: 'Low Stock', color: 'bg-yellow-500' };
@@ -40,7 +54,30 @@ const ProductTable = ({
             currency: 'USD'
         }).format(amount);
     };
+    const handleDeleteClick = (product) => {
+        setProductToDelete(product);
+        setShowDeleteDialog(true);
+    };
 
+    const handleDelete = async () => {
+        if (!productToDelete) return;
+        
+        setIsDeleting(true);
+        try {
+            await axios.delete(`/admin/products/${productToDelete.product_id}`);
+            setShowDeleteDialog(false);
+            setProductToDelete(null);
+            // Notify parent to refresh list
+            if (onProductDeleted) {
+                onProductDeleted();
+            }
+        } catch (err) {
+            console.error('Error deleting product:', err);
+            alert(err.response?.data?.message || 'Error deleting product');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
     return (
         <div className={styles.tableContainer}>
             <Table>
@@ -61,7 +98,7 @@ const ProductTable = ({
                             <TableRow key={product.product_id}>
                                 <TableCell>
                                     <div className={styles.productInfo}>
-                                        
+
                                         <div className="flex flex-col">
                                             <span className={styles.productName}>{product.product_name}</span>
                                             <span className="text-sm text-muted-foreground">{product.product_description}</span>
@@ -90,9 +127,12 @@ const ProductTable = ({
                                                 <Edit2 className="mr-2 h-4 w-4" />
                                                 Edit
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                <ExternalLink className="mr-2 h-4 w-4" />
-                                                View on Site
+                                            <DropdownMenuItem
+                                                onClick={() => handleDeleteClick(product)}
+                                                className="text-red-600"
+                                            >
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                Delete
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -128,6 +168,28 @@ const ProductTable = ({
                     </div>
                 </div>
             )}
+
+            {/* Delete Dialog */}
+            <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete "{productToDelete?.product_name}"? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            className="bg-red-600 hover:bg-red-700"
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? 'Deleting...' : 'Delete Product'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

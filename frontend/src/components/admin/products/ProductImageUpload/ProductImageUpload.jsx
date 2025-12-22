@@ -3,12 +3,19 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Upload, Trash2, AlertCircle } from 'lucide-react';
+import { API_URL } from '@/utils/constants';
 
 const MAX_FILES = 5;
 const MAX_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const convertGoogleDriveUrl = (url) => {
+    // Nếu là local URL (bắt đầu bằng /uploads), thêm backend URL
+    if (url.startsWith('/uploads')) {
+        const backendUrl = API_URL || 'http://localhost:3000';
+        return `${backendUrl}${url}`;
+    }
+    // Nếu là Google Drive URL, convert
     try {
         const fileId = url.match(/\/d\/(.+?)\/view/)?.[1];
         if (!fileId) return url;
@@ -25,12 +32,8 @@ export default function ProductImageUpload({ onChange, initialImages = [] }) {
     
     useEffect(() => {
         if (Array.isArray(initialImages) && initialImages.length > 0) {
-            // Remove curly braces and split if the input is a string
-            const cleanedUrls = initialImages[0]?.startsWith('{') 
-                ? initialImages[0].replace(/[{}]/g, '').split(',')
-                : initialImages;
-
-            const existingImages = cleanedUrls
+            // Nếu là array JavaScript thẳng, dùng trực tiếp
+            const existingImages = initialImages
                 .filter(url => url && typeof url === 'string')
                 .map(url => ({
                     name: url.split('/').pop(),
@@ -95,7 +98,23 @@ export default function ProductImageUpload({ onChange, initialImages = [] }) {
     const removeImage = (index) => {
         const newImages = images.filter((_, i) => i !== index);
         setImages(newImages);
-        onChange(newImages.map(img => img.isExisting ? img.originalUrl : img.base64));
+        // Gộp prevImages và newImages để gửi lên parent
+        const allImages = [
+            ...prevImages.map(img => img.originalUrl),
+            ...newImages.map(img => img.isExisting ? img.originalUrl : img.base64)
+        ];
+        onChange(allImages);
+    };
+
+    const removePrevImage = (index) => {
+        const newPrevImages = prevImages.filter((_, i) => i !== index);
+        setPrevImages(newPrevImages);
+        // Gộp prevImages mới và images hiện tại để gửi lên parent
+        const allImages = [
+            ...newPrevImages.map(img => img.originalUrl),
+            ...images.map(img => img.isExisting ? img.originalUrl : img.base64)
+        ];
+        onChange(allImages);
     };
 
     return (
@@ -132,6 +151,17 @@ export default function ProductImageUpload({ onChange, initialImages = [] }) {
                                 alt={`Preview ${index + 1}`}
                                 className="w-full h-40 object-cover rounded-t-lg"
                             />
+                            <div className="p-2 flex justify-between items-center">
+                                <span className="text-sm truncate">{file.name}</span>
+                                <Button 
+                                    type="button"
+                                    variant="destructive" 
+                                    size="icon"
+                                    onClick={() => removePrevImage(index)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>                            
                         </Card>
                     ))}
                 </div>
@@ -149,6 +179,7 @@ export default function ProductImageUpload({ onChange, initialImages = [] }) {
                             <div className="p-2 flex justify-between items-center">
                                 <span className="text-sm truncate">{file.name}</span>
                                 <Button 
+                                    type="button"
                                     variant="destructive" 
                                     size="icon"
                                     onClick={() => removeImage(index)}
