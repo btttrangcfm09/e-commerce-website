@@ -52,23 +52,6 @@ const CartPopup = ({ onClose }) => {
                 ) : (
                     <p className="text-gray-400 text-center">Your cart is empty.</p>
                 )}
-
-                {cart?.cart_items?.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-600">
-                        <div className="flex justify-between items-center mb-3">
-                            <span className="font-semibold">Total:</span>
-                            <span className="text-xl font-bold text-rose-500">
-                                ${total.toFixed(2)}
-                            </span>
-                        </div>
-                        <button
-                            onClick={handleViewCart}
-                            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
-                        >
-                            View Cart
-                        </button>
-                    </div>
-                )}
             </div>
 
             {cart?.cart_items?.length > 0 && (
