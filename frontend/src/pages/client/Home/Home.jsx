@@ -2,14 +2,28 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, EffectCoverflow } from "swiper/modules";
 import { useHomeLogic } from "@/pages/client/Home/index";
+import { useCartQuery } from "@/hooks/useCart";
+import { Link } from "react-router-dom";
 
 import Shipping from "@/assets/images/HomePage/Shipping.png";
 import Guarantee from "@/assets/images/HomePage/Guarantee.png";
 import Support from "@/assets/images/HomePage/Support.png";
 
 const Home = () => {
-  const { handleExploreMore, statistics, categories, products } =
+  const { handleExploreMore, statistics, categories, products, bestSellingProducts, loading } =
     useHomeLogic();
+  const { addItem } = useCartQuery();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-rose-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative bg-gray-50 px-6 lg:px-8">
@@ -60,79 +74,45 @@ const Home = () => {
         {/* Right Content */}
         <div className="flex h-[90vh] w-full items-center justify-center">
           <div className="grid h-full w-full gap-4 bg-gray-200 p-2 grid-cols-4 grid-rows-6 rounded-lg shadow-md">
-            {/* Cosmetics */}
-            <div className="col-span-2 row-span-2 bg-pink-200 rounded-lg shadow-md relative">
-              <img
-                src="https://i.pinimg.com/736x/e4/09/72/e40972a9213f64e24c2097b753e051cd.jpg"
-                alt="Cosmetics"
-                className="h-full w-full object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
-                <p className="text-white text-lg font-bold">Cosmetics</p>
-              </div>
-            </div>
+            {categories.slice(0, 6).map((category, index) => {
+              const gridClasses = [
+                "col-span-2 row-span-2",
+                "col-span-2 row-span-2", 
+                "col-span-1 row-span-4",
+                "col-span-2 row-span-2",
+                "col-span-1 row-span-2",
+                "col-span-3 row-span-2"
+              ];
+              
+              const categoryTileImages = {
+                "Cosmetics": "https://i.pinimg.com/736x/e4/09/72/e40972a9213f64e24c2097b753e051cd.jpg",
+                "Clothing": "https://i.pinimg.com/1200x/16/e5/37/16e5371c7fc5b7e4c85f9661c0c2f466.jpg",
+                "Fashion": "https://i.pinimg.com/1200x/16/e5/37/16e5371c7fc5b7e4c85f9661c0c2f466.jpg",
+                "Electronics": "https://i.pinimg.com/736x/43/9e/e3/439ee3c344dbd4af31ae9f17015c4195.jpg",
+                "Books": "https://i.pinimg.com/1200x/33/86/d4/3386d43ac6f00a71bff9961c8e55d12f.jpg",
+                "Books & Stationery": "https://i.pinimg.com/1200x/33/86/d4/3386d43ac6f00a71bff9961c8e55d12f.jpg",
+                "Furniture": "https://i.pinimg.com/1200x/72/51/d9/7251d92cc058ab65bcd2b68a22d65ea7.jpg",
+                "Food": "https://i.pinimg.com/736x/b0/e7/47/b0e747a8e32385349f1e10f0dbfdcabd.jpg",
+                "Foods": "https://i.pinimg.com/736x/b0/e7/47/b0e747a8e32385349f1e10f0dbfdcabd.jpg"
+              };
 
-            {/* Fashions */}
-            <div className="col-span-2 row-span-2 bg-lime-200 rounded-lg shadow-md relative">
-              <img
-                src="https://i.pinimg.com/1200x/16/e5/37/16e5371c7fc5b7e4c85f9661c0c2f466.jpg"
-                alt="Fashions"
-                className="h-full w-full object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
-                <p className="text-white text-lg font-bold">Fashions</p>
-              </div>
-            </div>
-
-            {/* Electronics */}
-            <div className="col-span-1 row-span-4 bg-yellow-200 rounded-lg shadow-md relative">
-              <img
-                src="https://i.pinimg.com/736x/43/9e/e3/439ee3c344dbd4af31ae9f17015c4195.jpg"
-                alt="Electronics"
-                className="h-full w-full object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
-                <p className="text-white text-lg font-bold">Electronics</p>
-              </div>
-            </div>
-
-            {/* Books & Stationery */}
-            <div className="col-span-2 row-span-2 bg-tan-200 rounded-lg shadow-md relative">
-              <img
-                src="https://i.pinimg.com/1200x/33/86/d4/3386d43ac6f00a71bff9961c8e55d12f.jpg"
-                alt="Books & Stationery"
-                className="h-full w-full object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
-                <p className="text-white text-lg font-bold">
-                  Books & Stationery
-                </p>
-              </div>
-            </div>
-
-            {/* Furniture */}
-            <div className="col-span-1 row-span-2 bg-green-200 rounded-lg shadow-md relative">
-              <img
-                src="https://i.pinimg.com/1200x/72/51/d9/7251d92cc058ab65bcd2b68a22d65ea7.jpg"
-                alt="Furniture"
-                className="h-full w-full object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
-                <p className="text-white text-lg font-bold">Furniture</p>
-              </div>
-            </div>
-
-            {/* Food */}
-            <div className="col-span-3 row-span-2 bg-red-200 rounded-lg shadow-md relative">
-              <img
-                src="https://i.pinimg.com/736x/b0/e7/47/b0e747a8e32385349f1e10f0dbfdcabd.jpg"
-                alt="Food"
-                className="h-full w-full object-cover rounded-lg"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center rounded-lg">
-                <p className="text-white text-lg font-bold">Food</p>
-              </div>
-            </div>
+              return (
+                <Link
+                  key={category.id}
+                  to={`/shop?category=${category.id}`}
+                  className={`${gridClasses[index]} rounded-lg shadow-md relative overflow-hidden group cursor-pointer`}
+                >
+                  <img
+                    src={categoryTileImages[category.name] || category.image}
+                    alt={category.name}
+                    className="h-full w-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 flex items-center justify-center rounded-lg transition-all duration-300">
+                    <p className="text-white text-lg font-bold">{category.name}</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -171,30 +151,30 @@ const Home = () => {
               modules={[EffectCoverflow, Pagination]}
               className="mySwiper"
             >
-              {categories.map((category, index) => (
+              {categories.map((category) => (
                 <SwiperSlide
-                  key={index}
+                  key={category.id}
                   className="group bg-white rounded-lg shadow-md p-6"
                 >
-                  <img
-                    src={category.image} // Use the correct image path or import
-                    alt={category.name}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
+                  <Link to={`/shop?category=${category.id}`}>
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-full h-48 object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+                    />
+                  </Link>
                   <h3 className="mt-4 text-lg font-semibold text-gray-900 group-hover:text-rose-500">
                     {category.name}
                   </h3>
                   <p className="mt-2 text-sm text-gray-600">
                     {category.description}
                   </p>
-                  <a
-                    href={`#${category.name
-                      .toLowerCase()
-                      .replace(/\s+/g, "-")}`}
+                  <Link
+                    to={`/shop?category=${category.id}`}
                     className="mt-4 inline-block text-sm font-medium text-rose-500 hover:underline"
                   >
                     Shop Now →
-                  </a>
+                  </Link>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -214,27 +194,28 @@ const Home = () => {
                 key={product.id}
                 className="relative flex flex-col my-6 bg-white shadow-sm border border-slate-200 rounded-lg"
               >
-                <div className="relative p-2.5 h-96 overflow-hidden rounded-xl bg-clip-border">
+                <Link to={`/products/${product.id}`} className="relative p-2.5 h-96 overflow-hidden rounded-xl bg-clip-border">
                   <img
                     src={product.image || "https://via.placeholder.com/200"}
                     alt={product.name}
-                    className="h-full w-full object-cover rounded-md"
+                    className="h-full w-full object-cover rounded-md hover:scale-105 transition-transform duration-300"
                   />
-                </div>
+                </Link>
                 <div className="p-4 ">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <p className="text-slate-800 text-xl font-semibold leading-tight text-left break-words max-w-[70%]">
+                    <Link to={`/products/${product.id}`} className="text-slate-800 text-xl font-semibold leading-tight text-left break-words max-w-[70%] hover:text-rose-600 transition-colors">
                       {product.name}
-                    </p>
+                    </Link>
                     <p className="text-rose-600 text-xl font-semibold text-right whitespace-nowrap">
                       ${product.price}
                     </p>
                   </div>
 
-                  <p className="text-slate-600 leading-normal text-left font-light">
+                  <p className="text-slate-600 leading-normal text-left font-light line-clamp-2">
                     {product.description || "No description available."}
                   </p>
                   <button
+                    onClick={() => addItem({ productId: product.id, quantity: 1 })}
                     className="rounded-md w-full mt-6 bg-rose-500 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-rose-600 focus:shadow-none active:bg-rose-600 hover:bg-rose-600 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                     type="button"
                   >
@@ -260,32 +241,33 @@ const Home = () => {
             Best Selling Products
           </h2>
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {products.slice(0, 4).map((product) => (
+            {bestSellingProducts.slice(0, 4).map((product) => (
               <div
                 key={product.id}
                 className="relative flex flex-col my-6 bg-white shadow-sm border border-slate-200 rounded-lg"
               >
-                <div className="relative p-2.5 h-96 overflow-hidden rounded-xl bg-clip-border">
+                <Link to={`/products/${product.id}`} className="relative p-2.5 h-96 overflow-hidden rounded-xl bg-clip-border">
                   <img
                     src={product.image || "https://via.placeholder.com/300x200"}
                     alt={product.name}
-                    className="h-full w-full object-cover rounded-md"
+                    className="h-full w-full object-cover rounded-md hover:scale-105 transition-transform duration-300"
                   />
-                </div>
+                </Link>
                 <div className="p-2">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <p className="text-slate-800 text-xl font-semibold leading-tight break-words max-w-[70%]">
+                    <Link to={`/products/${product.id}`} className="text-slate-800 text-xl font-semibold leading-tight break-words max-w-[70%] hover:text-rose-600 transition-colors">
                       {product.name}
-                    </p>
+                    </Link>
                     <p className="text-rose-600 text-xl font-semibold whitespace-nowrap">
                       ${product.price}
                     </p>
                   </div>
 
-                  <p className="text-slate-600 leading-normal font-light">
+                  <p className="text-slate-600 leading-normal font-light line-clamp-2">
                     {product.description || "No description available."}
                   </p>
                   <button
+                    onClick={() => addItem({ productId: product.id, quantity: 1 })}
                     className="rounded-md w-full mt-6 bg-rose-500 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-rose-700 focus:shadow-none active:bg-rose-700 hover:bg-rose-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                     type="button"
                   >
