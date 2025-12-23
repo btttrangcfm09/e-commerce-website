@@ -105,9 +105,12 @@ const Header = () => {
             {isProfilePopupOpen && (
                 <>
                     <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsProfilePopupOpen(false)} />
-                    <ProfilePopup/>
+                    {/* <ProfilePopup/> */}
+                    <ProfilePopup onClose={() => setIsProfilePopupOpen(false)} />
                 </>
             )}
+
+
         </header>
     );
 };

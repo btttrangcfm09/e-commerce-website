@@ -45,6 +45,22 @@ class UserService {
     }
 
     static async createAccount(data) {
+        const password = data.password;
+
+        // 1. Kiểm tra độ dài (Ví dụ: tối thiểu 6 ký tự)
+        if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters long');
+        }
+
+        // 2. (Tùy chọn) Kiểm tra độ phức tạp bằng Regex
+        // Ví dụ: Phải có ít nhất 1 chữ cái và 1 số
+        const hasLetter = /[a-zA-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        
+        if (!hasLetter || !hasNumber) {
+            throw new Error('Password must contain at least one letter and one number');
+        }
+        
         // 1. Kiểm tra Username tồn tại chưa
         const existingUser = await User.findByUsername(data.username);
         if (existingUser) throw new Error('Username already exists');
@@ -53,6 +69,7 @@ class UserService {
         const existingEmail = await User.findByEmail(data.email);
         if (existingEmail) throw new Error('Email already exists');
 
+        
         // 3. Mã hóa mật khẩu (Bcrypt an toàn hơn MD5 nhiều)
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(data.password, salt);
@@ -68,9 +85,7 @@ class UserService {
             email: data.email,
             firstName: data.firstName,
             lastName: data.lastName,
-            phone: data.phone,
-            address: data.address,
-            image: data.image,
+
             role: 'CUSTOMER' // Mặc định là Customer
         };
 
