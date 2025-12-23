@@ -81,7 +81,7 @@ create table public.order_status_history (
 
 
 create table public.carts (
-    id char(16) not null,
+    id char(255) not null,
     customer_id varchar(255) not null,
     created_at timestamp not null default now(),
     constraint pk_carts primary key (id),

@@ -35,11 +35,16 @@ export default function LoginForm() {
             const isAdminLogin = selectedRole === 'ADMIN';
             const result = await login(formData.username, formData.password, isAdminLogin);
 
+           if (result && result.success) {
             if (selectedRole === 'ADMIN') {
                 navigate('/admin/dashboard');
             } else {
                 navigate('/');
             }
+        } else {
+            // Nếu success = false, hiển thị lỗi lấy từ result trả về
+            setError(result?.message || 'Login failed. Please check your username/password.');
+        }
         } catch (err) {
             setError(err.response?.data?.message || err.message || 'Login failed');
         } finally {
