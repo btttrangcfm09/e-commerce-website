@@ -68,13 +68,24 @@ export default function MyOrders() {
   const handleDelete = async (selected) => {
     try {
       // CommonTable stores selected ids. We use orderId as row.id
-      await Promise.all((selected || []).map((orderId) => OrdersService.cancelOrder(orderId)));
+      const ids = selected || [];
+      const results = await Promise.all(ids.map((orderId) => OrdersService.cancelOrder(orderId)));
       await loadOrders();
 
       // After cancel, switch to the cancellations section (demo-friendly)
       setTimeout(() => {
         navigate('/account?section=my-cancellations');
       }, 600);
+
+      // Provide a dynamic message for the table snackbar.
+      if (ids.length === 1) {
+        return { message: results?.[0]?.message || 'Order canceled successfully' };
+      }
+      const allAlreadyCanceled = results.every((r) => r?.alreadyCanceled);
+      if (allAlreadyCanceled) {
+        return { message: 'Selected order(s) have already been canceled' };
+      }
+      return { message: 'Order(s) canceled successfully' };
     } catch (err) {
       console.error('Failed to cancel orders', err);
       throw err;

@@ -2,9 +2,10 @@ import Items from '@/assets/images/HomePage/Items.png';
 import Revenue from '@/assets/images/HomePage/Revenue.png';
 import Customer from '@/assets/images/HomePage/Customer.png';
 import Gross from '@/assets/images/HomePage/Gross.png';
-import employee1 from '@/assets/images/HomePage/employee1.png';
-import employee2 from '@/assets/images/HomePage/employee2.png';
-import employee3 from '@/assets/images/HomePage/employee3.png';
+import employee1 from '@/assets/images/HomePage/xinh1.jpg';
+import employee2 from '@/assets/images/HomePage/xinh2.jpg';
+import employee3 from '@/assets/images/HomePage/xinh3.jpg';
+import employee4 from '@/assets/images/HomePage/xinh4.jpg';
 import Shipping from '@/assets/images/HomePage/Shipping.png';
 import Guarantee from '@/assets/images/HomePage/Guarantee.png';
 import Support from '@/assets/images/HomePage/Support.png';
@@ -93,25 +94,33 @@ const About = () => {
 
                 <h2 className="text-3xl font-bold text-gray-800 text-center">Some Achievements</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg shadow-md border p-4">
-                        <img src={Items} alt="Items" />
+                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                        <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
+                            <img src={Items} alt="Items" className="w-10 h-10 object-contain grayscale contrast-125" />
+                        </div>
                         <h3 className="text-3xl font-bold">10.5k</h3>
-                        <p className="text-center text-gray-600 font-Poppins">Items on stock</p>
+                        <p className="text-center font-Poppins">Items on stock</p>
                     </div>
                     <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
-                        <img src={Revenue} alt="Revenue" />
+                        <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
+                            <img src={Revenue} alt="Revenue" className="w-10 h-10 object-contain grayscale contrast-125" />
+                        </div>
                         <h3 className="text-3xl font-bold">33k</h3>
                         <p className="text-center font-Poppins">Monthly Recurring Revenue</p>
                     </div>
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg shadow-md border p-4">
-                        <img src={Customer} alt="Customer" />
+                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                        <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
+                            <img src={Customer} alt="Customer" className="w-10 h-10 object-contain grayscale contrast-125" />
+                        </div>
                         <h3 className="text-3xl font-bold">45.5k</h3>
-                        <p className="text-center text-gray-600 font-Poppins">Customers active on site</p>
+                        <p className="text-center font-Poppins">Customers active on site</p>
                     </div>
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg shadow-md border p-4">
-                        <img src={Gross} alt="Gross" />
+                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                        <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
+                            <img src={Gross} alt="Gross" className="w-10 h-10 object-contain grayscale contrast-125" />
+                        </div>
                         <h3 className="text-3xl font-bold">25k</h3>
-                        <p className="text-center text-gray-600 font-Poppins">Annual gross sales</p>
+                        <p className="text-center font-Poppins">Annual gross sales</p>
                     </div>
                 </div>
 
@@ -133,24 +142,20 @@ const About = () => {
                         >
                             {[
                                 {
-                                    name: 'Emma Watson',
-                                    position: 'Managing Director',
+                                    name: 'Hoàng Hương Giang',
                                     img: employee1,
                                 },
                                 {
-                                    name: 'John Doe',
-                                    position: 'Chief Technical Officer',
+                                    name: 'Nguyễn Huyền Trang',
                                     img: employee2,
                                 },
                                 {
-                                    name: 'Jane Smith',
-                                    position: 'Marketing Head',
+                                    name: 'Bùi Thu Trang',
                                     img: employee3,
                                 },
                                 {
-                                    name: 'Mike Johnson',
-                                    position: 'Operations Manager',
-                                    img: employee2,
+                                    name: 'Bùi Thị Xuân',
+                                    img: employee4,
                                 },
                             ].map((member, index) => (
                                 <SwiperSlide key={index} className="flex justify-center">

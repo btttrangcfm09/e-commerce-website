@@ -17,8 +17,6 @@ const statsConfig = [
         value: '$0',
         background: 'bg-green-100',
         color: 'text-green-600',
-        trend: 'up',
-        change: '12%',
         description: 'Revenue this month'
     },
     {
@@ -27,8 +25,7 @@ const statsConfig = [
         value: '0',
         background: 'bg-blue-100',
         color: 'text-blue-600',
-        trend: 'up',
-        change: '8%',
+
         description: 'Orders this month'
     },
     {
@@ -37,8 +34,6 @@ const statsConfig = [
         value: '0',
         background: 'bg-purple-100',
         color: 'text-purple-600',
-        trend: 'up',
-        change: '5%',
         description: 'Customers this month'
     },
     {
@@ -47,8 +42,6 @@ const statsConfig = [
         value: '0',
         background: 'bg-orange-100',
         color: 'text-orange-600',
-        trend: 'down',
-        change: '3%',
         description: 'Products below threshold'
     }
 ];
@@ -89,12 +82,6 @@ const StatsCards = ({ data }) => {
                             <div className={styles.cardHeader}>
                                 <div className={`${styles.iconWrapper} ${stat.background}`}>
                                     <Icon className={`${styles.icon} ${stat.color}`} />
-                                </div>
-                                <div className={styles.trendWrapper}>
-                                    <TrendIcon trend={stat.trend} />
-                                    <span className={stat.trend === "up" ? styles.trendUp : styles.trendDown}>
-                                        {stat.change}
-                                    </span>
                                 </div>
                             </div>
                             <div className={styles.cardContent}>

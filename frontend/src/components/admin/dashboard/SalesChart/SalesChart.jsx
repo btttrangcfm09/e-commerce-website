@@ -14,6 +14,9 @@ const timeRanges = [
 
 const SalesChart = ({ data, timeRange, onTimeRangeChange }) => {
     const formatCurrency = (value) => {
+        // Kiểm tra an toàn để tránh lỗi NaN khi render
+        if (value === null || value === undefined || isNaN(value)) return '$0';
+        
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
@@ -22,6 +25,7 @@ const SalesChart = ({ data, timeRange, onTimeRangeChange }) => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return '';
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', { 
             month: 'short', 
@@ -48,10 +52,15 @@ const SalesChart = ({ data, timeRange, onTimeRangeChange }) => {
         return null;
     };
 
+    // --- SỬA LỖI Ở ĐÂY ---
+    // Backend trả về: total_sales, order_count
+    // Frontend cần map sang: sales, orders
     const chartData = data?.map(item => ({
         ...item,
-        sales: Number(item.sales),
-        orders: Number(item.orders)
+        // Ưu tiên lấy total_sales (từ DB), nếu không có thì lấy sales, nếu không thì 0
+        sales: Number(item.total_sales || item.sales || 0),
+        // Ưu tiên lấy order_count (từ DB), nếu không có thì lấy orders, nếu không thì 0
+        orders: Number(item.order_count || item.orders || 0)
     })) || [];
 
     const totalSales = chartData.reduce((sum, item) => sum + item.sales, 0);
