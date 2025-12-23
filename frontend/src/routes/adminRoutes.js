@@ -73,12 +73,16 @@ const adminRoutes = [
                         path: '',
                         element: <UserList />
                     },
+                    // {
+                    //     path: ':id',
+                    //     element: <UserDetails />
+                    // },
                     {
                         path: 'new',
                         element: <UserDetails />
                     },
                     {
-                        path: ':id/edit',
+                        path: ':id',
                         element: <UserDetails />
                     }
                 ]
