@@ -101,7 +101,6 @@ const ProductTable = ({
 
                                         <div className="flex flex-col">
                                             <span className={styles.productName}>{product.product_name}</span>
-                                            <span className="text-sm text-muted-foreground">{product.product_description}</span>
                                         </div>
                                     </div>
                                 </TableCell>
