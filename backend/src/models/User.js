@@ -92,21 +92,6 @@ class User {
         return await db.query(query);
     }
 
-
-
-    static async signIn(username, password) {
-        try {
-            const query = 'SELECT signIn($1, $2)';
-            return await db.query(query, [username, password]);
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    }
-
-    static async getUserDetailByID(id) {
-        const result = await db.query('SELECT * FROM view_profile($1)', [id]);            
-        return result[0]; 
-    }
 }
 
 module.exports = User;
