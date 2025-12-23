@@ -10,6 +10,6 @@ route.post('/add', authorizeAdmin, adminProductController.addProduct);
 
 route.put('/edit/:id', authorizeAdmin, adminProductController.editProduct);
 
-// route.get('/product/:id', authorizeAdmin, adminProductController.getProduct);
+route.delete('/:id', authorizeAdmin, adminProductController.deleteProduct);
 
 module.exports = route;

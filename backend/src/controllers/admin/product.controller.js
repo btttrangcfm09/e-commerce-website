@@ -1,10 +1,14 @@
 const ProductService = require('../../services/product.service');
 const fs = require('fs');
 const path = require('path');
-const { google } = require('googleapis');
 exports.get = async (req, res, next) => {
-    //logic idk
     try {
+        // Nếu có query ?id= thì lấy product theo id
+        if (req.query.id) {
+            const product = await ProductService.getProductById(req.query.id);
+            return res.status(200).json([product]); // Trả về array để frontend xử lý consistent
+        }
+        // Không thì lấy list products
         res.status(200).json(await ProductService.get(req));
     } catch (err) {
         next(err);
@@ -12,80 +16,40 @@ exports.get = async (req, res, next) => {
 };
 
 exports.addProduct = async (req, res, next) => {
-    const tempDir = path.join(__dirname, '../../../uploads');
+    const uploadDir = path.join(__dirname, '../../../uploads/products');
     try {
         const { images, ...productData } = req.body;
         let imageUrls = null;
 
         if (images?.length) {
-            if (!fs.existsSync(tempDir)) {
-                fs.mkdirSync(tempDir, { recursive: true });
+            // Tạo thư mục nếu chưa tồn tại
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
             }
 
             const uploadedUrls = [];
 
-            const auth = new google.auth.GoogleAuth({
-                credentials: {
-                    type: process.env.GCP_TYPE,
-                    project_id: process.env.GCP_PROJECT_ID,
-                    private_key_id: process.env.GCP_PRIVATE_KEY_ID,
-                    private_key: process.env.GCP_PRIVATE_KEY,
-                    client_email: process.env.GCP_CLIENT_EMAIL,
-                    client_id: process.env.GCP_CLIENT_ID,
-                    auth_uri: process.env.GCP_AUTH_URI,
-                    token_uri: process.env.GCP_TOKEN_URI,
-                    auth_provider_x509_cert_url: process.env.GCP_AUTH_PROVIDER_CERT_URL,
-                    client_x509_cert_url: process.env.GCP_CLIENT_CERT_URL,
-                    universe_domain: process.env.GCP_UNIVERSE_DOMAIN,
-                },
-                scopes: ['https://www.googleapis.com/auth/drive.file'],
-            });
-
-            const drive = google.drive({ version: 'v3', auth });
-            const folder = await drive.files.create({
-                requestBody: {
-                    name: `Product/${productData.name}`,
-                    mimeType: 'application/vnd.google-apps.folder',
-                    parents: [process.env.BASE_FOLDER_ID],
-                },
-                fields: 'id',
-            });
-
-            for (let chunk of images) {
+            for (let imageData of images) {
                 try {
-                    if (typeof chunk === 'string' && chunk.includes(';base64,')) {
-                        const [header, base64Data] = chunk.split(';base64,');
+                    if (typeof imageData === 'string' && imageData.includes(';base64,')) {
+                        const [header, base64Data] = imageData.split(';base64,');
                         const mimeType = header.replace('data:', '');
+                        const extension = mimeType.split('/')[1] || 'jpg';
                         const buffer = Buffer.from(base64Data, 'base64');
-                        const filePath = path.join(tempDir, `temp_${Date.now()}.jpg`);
+                        
+                        // Tạo tên file unique
+                        const fileName = `product_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
+                        const filePath = path.join(uploadDir, fileName);
 
+                        // Lưu file vào local storage
                         await fs.promises.writeFile(filePath, buffer);
 
-                        const response = await drive.files.create({
-                            requestBody: {
-                                name: `product_${Date.now()}.jpg`,
-                                parents: [folder.data.id],
-                            },
-                            media: {
-                                mimeType,
-                                body: fs.createReadStream(filePath),
-                            },
-                            fields: 'id, webViewLink',
-                        });
-
-                        await drive.permissions.create({
-                            fileId: response.data.id,
-                            requestBody: {
-                                role: 'reader',
-                                type: 'anyone'
-                            }
-                        });
-
-                        fs.unlinkSync(filePath);
-                        uploadedUrls.push(response.data.webViewLink);
+                        // Tạo URL path cho database (để frontend có thể access qua /uploads/products/...)
+                        const imageUrl = `/uploads/products/${fileName}`;
+                        uploadedUrls.push(imageUrl);
                     }
                 } catch (chunkError) {
-                    console.error('Error processing chunk:', chunkError);
+                    console.error('Error processing image:', chunkError);
                 }
             }
 
@@ -109,117 +73,87 @@ exports.addProduct = async (req, res, next) => {
 };
 
 exports.editProduct = async (req, res, next) => {
-    const tempDir = path.join(__dirname, '../../../uploads');
+    const uploadDir = path.join(__dirname, '../../../uploads/products');
     try {
         const id = req.params.id;
         const { images, ...productData } = req.body;
-        let imageUrls = null;
-
-        if (images?.length) {
-            if (!fs.existsSync(tempDir)) {
-                fs.mkdirSync(tempDir, { recursive: true });
-            }
-
-            const uploadedUrls = [];
-
-            const auth = new google.auth.GoogleAuth({
-                credentials: {
-                    type: process.env.GCP_TYPE,
-                    project_id: process.env.GCP_PROJECT_ID,
-                    private_key_id: process.env.GCP_PRIVATE_KEY_ID,
-                    private_key: process.env.GCP_PRIVATE_KEY,
-                    client_email: process.env.GCP_CLIENT_EMAIL,
-                    client_id: process.env.GCP_CLIENT_ID,
-                    auth_uri: process.env.GCP_AUTH_URI,
-                    token_uri: process.env.GCP_TOKEN_URI,
-                    auth_provider_x509_cert_url: process.env.GCP_AUTH_PROVIDER_CERT_URL,
-                    client_x509_cert_url: process.env.GCP_CLIENT_CERT_URL,
-                    universe_domain: process.env.GCP_UNIVERSE_DOMAIN,
-                },
-                scopes: ['https://www.googleapis.com/auth/drive.file'],
-            });
-
-            const drive = google.drive({ version: 'v3', auth });
-            const folder = await drive.files.create({
-                requestBody: {
-                    name: `Product/${id}`,
-                    mimeType: 'application/vnd.google-apps.folder',
-                    parents: [process.env.BASE_FOLDER_ID],
-                },
-                fields: 'id',
-            });
-
-            for (let chunk of images) {
-                try {
-                    if (typeof chunk === 'string' && chunk.includes(';base64,')) {
-                        const [header, base64Data] = chunk.split(';base64,');
-                        const mimeType = header.replace('data:', '');
-                        const buffer = Buffer.from(base64Data, 'base64');
-                        const filePath = path.join(tempDir, `temp_${Date.now()}.jpg`);
-
-                        await fs.promises.writeFile(filePath, buffer);
-
-                        const response = await drive.files.create({
-                            requestBody: {
-                                name: `product_${Date.now()}.jpg`,
-                                parents: [folder.data.id],
-                            },
-                            media: {
-                                mimeType,
-                                body: fs.createReadStream(filePath),
-                            },
-                            fields: 'id, webViewLink',
-                        });
-
-                        await drive.permissions.create({
-                            fileId: response.data.id,
-                            requestBody: {
-                                role: 'reader',
-                                type: 'anyone'
-                            }
-                        });
-
-                        fs.unlinkSync(filePath);
-                        uploadedUrls.push(response.data.webViewLink);
-                    }
-                } catch (chunkError) {
-                    console.error('Error processing chunk:', chunkError);
-                }
-            }
-
-            if (uploadedUrls.length) {
-                imageUrls = `{${uploadedUrls.join(',')}}`;
-            }
-        }
 
         const updatedProduct = {
             id,
             ...productData,
-            ...(imageUrls && { imageUrls }),
         };
+
+        // Chỉ xử lý upload ảnh mới khi có images trong request
+        if (images?.length) {
+            // Tạo thư mục nếu chưa tồn tại
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+
+            const uploadedUrls = [];
+
+            for (let imageData of images) {
+                try {
+                    if (typeof imageData === 'string' && imageData.includes(';base64,')) {
+                        const [header, base64Data] = imageData.split(';base64,');
+                        const mimeType = header.replace('data:', '');
+                        const extension = mimeType.split('/')[1] || 'jpg';
+                        const buffer = Buffer.from(base64Data, 'base64');
+                        
+                        // Tạo tên file unique
+                        const fileName = `product_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
+                        const filePath = path.join(uploadDir, fileName);
+
+                        // Lưu file vào local storage
+                        await fs.promises.writeFile(filePath, buffer);
+
+                        // Tạo URL path cho database
+                        const imageUrl = `/uploads/products/${fileName}`;
+                        uploadedUrls.push(imageUrl);
+                    }
+                } catch (chunkError) {
+                    console.error('Error processing image:', chunkError);
+                }
+            }
+
+            // Chỉ update imageUrls khi có ảnh mới được upload thành công
+            if (uploadedUrls.length) {
+                updatedProduct.imageUrls = `{${uploadedUrls.join(',')}}`;
+            }
+        }
+        // Nếu không có images → giữ nguyên ảnh cũ (không gửi imageUrls field)
 
         const result = await ProductService.editProductService(updatedProduct);
         
-        if (fs.existsSync(tempDir)) {
-            fs.rmSync(tempDir, { recursive: true });
-        }
-        
         return res.status(200).json({ message: 'Product updated successfully', data: result });
     } catch (err) {
-        if (fs.existsSync(tempDir)) {
-            fs.rmSync(tempDir, { recursive: true });
-        }
         next(err);
     }
 };
 
-exports.getProduct = async (req, res, next) => {
+exports.deleteProduct = async (req, res, next) => {
     try {
         const id = req.params.id;
+        const adminId = req.user.userId; // Get admin ID from auth middleware
+        const { hardDelete = false } = req.query; // Optional hard delete flag
 
-        const result = await ProductService.getProductById(id);
-        res.status(200).json({
-            message: result,
+        // Validate product ID
+        if (!id || isNaN(parseInt(id))) {
+            return res.status(400).json({
+                error: 'Invalid product ID'
+            });
+        }
+
+        // Delete product (soft delete by default)
+        const result = await ProductService.deleteProductService(
+            parseInt(id), 
+            hardDelete === 'true',
+            adminId
+        );
+        
+        return res.status(200).json({
+            message: `Product ${result.deletion_type === 'SOFT_DELETE' ? 'deactivated' : 'deleted'} successfully`,
+            data: result
         });
     } catch (err) {
         next(err);

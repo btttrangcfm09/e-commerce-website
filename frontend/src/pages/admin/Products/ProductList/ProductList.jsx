@@ -107,14 +107,6 @@ const ProductList = () => {
                         />
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <Switch
-                                id="inactive"
-                                checked={searchForm.includeInactive}
-                                onCheckedChange={(checked) => updateFormField('includeInactive', checked)}
-                            />
-                            <Label htmlFor="inactive">Show inactive</Label>
-                        </div>
                         <Button type="submit">
                             <Search className="h-4 w-4 mr-2" />
                             Search
@@ -132,6 +124,7 @@ const ProductList = () => {
                     sortBy: filters.sortBy,
                     sortOrder: filters.sortOrder
                 }}
+                onProductDeleted={fetchProducts}
             />
         </div>
     );

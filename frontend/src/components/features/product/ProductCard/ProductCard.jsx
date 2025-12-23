@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
 import { useCartQuery } from '@/hooks/useCart';
 import placeholderImage from '@/assets/aboutpage/banner/ecommerce.jpg';
+import { API_URL } from '@/utils/constants';
 
 const ProductCard = ({ product }) => {
     const { addItem } = useCartQuery();
-    const productImage = product.product_image_urls?.[0] || placeholderImage;
+    const backendUrl = API_URL || 'http://localhost:3000';
+    
+    let productImage = product.product_image_urls?.[0] || placeholderImage;
+    // Nếu là local URL, thêm backend URL
+    if (productImage && typeof productImage === 'string' && productImage.startsWith('/uploads')) {
+        productImage = `${backendUrl}${productImage}`;
+    }
 
     const handleAddToCart = () => {
         addItem({ productId: parseInt(product.product_id), quantity: 1 });

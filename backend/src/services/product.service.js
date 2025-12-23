@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
+const { console } = require('inspector');
 require('dotenv').config();
 const auth = new google.auth.GoogleAuth({
     keyFile: process.env.JSON_FILE,
@@ -135,7 +136,7 @@ class ProductService {
     static async getProductById(productId) {
         try {
             const product = await ProductRepository.findById(parseInt(productId));
-            
+            console.log(product);
             if (!product) {
                 throw new Error('Product not found');
             }
@@ -278,6 +279,79 @@ class ProductService {
         try {
             const products = await ProductRepository.findBestSelling(limit);
             return products;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Delete product (soft delete by default)
+     */
+    static async deleteProductService(productId, hardDelete = false, adminId) {
+        try {
+            // Validate product ID
+            if (!productId || productId < 1) {
+                throw new Error('Invalid product ID');
+            }
+
+            // Check if product exists
+            const exists = await ProductRepository.exists(productId);
+            if (!exists) {
+                throw new Error('Product not found');
+            }
+
+            // Check if product is already inactive (for soft delete)
+            if (!hardDelete) {
+                const product = await ProductRepository.findById(productId);
+                if (!product.is_active) {
+                    throw new Error('Product is already deactivated');
+                }
+            }
+
+            // Validate hard delete
+            if (hardDelete) {
+                // Check if product has orders (cannot hard delete)
+                const hasOrders = await ProductRepository.hasOrders(productId);
+                if (hasOrders) {
+                    throw new Error('Cannot delete product: Product has existing orders. Use soft delete instead.');
+                }
+            }
+
+            // Perform deletion
+            const result = await ProductRepository.deleteProduct(productId, hardDelete);
+
+            // Log deletion (optional - for audit trail)
+            console.log(`Product ${productId} ${hardDelete ? 'hard deleted' : 'soft deleted'} by admin ${adminId}`);
+
+            return result;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Restore soft-deleted product
+     */
+    static async restoreProductService(productId, adminId) {
+        try {
+            if (!productId || productId < 1) {
+                throw new Error('Invalid product ID');
+            }
+
+            const exists = await ProductRepository.exists(productId);
+            if (!exists) {
+                throw new Error('Product not found');
+            }
+
+            const product = await ProductRepository.findById(productId);
+            if (product.is_active) {
+                throw new Error('Product is already active');
+            }
+
+            const result = await ProductRepository.restoreProduct(productId);
+            console.log(`Product ${productId} restored by admin ${adminId}`);
+
+            return result;
         } catch (err) {
             throw err;
         }
