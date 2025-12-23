@@ -9,12 +9,15 @@ create type public.inventory_change_type as enum('RESTOCK', 'SALE');
 
 
 create table public.users (
-    id varchar(255) not null,
+    id char(255) not null,
     username varchar(255) not null unique,
     password varchar(255) not null,
     email varchar(255) not null unique,
     first_name varchar(255) not null,
     last_name varchar(255) not null,
+    phone varchar(20),
+    address text,
+    image varchar(500),
     role public.user_role not null,
     created_at timestamp not null default now(),
     constraint pk_users primary key (id)
@@ -42,8 +45,8 @@ create table public.products (
 );
 
 create table public.orders (
-    id char(16) not null,
-    customer_id varchar(255) not null,
+    id char(255) not null,
+    customer_id char(255) not null,
     total_price decimal(10, 2) not null,
     shipping_address text not null,
     order_status public.order_status not null,
@@ -56,13 +59,13 @@ create table public.orders (
 );
 
 create table public.order_items (
-    id char(24) not null,
-    order_id char(16) not null unique,
+    id char(255) not null,
+    order_id char(255) not null,
     product_id integer not null,
     quantity integer not null default 1,
     price decimal(10, 2) not null,
     created_at timestamp not null default now(),
-    constraint pk_order_items primary key (id, order_id),
+    constraint pk_order_items primary key (id),
     constraint fk_order_id foreign key (order_id) references orders(id),
     constraint fk_product_id foreign key (product_id) references products(id),
     check (quantity >= 0),
@@ -71,7 +74,7 @@ create table public.order_items (
 
 create table public.order_status_history (
     id serial primary key,
-    order_id char(16) not null,
+    order_id char(255) not null,
     old_status public.order_status,
     new_status public.order_status,
     changed_at timestamp default current_timestamp,
@@ -82,15 +85,15 @@ create table public.order_status_history (
 
 create table public.carts (
     id char(255) not null,
-    customer_id varchar(255) not null,
+    customer_id char(255) not null,
     created_at timestamp not null default now(),
     constraint pk_carts primary key (id),
     constraint fk_customer_id foreign key (customer_id) references users(id)
 );
 
 create table public.cart_items (
-    id char(24) not null,
-    cart_id char(16) not null,
+    id char(255) not null,
+    cart_id char(255) not null,
     product_id integer not null,
     quantity integer not null default 1,
     created_at timestamp not null default now(),
@@ -100,7 +103,7 @@ create table public.cart_items (
 );
 
 create table public.inventory (
-    id char(8) not null,
+    id char(255) not null,
     product_id integer not null,
     quantity integer not null,
     change_type public.inventory_change_type not null,
@@ -111,8 +114,8 @@ create table public.inventory (
 );
 
 create table public.payments (
-    id char(28) not null,
-    order_id char(16) not null,
+    id char(255) not null,
+    order_id char(255) not null,
     amount decimal(10, 2) not null,
     payment_status public.payment_status not null,
     payment_method public.payment_method not null,

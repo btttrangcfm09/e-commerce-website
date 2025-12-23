@@ -12,8 +12,8 @@ class User {
     // Tìm user theo ID (để xem profile)
     static async findById(id) {
         const query = `
-            SELECT id, username, email, first_name, last_name, role, 
-                created_at
+            SELECT id, username, email, first_name, last_name, phone, 
+                   address, image, role, created_at
             FROM users WHERE id = $1
         `;
         const result = await db.query(query, [id]);
@@ -22,20 +22,20 @@ class User {
 
     // Tạo user mới (Chỉ INSERT, không logic)
     static async create(userData) {
-        const { id, username, password, email, firstName, lastName, role} = userData;
+        const { id, username, password, email, firstName, lastName, phone, address, image, role} = userData;
         
         const query = `
             INSERT INTO users (
                 id, username, password, email, first_name, last_name, 
-                role, created_at
+                phone, address, image, role, created_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
             RETURNING id, username, email, role
         `;
         
         const values = [
             id, username, password, email, firstName, lastName, 
-            role || 'CUSTOMER'
+            phone, address, image, role || 'CUSTOMER'
         ];
 
         // Lưu ý: Mình để is_active = true luôn cho tiện test. 
@@ -55,9 +55,9 @@ class User {
         if (data.email) { fields.push(`email = $${index++}`); values.push(data.email); }
         if (data.firstName) { fields.push(`first_name = $${index++}`); values.push(data.firstName); }
         if (data.lastName) { fields.push(`last_name = $${index++}`); values.push(data.lastName); }
-        // if (data.phone) { fields.push(`phone = $${index++}`); values.push(data.phone); }
-        // if (data.address) { fields.push(`address = $${index++}`); values.push(data.address); }
-        // if (data.image) { fields.push(`image = $${index++}`); values.push(data.image); }
+        if (data.phone) { fields.push(`phone = $${index++}`); values.push(data.phone); }
+        if (data.address) { fields.push(`address = $${index++}`); values.push(data.address); }
+        if (data.image) { fields.push(`image = $${index++}`); values.push(data.image); }
 
         if (fields.length === 0) return null;
 
@@ -85,8 +85,8 @@ class User {
     // Lấy tất cả user
     static async getAll() {
         const query = `
-            SELECT id, username, email, first_name, last_name, role, 
-                created_at 
+            SELECT id, username, email, first_name, last_name, phone, 
+                   address, image, role, created_at 
             FROM users
         `;
         return await db.query(query);

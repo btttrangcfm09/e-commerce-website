@@ -13,7 +13,7 @@ TRUNCATE TABLE users CASCADE;
 -- Password: admin123 (bcrypt hash)
 -- Note: You should change these passwords in production!
 
-INSERT INTO users (id, username, password, email, first_name, last_name, role, created_at) VALUES
+INSERT INTO users (id, username, password, email, first_name, last_name, phone, address, image, role, created_at) VALUES
 (
     'admin001',
     'admin',
@@ -21,6 +21,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'admin@ecommerce.com',
     'Admin',
     'System',
+    '0123456789',
+    'Ha Noi, Vietnam',
+    NULL,
     'ADMIN',
     NOW()
 ),
@@ -31,6 +34,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'john.admin@ecommerce.com',
     'John',
     'Smith',
+    '0987654321',
+    'Ho Chi Minh City, Vietnam',
+    NULL,
     'ADMIN',
     NOW()
 );
@@ -39,7 +45,7 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
 -- CUSTOMER USERS
 -- ====================================
 
-INSERT INTO users (id, username, password, email, first_name, last_name, role, created_at) VALUES
+INSERT INTO users (id, username, password, email, first_name, last_name, phone, address, image, role, created_at) VALUES
 -- Customer 1
 (
     gen_random_uuid()::varchar,
@@ -48,6 +54,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'sarah.wilson@email.com',
     'Sarah',
     'Wilson',
+    '0901234567',
+    '123 Nguyen Hue, District 1, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '120 days'
 ),
@@ -59,6 +68,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'mike.johnson@email.com',
     'Michael',
     'Johnson',
+    '0912345678',
+    '456 Le Loi, District 3, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '110 days'
 ),
@@ -70,6 +82,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'emma.davis@email.com',
     'Emma',
     'Davis',
+    '0923456789',
+    '789 Tran Hung Dao, District 5, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '95 days'
 ),
@@ -81,6 +96,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'james.brown@email.com',
     'James',
     'Brown',
+    '0934567890',
+    '321 Hai Ba Trung, Ha Noi',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '87 days'
 ),
@@ -92,6 +110,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'olivia.garcia@email.com',
     'Olivia',
     'Garcia',
+    '0945678901',
+    '654 Ba Trieu, Ha Noi',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '75 days'
 ),
@@ -103,6 +124,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'william.miller@email.com',
     'William',
     'Miller',
+    '0956789012',
+    '987 Ly Thuong Kiet, Da Nang',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '68 days'
 ),
@@ -114,6 +138,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'sophia.martinez@email.com',
     'Sophia',
     'Martinez',
+    '0967890123',
+    '147 Tran Phu, Da Nang',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '61 days'
 ),
@@ -125,6 +152,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'robert.taylor@email.com',
     'Robert',
     'Taylor',
+    '0978901234',
+    '258 Hoang Dieu, Hue',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '55 days'
 ),
@@ -136,6 +166,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'isabella.anderson@email.com',
     'Isabella',
     'Anderson',
+    '0989012345',
+    '369 Nguyen Trai, Can Tho',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '48 days'
 ),
@@ -147,6 +180,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'david.thomas@email.com',
     'David',
     'Thomas',
+    '0990123456',
+    '741 Le Duan, Nha Trang',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '42 days'
 ),
@@ -158,6 +194,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'mia.jackson@email.com',
     'Mia',
     'Jackson',
+    '0901234568',
+    '852 Vo Van Tan, District 3, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '35 days'
 ),
@@ -169,6 +208,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'daniel.white@email.com',
     'Daniel',
     'White',
+    '0912345679',
+    '963 Phan Chu Trinh, Vung Tau',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '28 days'
 ),
@@ -180,6 +222,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'charlotte.harris@email.com',
     'Charlotte',
     'Harris',
+    '0923456780',
+    '159 Quang Trung, Bien Hoa',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '21 days'
 ),
@@ -191,6 +236,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'matthew.clark@email.com',
     'Matthew',
     'Clark',
+    '0934567891',
+    '753 Le Hong Phong, District 10, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '14 days'
 ),
@@ -202,6 +250,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'amelia.lewis@email.com',
     'Amelia',
     'Lewis',
+    '0945678902',
+    '486 Cach Mang Thang Tam, District 3, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '10 days'
 ),
@@ -213,6 +264,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'joseph.robinson@email.com',
     'Joseph',
     'Robinson',
+    '0956789013',
+    '357 Dong Khoi, District 1, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '7 days'
 ),
@@ -224,6 +278,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'harper.walker@email.com',
     'Harper',
     'Walker',
+    '0967890124',
+    '951 Ham Nghi, District 1, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '5 days'
 ),
@@ -235,6 +292,9 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'benjamin.hall@email.com',
     'Benjamin',
     'Hall',
+    '0978901235',
+    '246 Pasteur, District 1, HCMC',
+    NULL,
     'CUSTOMER',
     NOW() - INTERVAL '3 days'
 );

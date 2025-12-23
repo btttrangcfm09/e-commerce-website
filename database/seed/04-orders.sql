@@ -16,9 +16,9 @@ TRUNCATE TABLE public.cart_items CASCADE;
 DO $$
 DECLARE
     v_customer_id varchar(255);
-    v_order_id char(16);
-    v_order_item_id char(24);
-    v_payment_id char(28);
+    v_order_id char(255);
+    v_order_item_id char(255);
+    v_payment_id char(255);
     v_product_id int;
     v_product_price decimal(10,2);
     v_quantity int;
@@ -40,7 +40,7 @@ BEGIN
         SELECT id INTO v_customer_id FROM users ORDER BY random() LIMIT 1;
         
         -- B. Sinh ID ngẫu nhiên (giả lập hex string)
-        v_order_id := substring(md5(random()::text) from 1 for 16);
+        v_order_id := substring(md5(random()::text) from 1 for 255);
         
         -- C. Random trạng thái & Ngày tạo (trong vòng 30 ngày qua)
         v_status := v_statuses[1 + floor(random() * array_length(v_statuses, 1))::int];
@@ -71,7 +71,7 @@ BEGIN
             SELECT id, price INTO v_product_id, v_product_price FROM products ORDER BY random() LIMIT 1;
             v_quantity := 1 + floor(random() * 3)::int; -- Số lượng 1-3
             
-            v_order_item_id := substring(md5(random()::text) from 1 for 24);
+            v_order_item_id := substring(md5(random()::text) from 1 for 255);
 
             -- Insert Order Item
             INSERT INTO public.order_items (id, order_id, product_id, quantity, price, created_at)
@@ -87,7 +87,7 @@ BEGIN
         -- E. Cập nhật lại tổng tiền chính xác cho Order
         UPDATE public.orders SET total_price = v_total_price WHERE id = v_order_id;
 
-        -- F. Tạo Payment Record (nếu đã thanh toán)
+        -- F. Tạo Payment Record (nếu đã thanh toán)55
         IF v_payment_status = 'COMPLETED' THEN
             v_payment_id := substring(md5(random()::text) from 1 for 28);
             INSERT INTO public.payments (
