@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const db = require('../config/database');
+const { v4: uuidv4 } = require('uuid'); // Đảm bảo cài uuid: npm install uuid
 
 const ORDER_STATUS = Object.freeze({
   PENDING: 'PENDING',
@@ -120,8 +121,11 @@ class OrderRepository {
       throw error;
     } finally {
       client.release();
+      
     }
   }
+
+  // --- CÁC HÀM GET DỮ LIỆU (READ) ---
 
   static async getOrderById(orderId, userId) {
     const client = await db.pool.connect();
@@ -485,18 +489,60 @@ class OrderRepository {
     const query = `
       SELECT
         o.*,
-        json_build_object(
-          'username', u.username,
-          'email', u.email,
-          'first_name', u.first_name,
-          'last_name', u.last_name
-        ) as customer_info
-      FROM public.orders o
-      JOIN public.users u ON u.id = o.customer_id
+        u.username, u.email, u.first_name, u.last_name
+      FROM orders o
+      JOIN users u ON u.id = o.customer_id
       ORDER BY o.created_at DESC
       LIMIT $1
     `;
     return await db.query(query, [normalizedLimit]);
+  }
+
+  static async getAllOrders(options) {
+    const { offset, limit, status } = options;
+    let query = `
+        SELECT o.*, u.username 
+        FROM orders o
+        JOIN users u ON o.customer_id = u.id
+    `;
+    const params = [limit, offset];
+    let paramIndex = 3;
+
+    if (status) {
+        query += ` WHERE o.order_status = $${paramIndex}`;
+        params.push(status);
+    }
+
+    query += ` ORDER BY o.created_at DESC LIMIT $1 OFFSET $2`;
+
+    return await db.query(query, params);
+  }
+
+  // --- CÁC HÀM UPDATE ---
+  
+  static async updateOrderStatus(orderId, status, userId) {
+    // Logic: Có thể check userId có phải là admin không ở tầng Service/Controller rồi
+    const query = `UPDATE orders SET order_status = $1 WHERE id = $2`;
+    await db.query(query, [status, orderId]);
+    
+    // Lưu lịch sử thay đổi (Order Status History)
+    await db.query(`
+        INSERT INTO order_status_history (order_id, new_status, changed_by) 
+        VALUES ($1, $2, 'ADMIN')
+    `, [orderId, status]);
+    
+    return true;
+  }
+
+  static async cancelOrder(orderId, userId) {
+     // Check xem order có phải của user này không
+     const orderRes = await db.query('SELECT order_status FROM orders WHERE id = $1 AND customer_id = $2', [orderId, userId]);
+     if (!orderRes[0]) throw new Error('Order not found or unauthorized');
+
+     if (orderRes[0].order_status === 'CANCELED') return { alreadyCanceled: true };
+
+     await db.query(`UPDATE orders SET order_status = 'CANCELED' WHERE id = $1`, [orderId]);
+     return { canceled: true };
   }
 }
 

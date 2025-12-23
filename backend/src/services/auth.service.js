@@ -1,29 +1,41 @@
 const jwt = require('jsonwebtoken');
-const pool = require('../config/database');
+const bcrypt = require('bcryptjs'); // Cần đảm bảo đã cài: npm install bcryptjs
+const db = require('../config/database');
 
 exports.validateAdminCredentials = async (username, password) => {
     try {
-        // Query to validate user credentials using raw SQL (keeping the same query structure)
+        // 1. Tìm user trong DB bằng raw SQL
+        const query = 'SELECT id, username, password, role FROM users WHERE username = $1';
+        const result = await db.query(query, [username]);
+        const user = result[0];
 
-        const result = await pool.query('SELECT * from signin($1, $2)', [username, password]);
+        // 2. Nếu không tìm thấy user
+        if (!user) {
+            throw new Error('Wrong username or password');
+        }
 
-        if (!result[0].signin) throw new Error('Wrong username or password');
+        // 3. So sánh mật khẩu (Bcrypt)
+        // Lưu ý: Password trong DB phải là hash bcrypt.
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            throw new Error('Wrong username or password');
+        }
 
-        const role = await pool.query('SELECT role,id FROM users WHERE username = $1', [username]);
-
-        if (role[0].role !== 'ADMIN') {
+        // 4. Kiểm tra quyền Admin
+        if (user.role !== 'ADMIN') {
             const error = new Error('Unauthorized. User is not an admin.');
             error.statusCode = 403;
             throw error;
         }
 
+        // 5. Trả về thông tin (để controller tạo token)
         return {
-            id: role[0].id,
-            username: username,
-            role: role[0].role,
+            id: user.id,
+            username: user.username,
+            role: user.role,
         };
     } catch (err) {
-        throw err; // Pass the error to the middleware
+        throw err;
     }
 };
 
