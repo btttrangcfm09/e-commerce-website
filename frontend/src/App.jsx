@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import clientRoutes from './routes/clientRoutes';
 import adminRoutes from './routes/adminRoutes';
 import { CartProvider } from '@/components/features/cart/CartContext/CartContext';
+import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ function App() {
                             {renderRoutes(clientRoutes)}
                             {renderRoutes(adminRoutes)}
                         </Routes>
+                        <Toaster />
                     </CartProvider>
                 </AuthProvider>
             </BrowserRouter>

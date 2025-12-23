@@ -212,21 +212,84 @@ class OrderRepository {
         let query = `
             SELECT 
                 o.id, o.total_price, o.order_status, o.payment_status, o.created_at,
-                u.username, u.email
+                u.username, u.email, o.shipping_address
             FROM orders o
             JOIN users u ON o.customer_id = u.id
+            WHERE o.is_active = true
         `;
         const params = [limit, offset];
         let paramIndex = 3;
 
         if (status) {
-            query += ` WHERE o.order_status = $${paramIndex}`;
+            query += ` AND o.order_status = $${paramIndex}`;
             params.push(status);
         }
 
         query += ` ORDER BY o.created_at DESC LIMIT $1 OFFSET $2`;
 
         return await db.query(query, params);
+    }
+
+    static async softDeleteOrder(orderId, userId) {
+        // Soft delete order bằng cách set is_active = false
+        const query = `
+            UPDATE orders 
+            SET is_active = false 
+            WHERE id = $1
+            RETURNING id, order_status
+        `;
+        const result = await db.query(query, [orderId]);
+        
+        if (result.length === 0) {
+            throw new Error('Order not found');
+        }
+        
+        return result[0];
+    }
+
+    static async getOrderDetailsForPDF(orderId, userId) {
+        // Lấy chi tiết đơn hàng kèm items để xuất PDF
+        const orderQuery = `
+            SELECT 
+                o.id, 
+                o.customer_id, 
+                o.total_price, 
+                o.shipping_address, 
+                o.order_status, 
+                o.payment_status, 
+                o.created_at,
+                u.username,
+                u.email,
+                u.first_name,
+                u.last_name
+            FROM orders o
+            JOIN users u ON o.customer_id = u.id
+            WHERE o.id = $1 AND o.is_active = true
+        `;
+        
+        const itemsQuery = `
+            SELECT 
+                oi.id,
+                oi.product_id,
+                oi.quantity,
+                oi.price,
+                p.name as product_name
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = $1
+        `;
+        
+        const orderResult = await db.query(orderQuery, [orderId]);
+        if (orderResult.length === 0) {
+            throw new Error('Order not found');
+        }
+        
+        const itemsResult = await db.query(itemsQuery, [orderId]);
+        
+        return {
+            ...orderResult[0],
+            items: itemsResult
+        };
     }
 
     // --- 3. DASHBOARD STATS (Cho biểu đồ) ---

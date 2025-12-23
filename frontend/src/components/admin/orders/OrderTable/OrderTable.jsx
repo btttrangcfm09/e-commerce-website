@@ -5,9 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, ArrowUpDown, Eye, Download, Trash2 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { OrdersService } from '@/services/orders';
+import { toast } from 'sonner';
 import styles from './OrderTable.module.css';
 
-const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) => {
+// FIX 1: Đảm bảo safeOrders luôn là mảng, dù orders truyền vào là null
+const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder, onOrderDeleted }) => {
+    
+    // Đảm bảo không bị crash nếu orders là null
+    const safeOrders = Array.isArray(orders) ? orders : [];
+
     const getStatusColor = (status) => {
         const colors = {
             PENDING: 'bg-yellow-500/20 text-yellow-700 hover:bg-yellow-500/30',
@@ -19,13 +26,55 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        if (!dateString) return 'N/A'; // FIX 2: Check null date
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    };
+
+    // Helper an toàn để hiển thị địa chỉ (tránh lỗi render Object)
+    const renderAddress = (addr) => {
+        if (!addr) return 'N/A';
+        if (typeof addr === 'object') return JSON.stringify(addr); // Fallback nếu lỡ nó là object
+        return addr;
+    };
+
+    const handleDeleteOrder = async (orderId) => {
+        if (!confirm('Are you sure you want to delete this order?')) {
+            return;
+        }
+        
+        try {
+            await OrdersService.deleteOrder(orderId);
+            toast.success('Order deleted successfully');
+            
+            // Notify parent to refresh list
+            if (onOrderDeleted) {
+                onOrderDeleted(orderId);
+            }
+        } catch (error) {
+            console.error('Failed to delete order:', error);
+            toast.error(error?.response?.data?.message || 'Failed to delete order');
+        }
+    };
+
+    const handleDownloadPDF = async (orderId) => {
+        try {
+            toast.info('Downloading PDF...');
+            await OrdersService.downloadOrderPDF(orderId);
+            toast.success('PDF downloaded successfully');
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            toast.error(error?.response?.data?.message || 'Failed to download PDF');
+        }
     };
 
     return (
@@ -38,12 +87,12 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                         <TableRow className={styles.header}>
                             <TableHead onClick={() => onSort('id')} className={styles.headerCell}>
                                 <div className={styles.headerContent}>
-                                    ID <ArrowUpDown className={styles.sortIcon} />
+                                    ID
                                 </div>
                             </TableHead>
-                            <TableHead onClick={() => onSort('customer_info.username')} className={styles.headerCell}>
+                            <TableHead onClick={() => onSort('username')} className={styles.headerCell}>
                                 <div className={styles.headerContent}>
-                                    Customer <ArrowUpDown className={styles.sortIcon} />
+                                    Customer 
                                 </div>
                             </TableHead>
                             <TableHead onClick={() => onSort('created_at')} className={styles.headerCell}>
@@ -62,42 +111,43 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {orders.length === 0 ? (
+                        {safeOrders.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={7} className={styles.emptyState}>
                                     No orders found
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            orders.map((order) => (
+                            safeOrders.map((order) => (
                                 <TableRow key={order.id} className={styles.row}>
                                     <TableCell className={styles.idCell}>#{order.id}</TableCell>
                                     <TableCell>
                                         <div className={styles.customerInfo}>
+                                            {/* FIX 3: Dùng Optional Chaining (?.) và fallback */}
                                             <span className={styles.customerName}>
-                                                {order.customer_info.first_name} {order.customer_info.last_name}
+                                                {order.username || 'Unknown'} 
                                             </span>
                                             <span className={styles.customerEmail}>
-                                                {order.customer_info.email}
+                                                {order.email || 'No Email'}
                                             </span>
                                         </div>
                                     </TableCell>
                                     <TableCell>{formatDate(order.created_at)}</TableCell>
                                     <TableCell className={styles.address}>
-                                        {order.shipping_address}
+                                        {renderAddress(order.shipping_address)}
                                     </TableCell>
                                     <TableCell>
                                         <div className={styles.statusContainer}>
                                             <Badge variant="secondary" className={getStatusColor(order.order_status)}>
-                                                {order.order_status}
+                                                {order.order_status || 'UNKNOWN'}
                                             </Badge>
                                             <Badge variant="secondary" className={getStatusColor(order.payment_status)}>
-                                                {order.payment_status}
+                                                {order.payment_status || 'UNKNOWN'}
                                             </Badge>
                                         </div>
                                     </TableCell>
                                     <TableCell className={styles.total}>
-                                        ${Number(order.total_price).toFixed(2)}
+                                        ${Number(order.total_price || 0).toFixed(2)}
                                     </TableCell>
                                     <TableCell>
                                         <DropdownMenu>
@@ -111,11 +161,14 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                                                     <Eye className={styles.icon} />
                                                     View Details
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDownloadPDF(order.id)}>
                                                     <Download className={styles.icon} />
-                                                    Download
+                                                    Download PDF
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className={styles.deleteAction}>
+                                                <DropdownMenuItem 
+                                                    className={styles.deleteAction}
+                                                    onClick={() => handleDeleteOrder(order.id)}
+                                                >
                                                     <Trash2 className={styles.icon} />
                                                     Delete
                                                 </DropdownMenuItem>

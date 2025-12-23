@@ -33,10 +33,10 @@ const OrderDetails = ({ order }) => {
                 </div>
                 <div className="flex gap-2">
                     <Badge className={getStatusBadgeStyle(order.order_status)}>
-                        {order.order_status}
+                        Order status: {order.order_status}
                     </Badge>
                     <Badge className={getStatusBadgeStyle(order.payment_status)}>
-                        {order.payment_status}
+                        Payment status: {order.payment_status}
                     </Badge>
                 </div>
             </div>
