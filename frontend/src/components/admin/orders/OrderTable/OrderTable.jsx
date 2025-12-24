@@ -7,7 +7,12 @@ import { MoreVertical, ArrowUpDown, Eye, Download, Trash2 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import styles from './OrderTable.module.css';
 
+// FIX 1: Đảm bảo safeOrders luôn là mảng, dù orders truyền vào là null
 const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) => {
+    
+    // Đảm bảo không bị crash nếu orders là null
+    const safeOrders = Array.isArray(orders) ? orders : [];
+
     const getStatusColor = (status) => {
         const colors = {
             PENDING: 'bg-yellow-500/20 text-yellow-700 hover:bg-yellow-500/30',
@@ -19,13 +24,25 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        if (!dateString) return 'N/A'; // FIX 2: Check null date
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    };
+
+    // Helper an toàn để hiển thị địa chỉ (tránh lỗi render Object)
+    const renderAddress = (addr) => {
+        if (!addr) return 'N/A';
+        if (typeof addr === 'object') return JSON.stringify(addr); // Fallback nếu lỡ nó là object
+        return addr;
     };
 
     return (
@@ -62,42 +79,43 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {orders.length === 0 ? (
+                        {safeOrders.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={7} className={styles.emptyState}>
                                     No orders found
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            orders.map((order) => (
+                            safeOrders.map((order) => (
                                 <TableRow key={order.id} className={styles.row}>
                                     <TableCell className={styles.idCell}>#{order.id}</TableCell>
                                     <TableCell>
                                         <div className={styles.customerInfo}>
+                                            {/* FIX 3: Dùng Optional Chaining (?.) và fallback */}
                                             <span className={styles.customerName}>
-                                                {order.customer_info.first_name} {order.customer_info.last_name}
+                                                {order.customer_info?.first_name || 'Unknown'} {order.customer_info?.last_name || ''}
                                             </span>
                                             <span className={styles.customerEmail}>
-                                                {order.customer_info.email}
+                                                {order.customer_info?.email || 'No Email'}
                                             </span>
                                         </div>
                                     </TableCell>
                                     <TableCell>{formatDate(order.created_at)}</TableCell>
                                     <TableCell className={styles.address}>
-                                        {order.shipping_address}
+                                        {renderAddress(order.shipping_address)}
                                     </TableCell>
                                     <TableCell>
                                         <div className={styles.statusContainer}>
                                             <Badge variant="secondary" className={getStatusColor(order.order_status)}>
-                                                {order.order_status}
+                                                {order.order_status || 'UNKNOWN'}
                                             </Badge>
                                             <Badge variant="secondary" className={getStatusColor(order.payment_status)}>
-                                                {order.payment_status}
+                                                {order.payment_status || 'UNKNOWN'}
                                             </Badge>
                                         </div>
                                     </TableCell>
                                     <TableCell className={styles.total}>
-                                        ${Number(order.total_price).toFixed(2)}
+                                        ${Number(order.total_price || 0).toFixed(2)}
                                     </TableCell>
                                     <TableCell>
                                         <DropdownMenu>
