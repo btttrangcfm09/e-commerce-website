@@ -153,10 +153,6 @@ export default function LoginForm() {
                     </button>
                 </p>
             </div>
-
-            <div className="mt-6 pt-4 text-center">
-                 <p className='text-xs text-gray-300 font-mono'>Admin: adminnghia / admin</p>
-            </div>
         </div>
     );
 }
