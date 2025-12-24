@@ -39,7 +39,7 @@ class UserService {
         );
 
         // Lọc bỏ thông tin nhạy cảm
-        const { password: _, is_active, created_at, ...filteredProfile } = user;
+        const { password: _, created_at, ...filteredProfile } = user;
 
         return { token, filteredProfile };
     }

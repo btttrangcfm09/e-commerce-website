@@ -1,4 +1,6 @@
 const { OrderRepository, ORDER_STATUS } = require('../repositories/order.repository');
+const EmailService = require('./email.service');
+const UserRepository = require('../repositories/user.repository');
 
 const SUPPORTED_PAYMENT_METHODS = Object.freeze(['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'BANK_TRANSFER']);
 
@@ -37,7 +39,24 @@ class OrderService {
         if (!shippingAddress) {
             throw new Error('Shipping address is required');
         }
-        return await OrderRepository.createOrderFromCart(userId, shippingAddress);
+
+        const orderId = await OrderRepository.createOrderFromCart(userId, shippingAddress);
+
+        // Best-effort email confirmation: do not fail the order if mail is not configured.
+        try {
+            if (EmailService.isConfigured()) {
+                const user = await UserRepository.findById(userId);
+                if (user?.email) {
+                    const order = await OrderRepository.getOrderById(orderId, userId);
+                    await EmailService.sendOrderConfirmation({ to: user.email, order });
+                }
+            }
+        } catch (err) {
+            // Log only; keep API behavior intact.
+            console.warn('Order confirmation email failed:', err?.message || err);
+        }
+
+        return orderId;
     }
 
     static async getOrderById(orderId, userId) {
