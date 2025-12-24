@@ -11,7 +11,8 @@ class UserRepository {
                 first_name,
                 last_name,
                 role,
-                created_at
+                created_at,
+                image
             FROM public.users
             WHERE id = $1
             LIMIT 1
@@ -32,7 +33,8 @@ class UserRepository {
                 first_name,
                 last_name,
                 role,
-                created_at
+                created_at,
+                image
             FROM public.users
             WHERE username = $1
             LIMIT 1
@@ -57,7 +59,7 @@ class UserRepository {
     }
 
     static async updateProfile(userId, updateFields) {
-        // updateFields: keys in DB column names (email, first_name, last_name, ...)
+        // updateFields: keys in DB column names (email, first_name, last_name, image, ...)
         const entries = Object.entries(updateFields).filter(([, v]) => v !== undefined);
         if (entries.length === 0) {
             return await UserRepository.findById(userId);
@@ -83,7 +85,8 @@ class UserRepository {
                 first_name,
                 last_name,
                 role,
-                created_at
+                created_at,
+                image
             `,
             values
         );
@@ -92,9 +95,24 @@ class UserRepository {
     }
 
     static async clearProfileImage(userId) {
-        // Column "image" does not exist in the current schema.
-        // Keep this method for API compatibility, but do not touch the database.
-        return await UserRepository.findById(userId);
+        const rows = await db.query(
+            `
+            UPDATE public.users
+            SET image = NULL
+            WHERE id = $1
+            RETURNING
+                id,
+                username,
+                email,
+                first_name,
+                last_name,
+                role,
+                created_at,
+                image
+            `,
+            [userId]
+        );
+        return rows[0] || null;
     }
 
     static async updatePasswordMd5(userId, newPassword) {

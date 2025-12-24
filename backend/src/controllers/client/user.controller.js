@@ -60,7 +60,10 @@ class UserController {
 
     static async updateProfileImage(req, res) {
         try {
-            return res.status(400).json({ message: 'Profile image is not supported (missing database column)' });
+            const userId = req.user.userId;
+            // uploadProfileImage middleware sets req.body.image (Google Drive link or local URL)
+            const profile = await ProfileService.updateMyProfile(userId, { image: req.body.image });
+            res.status(200).json({ message: 'Profile image updated successfully', profile });
         } catch (error) {
             res.status(error.status || 400).json({ message: error.message });
         }
@@ -68,7 +71,9 @@ class UserController {
 
     static async deleteProfileImage(req, res) {
         try {
-            return res.status(400).json({ message: 'Profile image is not supported (missing database column)' });
+            const userId = req.user.userId;
+            const profile = await ProfileService.deleteMyProfileImage(userId);
+            res.status(200).json({ message: 'Profile image deleted successfully', profile });
         } catch (error) {
             res.status(error.status || 400).json({ message: error.message });
         }
