@@ -6,6 +6,8 @@ import CartPopup from '@/components/common/CartPopUp';
 import { useCartQuery } from '@/hooks/useCart'; // Import useCartQuery
 import avatar from '@/assets/images/HomePage/user.png';
 import { AuthButtons } from '@/components/common/Button/Button';
+import HeaderSnow from '@/components/effects/HeaderSnow';
+import hatPng from '@/assets/images/hat.png';
 
 const Header = () => {
     const navigate = useNavigate();
@@ -56,21 +58,34 @@ const Header = () => {
             </div>
 
             <div 
-                className="relative w-10 h-10 rounded-full cursor-pointer overflow-hidden border-2 border-white"
+                className="relative w-10 h-10 rounded-full cursor-pointer border-2 border-white"
                 onClick={() => setIsProfilePopupOpen(true)}
             >
                 <img
                     src={avatar}
                     alt="User Avatar"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-full"
+                />
+                <img 
+                    src={hatPng} 
+                            alt="Christmas Hat"
+                            // Chỉnh -top, -left để căn vị trí mũ cho chuẩn
+                            className="absolute -top-5 -left-15 w-10 h-auto pointer-events-none z-30"
+                            style={{ 
+                                transform: 'rotate(-15deg)', // Xoay nghiêng chút cho đẹp
+                                filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.3))' 
+                            }} 
                 />
             </div>
         </div>
     );
 
     return (
-        <header className="bg-gradient-to-r from-black to-neutral-700 text-white shadow-lg sticky top-0 z-50">
-            <div className="container mx-auto flex justify-between items-center p-4">
+        <header className="bg-gradient-to-r from-black to-neutral-700 text-white shadow-lg sticky top-0 z-50 relative">
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <HeaderSnow /> 
+            </div>
+            <div className="container mx-auto flex justify-between items-center p-4 relative z-10">
                 <div className="flex items-center gap-8">
                     <h1 className="text-3xl font-extrabold tracking-wide">
                         <Link to="/" className="hover:opacity-90">
