@@ -8,6 +8,7 @@ import Foods from "@/assets/homepage/Categories/foods.jpg";
 import Cosmetics from "@/assets/homepage/Categories/cosmetics.jpg";
 import Litterature from "@/assets/homepage/Categories/litterature.jpg";
 import Furniture from "@/assets/homepage/Categories/furnitures.jpg";
+import { API_URL } from "@/utils/constants";
 
 const categoryImages = {
   "Fashion": Fashion,
@@ -21,6 +22,16 @@ const categoryImages = {
   "Books": Litterature,
   "Furniture": Furniture,
   "Cosmetics": Cosmetics,
+};
+
+// Hàm xử lý URL ảnh từ backend
+const normalizeImageUrl = (imageUrl) => {
+  if (!imageUrl) return "https://via.placeholder.com/300x200";
+  if (typeof imageUrl === 'string' && imageUrl.startsWith('/uploads')) {
+    const backendUrl = API_URL || 'http://localhost:3000';
+    return `${backendUrl}${imageUrl}`;
+  }
+  return imageUrl;
 };
 
 export const useHomeLogic = () => {
@@ -60,7 +71,7 @@ export const useHomeLogic = () => {
         const formattedProducts = fetchedProducts.map(product => ({
           id: product.product_id,
           name: product.product_name,
-          image: product.product_image_urls?.[0] || "https://via.placeholder.com/300x200",
+          image: normalizeImageUrl(product.product_image_urls?.[0]),
           price: parseFloat(product.product_price).toFixed(2),
           description: product.product_description || "No description available.",
           categoryId: product.category_id
@@ -69,7 +80,7 @@ export const useHomeLogic = () => {
         const formattedBestSelling = fetchedBestSelling.map(product => ({
           id: product.product_id,
           name: product.product_name,
-          image: product.product_image_urls?.[0] || "https://via.placeholder.com/300x200",
+          image: normalizeImageUrl(product.product_image_urls?.[0]),
           price: parseFloat(product.product_price).toFixed(2),
           description: product.product_description || "No description available.",
           categoryId: product.category_id,

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcryptjs');
 
 const db = require('../config/database');
 const EmailService = require('./email.service');
@@ -111,13 +112,17 @@ class PasswordChangeService {
                 throw err;
             }
 
+            // Hash password bằng bcrypt thay vì MD5 để tương thích với login
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+            
             await client.query(
                 `
                 UPDATE public.users
-                SET password = md5($2)
+                SET password = $2
                 WHERE id = $1
                 `,
-                [userId, newPassword]
+                [userId, hashedPassword]
             );
 
             await client.query(

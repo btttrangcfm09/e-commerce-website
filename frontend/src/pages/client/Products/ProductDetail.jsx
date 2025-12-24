@@ -5,7 +5,18 @@ import useProductsById from '@/hooks/useProductsById';
 import { useCartQuery } from '@/hooks/useCart';
 import Banner from '@/components/common/Banner';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { API_URL } from '@/utils/constants';
 // import RelatedProducts from './RelatedProducts';
+
+// Hàm xử lý URL ảnh từ backend
+const normalizeImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    if (typeof imageUrl === 'string' && imageUrl.startsWith('/uploads')) {
+        const backendUrl = API_URL || 'http://localhost:3000';
+        return `${backendUrl}${imageUrl}`;
+    }
+    return imageUrl;
+};
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -22,7 +33,7 @@ const ProductDetail = () => {
         description: product.product_description,
         price: product.product_price,
         stock: product.product_stock,
-        images: product.product_image_urls || [],
+        images: (product.product_image_urls || []).map(url => normalizeImageUrl(url)).filter(Boolean),
         categoryId: product.category_id,
         categoryName: product.category_name,
         isActive: product.is_active
