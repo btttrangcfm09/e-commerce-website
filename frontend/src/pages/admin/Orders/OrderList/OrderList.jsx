@@ -30,7 +30,8 @@ const OrderList = () => {
             setLoading(true);
             const endpoint = `/admin/orders/list?offset=${(page - 1) * ITEMS_PER_PAGE}&limit=${ITEMS_PER_PAGE}&status=${status !== 'ALL' ? status : ''}`;
             const { data } = await axiosInstance.post(endpoint);
-            
+            console.log(data);
+            // Apply sorting
             const sortedOrders = [...data].sort((a, b) => {
                 const aValue = a[sortConfig.key];
                 const bValue = b[sortConfig.key];
@@ -117,6 +118,7 @@ const OrderList = () => {
                 sortConfig={sortConfig}
                 onSort={handleSort}
                 onViewOrder={(id) => navigate(`/admin/orders/${id}`)}
+                onOrderDeleted={() => fetchOrders()}
             />
 
             {MAX_PAGES > 1 && (

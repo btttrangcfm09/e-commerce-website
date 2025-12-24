@@ -63,7 +63,9 @@ class OrderService {
         if (!orderId) {
             throw new Error('Order id is required');
         }
-        return await OrderRepository.getOrderById(orderId, userId);
+        const order = await OrderRepository.getOrderById(orderId, userId);
+        console.log(order);
+        return order;
     }
 
     static async getCustomerOrders(userId, limit = 50, offset = 0, status = null) {
@@ -104,10 +106,11 @@ class OrderService {
 
     static async getAllOrdersService(options) {
         const normalizedStatus = options?.status ? normalizeOrderStatus(options.status) : null;
-        return await OrderRepository.getAllOrders({
+        const order = await OrderRepository.getAllOrders({
             ...options,
             status: normalizedStatus,
         });
+        return order;
     }
 
     static async updateOrderStatusService(orderId, status, userId) {
@@ -130,6 +133,20 @@ class OrderService {
 
     static async getRecentOrders(limit = 10) {
         return await OrderRepository.getRecentOrders(limit);
+    }
+
+    static async softDeleteOrder(orderId, userId) {
+        if (!orderId) {
+            throw new Error('Order id is required');
+        }
+        return await OrderRepository.softDeleteOrder(orderId, userId);
+    }
+
+    static async getOrderDetailsForPDF(orderId, userId) {
+        if (!orderId) {
+            throw new Error('Order id is required');
+        }
+        return await OrderRepository.getOrderDetailsForPDF(orderId, userId);
     }
 }
 

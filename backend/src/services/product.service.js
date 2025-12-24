@@ -136,7 +136,6 @@ class ProductService {
     static async getProductById(productId) {
         try {
             const product = await ProductRepository.findById(parseInt(productId));
-            console.log(product);
             if (!product) {
                 throw new Error('Product not found');
             }
@@ -320,9 +319,6 @@ class ProductService {
             // Perform deletion
             const result = await ProductRepository.deleteProduct(productId, hardDelete);
 
-            // Log deletion (optional - for audit trail)
-            console.log(`Product ${productId} ${hardDelete ? 'hard deleted' : 'soft deleted'} by admin ${adminId}`);
-
             return result;
         } catch (err) {
             throw err;
@@ -349,7 +345,6 @@ class ProductService {
             }
 
             const result = await ProductRepository.restoreProduct(productId);
-            console.log(`Product ${productId} restored by admin ${adminId}`);
 
             return result;
         } catch (err) {

@@ -30,6 +30,30 @@ export const OrdersService = {
 		const res = await axiosInstance.patch(`/client/orders/${orderId}/cancel`);
 		return res?.data;
 	},
+
+	// Admin APIs
+	async deleteOrder(orderId) {
+		const res = await axiosInstance.delete(`/admin/orders/${orderId}`);
+		return res?.data;
+	},
+
+	async downloadOrderPDF(orderId) {
+		const res = await axiosInstance.get(`/admin/orders/${orderId}/pdf`, {
+			responseType: 'blob', // Important for file download
+		});
+		
+		// Create download link
+		const url = window.URL.createObjectURL(new Blob([res.data]));
+		const link = document.createElement('a');
+		link.href = url;
+		link.setAttribute('download', `order-${orderId}.pdf`);
+		document.body.appendChild(link);
+		link.click();
+		link.parentNode.removeChild(link);
+		window.URL.revokeObjectURL(url);
+		
+		return res?.data;
+	},
 };
 
 export default OrdersService;

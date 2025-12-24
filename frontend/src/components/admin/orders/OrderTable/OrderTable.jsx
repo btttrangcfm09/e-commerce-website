@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, ArrowUpDown, Eye, Download, Trash2 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { OrdersService } from '@/services/orders';
+import { toast } from 'sonner';
 import styles from './OrderTable.module.css';
 
 // FIX 1: Đảm bảo safeOrders luôn là mảng, dù orders truyền vào là null
-const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) => {
+const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder, onOrderDeleted }) => {
     
     // Đảm bảo không bị crash nếu orders là null
     const safeOrders = Array.isArray(orders) ? orders : [];
@@ -45,6 +47,36 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
         return addr;
     };
 
+    const handleDeleteOrder = async (orderId) => {
+        if (!confirm('Are you sure you want to delete this order?')) {
+            return;
+        }
+        
+        try {
+            await OrdersService.deleteOrder(orderId);
+            toast.success('Order deleted successfully');
+            
+            // Notify parent to refresh list
+            if (onOrderDeleted) {
+                onOrderDeleted(orderId);
+            }
+        } catch (error) {
+            console.error('Failed to delete order:', error);
+            toast.error(error?.response?.data?.message || 'Failed to delete order');
+        }
+    };
+
+    const handleDownloadPDF = async (orderId) => {
+        try {
+            toast.info('Downloading PDF...');
+            await OrdersService.downloadOrderPDF(orderId);
+            toast.success('PDF downloaded successfully');
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            toast.error(error?.response?.data?.message || 'Failed to download PDF');
+        }
+    };
+
     return (
         <div className={styles.container}>
             {loading ? (
@@ -55,12 +87,12 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                         <TableRow className={styles.header}>
                             <TableHead onClick={() => onSort('id')} className={styles.headerCell}>
                                 <div className={styles.headerContent}>
-                                    ID <ArrowUpDown className={styles.sortIcon} />
+                                    ID
                                 </div>
                             </TableHead>
-                            <TableHead onClick={() => onSort('customer_info.username')} className={styles.headerCell}>
+                            <TableHead onClick={() => onSort('username')} className={styles.headerCell}>
                                 <div className={styles.headerContent}>
-                                    Customer <ArrowUpDown className={styles.sortIcon} />
+                                    Customer 
                                 </div>
                             </TableHead>
                             <TableHead onClick={() => onSort('created_at')} className={styles.headerCell}>
@@ -93,7 +125,7 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                                         <div className={styles.customerInfo}>
                                             {/* FIX 3: Dùng Optional Chaining (?.) và fallback */}
                                             <span className={styles.customerName}>
-                                                {order.customer_info?.first_name || 'Unknown'} {order.customer_info?.last_name || ''}
+                                                {order.customer_info?.username || 'Unknown'} 
                                             </span>
                                             <span className={styles.customerEmail}>
                                                 {order.customer_info?.email || 'No Email'}
@@ -129,11 +161,14 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder }) =
                                                     <Eye className={styles.icon} />
                                                     View Details
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDownloadPDF(order.id)}>
                                                     <Download className={styles.icon} />
-                                                    Download
+                                                    Download PDF
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className={styles.deleteAction}>
+                                                <DropdownMenuItem 
+                                                    className={styles.deleteAction}
+                                                    onClick={() => handleDeleteOrder(order.id)}
+                                                >
                                                     <Trash2 className={styles.icon} />
                                                     Delete
                                                 </DropdownMenuItem>
