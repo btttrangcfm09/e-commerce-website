@@ -136,9 +136,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     42,
     (SELECT id FROM categories WHERE name = 'Tablets'),
     ARRAY[
-        '/images/products/1585790050230-5dd28404f869.jpg',
         '/images/products/1544244015-0df4b3ffc6b0.jpg',
-        '/images/products/1611532736597-de2d4265fba3.jpg'
+        '/images/products/1561154464-82e9adf32764.jpg',
+        '/images/products/1585790050230-5dd28404f869.jpg'
     ]
 ),
 (
@@ -290,9 +290,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     64,
     (SELECT id FROM categories WHERE name = 'Cameras & Photography'),
     ARRAY[
-        '/images/products/1606093204630-c69f06d99a8d.jpg',
-        '/images/products/1516035069371-29a1b244cc32.jpg',
-        '/images/products/1502920917128-1aa500764cbd.jpg'
+        '/images/products/1502920917128-1aa500764cbd.jpg',
+        '/images/products/1606248897732-2c5ffe759c04.jpg',
+        '/images/products/1516035069371-29a1b244cc32.jpg'
     ]
 );
 
@@ -307,7 +307,7 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     42,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        '/images/products/1606144042614-b2417e99c4e3.jpg',
+        '/images/products/1606813907291-d86efa9b94db.jpg',
         '/images/products/1622297845775-5ff3fef71d13.jpg',
         '/images/products/1607853202273-797f1c22a38e.jpg'
     ]
@@ -321,7 +321,7 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     ARRAY[
         '/images/products/1621259182978-fbf93132d53d.jpg',
         '/images/products/1606144042614-b2417e99c4e3.jpg',
-        '/images/products/1622297845775-5ff3fef71d13.jpg'
+        '/images/products/1612287230202-1ff1d85d1bdf.jpg'
     ]
 ),
 (
@@ -332,7 +332,7 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
         '/images/products/1578303512597-81e6cc155b3e.jpg',
-        '/images/products/1585857198771-82762233f93f.jpg',
+        '/images/products/1544716278-e513176f20b5.jpg',
         '/images/products/1622297845775-5ff3fef71d13.jpg'
     ]
 ),
@@ -343,9 +343,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     124,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        '/images/products/1527864550417-7fd91fc51a46.jpg',
         '/images/products/1563297007-0686b7003af7.jpg',
-        '/images/products/1625948515291-69613efd103f.jpg'
+        '/images/products/1527814050087-3793815479db.jpg',
+        '/images/products/1615663245857-ac93bb7c39e7.jpg'
     ]
 ),
 (

@@ -92,8 +92,8 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     (SELECT id FROM categories WHERE name = 'Kitchen & Dining'),
     ARRAY[
         '/images/products/1556911220-bff31c812dba.jpg',
-        '/images/products/1585515320310-259814833e62.jpg',
-        '/images/products/1556909114-f6e7ad7d3136.jpg'
+        '/images/products/1556911220-e15b29be8c8f.jpg',
+        '/images/products/1604335399105-a0c585fd81a1.jpg'
     ]
 ),
 (
@@ -116,8 +116,8 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     (SELECT id FROM categories WHERE name = 'Kitchen & Dining'),
     ARRAY[
         '/images/products/1610701596007-11502861dcfa.jpg',
-        '/images/products/1578500494198-246f612d3b3d.jpg',
-        '/images/products/1610701494862-dcc72e3c64a9.jpg'
+        '/images/products/1556911220-e15b29be8c8f.jpg',
+        '/images/products/1584536913176-a1e494fafa91.jpg'
     ]
 );
 
@@ -168,9 +168,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     198,
     (SELECT id FROM categories WHERE name = 'Bedding & Bath'),
     ARRAY[
-        '/images/products/1584790066332-033d001956a1.jpg',
-        '/images/products/1607682340725-c89a2a8d1a7d.jpg',
-        '/images/products/1620799140408-edc6dcb6d633.jpg'
+        '/images/products/1600334129128-685c5582fd35.jpg',
+        '/images/products/1584100936595-c0654b55a2e2.jpg',
+        '/images/products/1562088287-f1e5e82a7c67.jpg'
     ]
 );
 
@@ -221,9 +221,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     567,
     (SELECT id FROM categories WHERE name = 'Home Decor'),
     ARRAY[
-        '/images/products/1602874801006-94c0c1fd0371.jpg',
         '/images/products/1603006905003-be475563bc59.jpg',
-        '/images/products/1608571423902-eed4a5ad8108.jpg'
+        '/images/products/1602874801006-22632d0e7b7e.jpg',
+        '/images/products/1588681664899-f142ff2dc9b1.jpg'
     ]
 );
 
@@ -537,9 +537,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     178,
     (SELECT id FROM categories WHERE name = 'Fitness Equipment'),
     ARRAY[
-        '/images/products/1571019613454-1cb2f99b2d8b.jpg',
-        '/images/products/1517836357463-d25dfeac3438.jpg',
-        '/images/products/1534438327276-14e5300c3a48.jpg'
+        '/images/products/1571902943202-507ec2618e8f.jpg',
+        '/images/products/1598971861713-54ad16a5c2b1.jpg',
+        '/images/products/1517836357463-d25dfeac3438.jpg'
     ]
 ),
 (
@@ -631,9 +631,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     456,
     (SELECT id FROM categories WHERE name = 'Team Sports'),
     ARRAY[
-        '/images/products/1579952363873-27f3bade9f55.jpg',
-        '/images/products/1614632537423-1e6c2e0ef252.jpg',
-        '/images/products/1575361204480-aadea25e6e68.jpg'
+        '/images/products/1575361204480-aadea25e6e68.jpg',
+        '/images/products/1553778263-73a83bab9b0c.jpg',
+        '/images/products/1614632537423-1e6c2e7e0aae.jpg'
     ]
 ),
 (

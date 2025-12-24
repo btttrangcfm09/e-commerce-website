@@ -20,7 +20,7 @@ DB_HOST=postgres
 DB_PORT=5432
 DB_NAME=ecommerce
 DB_USER=postgres
-DB_PASSWORD=postgres123
+DB_PASSWORD=postgres
 PORT=5000
 NODE_ENV=development
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
@@ -34,7 +34,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=ecommerce
 DB_USER=postgres
-DB_PASSWORD=postgres123
+DB_PASSWORD=postgres
 ```
 
 ---
@@ -54,9 +54,6 @@ Chạy script tạo bảng:
 ```powershell
 # Windows
 docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\store-create.sql
-docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrations/004-add-phone-address-user.sql
-docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrations/002-fix-cart-id-length.sql
-docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrations/003-add-user-image-column.sql
 ```
 
 ```bash
@@ -64,54 +61,20 @@ docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrat
 docker exec -i ecommerce-db psql -U postgres -d ecommerce < database/sql/store-create.sql
 ```
 
-### 3.2. Seed Data (Recommended)
-Import dữ liệu mẫu với 110 products, 31 categories, 20 users:
+### 3.2. Seed Data
+Import dữ liệu mẫu với 120+ products, 35+ categories, 22 users, 50 orders:
 
-**Option A: Seed All (Quick)**
 ```powershell
 # Windows
 cd database\seed
-.\seed-simple.bat
+.\seed-complete.bat
 ```
 
 ```bash
 # Linux/Mac
 cd database/seed
-chmod +x seed.sh
-./seed.sh
-```
-
-**Option B: Seed Step by Step**
-```powershell
-# Windows - từng bước
-cd database\seed
-
-# Bước 1: Categories (31 categories)
-.\seed-simple.bat 1
-
-# Bước 2: Users (20 users)
-.\seed-simple.bat 2
-
-# Bước 3: Products Part 1 (60 products)
-.\seed-simple.bat 3
-
-# Bước 4: Products Part 2 (50 products)
-.\seed-simple.bat 4
-```
-
-**Option C: Clear & Reseed**
-```powershell
-# Xóa toàn bộ data và seed lại
-cd database\seed
-.\clear-and-reseed.bat
-```
-
-### 3.3. Apply Image Fixes (Optional but recommended)
-Cải thiện chất lượng ảnh sản phẩm:
-```powershell
-cd database\seed
-docker cp 06-fix-images-final.sql ecommerce-db:/tmp/
-docker exec -i ecommerce-db psql -U postgres -d ecommerce -f /tmp/06-fix-images-final.sql
+chmod +x seed-complete.sh
+./seed-complete.sh
 ```
 
 ---
@@ -133,9 +96,10 @@ docker exec -i ecommerce-db psql -U postgres -d ecommerce -f /tmp/06-fix-images-
 - User: `emma_davis` / Password: `password123`
 
 ### Database Summary
-- **Products**: 110 products across 31 categories
+- **Products**: 120+ products across 35+ categories
 - **Categories**: Electronics, Clothing, Home & Living, Books & Media, Sports & Outdoors
-- **Users**: 2 admins + 18 customers
+- **Users**: 2 admins + 20 customers  
+- **Orders**: 50 sample orders with items and payments
 - **Images**: 3 high-quality images per product (Unsplash)
 
 ---
@@ -147,12 +111,14 @@ docker exec -i ecommerce-db psql -U postgres -d ecommerce -f /tmp/06-fix-images-
 docker exec -i ecommerce-db psql -U postgres -d ecommerce -c "SELECT COUNT(*) FROM products;"
 docker exec -i ecommerce-db psql -U postgres -d ecommerce -c "SELECT COUNT(*) FROM users;"
 docker exec -i ecommerce-db psql -U postgres -d ecommerce -c "SELECT COUNT(*) FROM categories;"
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -c "SELECT COUNT(*) FROM orders;"
 ```
 
 Expected output:
-- Products: 110
-- Users: 20
-- Categories: 31 (including 5 main categories)
+- Products: 120+
+- Users: 22
+- Categories: 35+
+- Orders: 50
 
 ---
 
@@ -182,11 +148,12 @@ docker exec -it ecommerce-db psql -U postgres -d ecommerce
 ```powershell
 # Clear và seed lại toàn bộ
 cd database\seed
-.\clear-and-reseed.bat
 
-# Hoặc chỉ seed products mới
-.\seed-simple.bat 3
-.\seed-simple.bat 4
+# Windows
+.\seed-complete.bat
+
+# Linux/Mac  
+./seed-complete.sh
 ```
 
 ---
