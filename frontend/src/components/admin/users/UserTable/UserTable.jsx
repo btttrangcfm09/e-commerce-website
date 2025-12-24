@@ -47,13 +47,6 @@ const UserTable = ({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-12">
-                            <Checkbox
-                                checked={selectedUsers.length === users.length && users.length > 0}
-                                onCheckedChange={onSelectAll}
-                                aria-label="Select all"
-                            />
-                        </TableHead>
                         <TableHead className="w-14"></TableHead>
                         <TableHead className={styles.sortableHeader} onClick={() => onSort('username')}>
                             <span className="group flex items-center">
@@ -95,13 +88,6 @@ const UserTable = ({
                             className="cursor-pointer hover:bg-muted/50"
                             onClick={() => onRowClick(user)}
                         >
-                            <TableCell>
-                                <Checkbox
-                                    checked={selectedUsers.includes(user.id)}
-                                    onCheckedChange={(checked) => onSelectUser(user.id, checked)}
-                                    aria-label={`Select ${user.username}`}
-                                />
-                            </TableCell>
                             <TableCell>
                                 <Avatar className="h-9 w-9">
                                     <AvatarImage src={user.image} alt={user.username} />

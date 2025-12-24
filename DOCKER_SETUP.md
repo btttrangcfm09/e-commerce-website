@@ -54,6 +54,9 @@ Chạy script tạo bảng:
 ```powershell
 # Windows
 docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\store-create.sql
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrations/004-add-phone-address-user.sql
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrations/002-fix-cart-id-length.sql
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database/migrations/003-add-user-image-column.sql
 ```
 
 ```bash

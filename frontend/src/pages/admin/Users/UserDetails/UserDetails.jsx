@@ -60,9 +60,6 @@ const UserDetails = () => {
                             <span className={styles.userRole}>{user.role}</span>
                         </div>
                     </div>
-                    <Badge variant={user.is_active ? "success" : "destructive"}>
-                        {user.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
                 </div>
 
                 <div className={styles.grid}>

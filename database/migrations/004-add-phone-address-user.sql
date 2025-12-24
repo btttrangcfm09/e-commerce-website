@@ -1,0 +1,7 @@
+BEGIN;
+
+ALTER TABLE public.users
+    ADD COLUMN IF NOT EXISTS phone VARCHAR(15),
+    ADD COLUMN IF NOT EXISTS address text;
+
+COMMIT;
