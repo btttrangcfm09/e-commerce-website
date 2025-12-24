@@ -79,13 +79,14 @@ const OrderDetails = ({ order }) => {
                             </TableHeader>
                             <TableBody>
                                 {order.items.map((item) => (
+                                    console.log(item),
                                     <TableRow key={item.id}>
                                         <TableCell className="font-medium">{item.product_name}</TableCell>
                                         <TableCell>{item.product_id}</TableCell>
                                         <TableCell className="text-right">{item.quantity}</TableCell>
-                                        <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right">${parseFloat(item.price).toFixed(2)}</TableCell>
                                         <TableCell className="text-right">
-                                            ${(item.quantity * item.price).toFixed(2)}
+                                            ${(item.quantity * parseFloat(item.price)).toFixed(2)}
                                         </TableCell>
                                     </TableRow>
                                 ))}
