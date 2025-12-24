@@ -42,7 +42,7 @@ create table public.products (
 );
 
 create table public.orders (
-    id char(16) not null,
+    id char(50) not null,
     customer_id varchar(255) not null,
     total_price decimal(10, 2) not null,
     shipping_address text not null,
@@ -56,8 +56,8 @@ create table public.orders (
 );
 
 create table public.order_items (
-    id char(24) not null,
-    order_id char(16) not null unique,
+    id char(50) not null,
+    order_id char(50) not null unique,
     product_id integer not null,
     quantity integer not null default 1,
     price decimal(10, 2) not null,
@@ -89,8 +89,8 @@ create table public.carts (
 );
 
 create table public.cart_items (
-    id char(24) not null,
-    cart_id char(16) not null,
+    id char(50) not null,
+    cart_id char(50) not null,
     product_id integer not null,
     quantity integer not null default 1,
     created_at timestamp not null default now(),
@@ -100,7 +100,7 @@ create table public.cart_items (
 );
 
 create table public.inventory (
-    id char(8) not null,
+    id char(50) not null,
     product_id integer not null,
     quantity integer not null,
     change_type public.inventory_change_type not null,
@@ -111,8 +111,8 @@ create table public.inventory (
 );
 
 create table public.payments (
-    id char(28) not null,
-    order_id char(16) not null,
+    id char(50) not null,
+    order_id char(50) not null,
     amount decimal(10, 2) not null,
     payment_status public.payment_status not null,
     payment_method public.payment_method not null,

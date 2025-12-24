@@ -1,234 +1,458 @@
+const crypto = require('crypto');
 const db = require('../config/database');
 const { v4: uuidv4 } = require('uuid');
 
 // Định nghĩa Enum để tránh hardcode string sai
-const ORDER_STATUS = {
-    PENDING: 'PENDING',
-    SHIPPED: 'SHIPPED',
-    DELIVERED: 'DELIVERED',
-    CANCELED: 'CANCELED',
-};
+const ORDER_STATUS = Object.freeze({
+  PENDING: 'PENDING',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELED: 'CANCELED',
+});
 
-const PAYMENT_STATUS = {
-    PENDING: 'PENDING',
-    COMPLETED: 'COMPLETED',
-    FAILED: 'FAILED',
-};
+const PAYMENT_STATUS = Object.freeze({
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+});
 
 class OrderRepository {
+    static _newHexId(length) {
+        const bytes = Math.ceil(length / 2);
+        return crypto.randomBytes(bytes).toString('hex').slice(0, length);
+    }
 
     // --- 1. LOGIC GHI (WRITE) - Cần Transaction an toàn ---
 
+      static async _getUserRole(client, userId) {
+        const { rows } = await client.query('SELECT role FROM public.users WHERE id = $1', [userId]);
+        return rows?.[0]?.role || null;
+    }
     static async createOrderFromCart(userId, shippingAddress) {
         const client = await db.pool.connect();
         try {
-            await client.query('BEGIN'); // Bắt đầu giao dịch
+        await client.query('BEGIN');
 
-            // Lấy ID giỏ hàng
-            const cartRes = await client.query('SELECT id FROM carts WHERE customer_id = $1', [userId]);
-            const cartId = cartRes.rows[0]?.id;
-            if (!cartId) throw new Error('Cart not found');
-
-            // Lấy sản phẩm trong giỏ & khóa dòng (FOR UPDATE) để tránh hết hàng lúc đang mua
-            const itemsRes = await client.query(`
-                SELECT ci.product_id, ci.quantity, p.price, p.stock
-                FROM cart_items ci
-                JOIN products p ON ci.product_id = p.id
-                WHERE ci.cart_id = $1
-                FOR UPDATE OF p
-            `, [cartId]);
-            
-            const items = itemsRes.rows;
-            if (items.length === 0) throw new Error('Cart is empty');
-
-            // Tính tổng tiền & Check tồn kho
-            let totalPrice = 0;
-            for (const item of items) {
-                if (item.stock < item.quantity) {
-                    throw new Error(`Product ID ${item.product_id} is out of stock`);
-                }
-                totalPrice += Number(item.price) * item.quantity;
-            }
-
-            // Tạo Order ID (16 chars)
-            const orderId = uuidv4().replace(/-/g, '').substring(0, 16);
-
-            // Insert Order
-            await client.query(`
-                INSERT INTO orders (id, customer_id, total_price, shipping_address, order_status, payment_status, created_at)
-                VALUES ($1, $2, $3, $4, $5, $6, NOW())
-            `, [orderId, userId, totalPrice, shippingAddress, ORDER_STATUS.PENDING, PAYMENT_STATUS.PENDING]);
-
-            // Insert Items & Trừ kho
-            for (const item of items) {
-                const orderItemId = uuidv4().replace(/-/g, '').substring(0, 24);
-                
-                // Lưu item
-                await client.query(`
-                    INSERT INTO order_items (id, order_id, product_id, quantity, price)
-                    VALUES ($1, $2, $3, $4, $5)
-                `, [orderItemId, orderId, item.product_id, item.quantity, item.price]);
-
-                // Trừ kho
-                await client.query(`
-                    UPDATE products SET stock = stock - $1 WHERE id = $2
-                `, [item.quantity, item.product_id]);
-                
-                // Lưu log kho (Inventory) - theo cấu trúc của đồng đội bạn
-                const inventoryId = uuidv4().replace(/-/g, '').substring(0, 8);
-                await client.query(`
-                    INSERT INTO inventory (id, product_id, quantity, change_type, change_date)
-                    VALUES ($1, $2, $3, 'SALE', NOW())
-                `, [inventoryId, item.product_id, item.quantity]);
-            }
-
-            // Xóa giỏ hàng
-            await client.query('DELETE FROM cart_items WHERE cart_id = $1', [cartId]);
-
-            await client.query('COMMIT');
-            return orderId;
-
-        } catch (error) {
-            await client.query('ROLLBACK');
-            throw error;
-        } finally {
-            client.release();
+        const cartRes = await client.query('SELECT id FROM public.carts WHERE customer_id = $1 FOR UPDATE', [userId]);
+        const cartId = cartRes.rows?.[0]?.id;
+        if (!cartId) {
+            throw new Error(`No cart found for user ${userId}`);
         }
-    }
 
-    static async updateOrderStatus(orderId, status, userId) {
-        // Cập nhật trạng thái đơn hàng (dành cho Admin)
-        // Không cần set_config phức tạp nữa
-        const query = `UPDATE orders SET order_status = $1 WHERE id = $2 RETURNING id`;
-        const result = await db.query(query, [status, orderId]);
-        
-        if (result.length === 0) return null;
+        const itemsRes = await client.query(
+            `
+            SELECT
+            ci.product_id,
+            ci.quantity,
+            p.price,
+            p.stock
+            FROM public.cart_items ci
+            JOIN public.products p ON p.id = ci.product_id
+            WHERE ci.cart_id = $1
+            FOR UPDATE OF ci, p
+            `,
+            [cartId]
+        );
 
-        // Lưu lịch sử (nếu bảng này có cột changed_by là enum user_role thì phải truyền đúng 'ADMIN')
-        await db.query(`
-            INSERT INTO order_status_history (order_id, new_status, changed_by) 
-            VALUES ($1, $2, 'ADMIN')
-        `, [orderId, status]);
-        
-        return true;
-    }
+        const items = itemsRes.rows || [];
+        if (items.length === 0) {
+            throw new Error('Cart is empty');
+        }
 
-    static async cancelOrder(orderId, userId) {
-        // Logic hủy đơn cho khách hàng
-        const client = await db.pool.connect();
+        let totalPrice = 0;
+        for (const item of items) {
+            const qty = Number(item.quantity);
+            const stock = Number(item.stock);
+            const price = Number(item.price);
+            if (!Number.isFinite(qty) || qty <= 0) {
+            throw new Error('Invalid quantity in cart');
+            }
+            if (stock < qty) {
+            throw new Error(`Not enough stock for product ${item.product_id}`);
+            }
+            totalPrice += price * qty;
+        }
+
+        const orderId = this._newHexId(16);
+        await client.query(
+            `
+            INSERT INTO public.orders(
+            id, customer_id, total_price, shipping_address, order_status, payment_status
+            ) VALUES (
+            $1, $2, $3, $4, $5::public.order_status, $6::public.payment_status
+            )
+            `,
+            [orderId, userId, totalPrice, shippingAddress, ORDER_STATUS.PENDING, PAYMENT_STATUS.PENDING]
+        );
+
+        for (const item of items) {
+            const orderItemId = this._newHexId(24);
+            await client.query(
+            `
+            INSERT INTO public.order_items(id, order_id, product_id, quantity, price)
+            VALUES ($1, $2, $3, $4, $5)
+            `,
+            [orderItemId, orderId, item.product_id, item.quantity, item.price]
+            );
+
+            await client.query(
+            'UPDATE public.products SET stock = stock - $2 WHERE id = $1',
+            [item.product_id, item.quantity]
+            );
+
+            const inventoryId = this._newHexId(8);
+            await client.query(
+            `
+            INSERT INTO public.inventory(id, product_id, quantity, change_type)
+            VALUES ($1, $2, $3, 'SALE'::public.inventory_change_type)
+            `,
+            [inventoryId, item.product_id, item.quantity]
+            );
+        }
+
+        await client.query('DELETE FROM public.cart_items WHERE cart_id = $1', [cartId]);
+
+        await client.query('COMMIT');
+        return orderId;
+        } catch (error) {
         try {
-            await client.query('BEGIN');
-            
-            // Check quyền sở hữu
-            const orderRes = await client.query('SELECT order_status FROM orders WHERE id = $1 AND customer_id = $2 FOR UPDATE', [orderId, userId]);
-            if (orderRes.rows.length === 0) throw new Error('Order not found or unauthorized');
-
-            const currentStatus = orderRes.rows[0].order_status;
-            
-            if (currentStatus === ORDER_STATUS.CANCELED) {
-                await client.query('ROLLBACK');
-                return { alreadyCanceled: true };
-            }
-            if (currentStatus === ORDER_STATUS.DELIVERED || currentStatus === ORDER_STATUS.SHIPPED) {
-                 throw new Error('Cannot cancel processed order');
-            }
-
-            await client.query(`UPDATE orders SET order_status = 'CANCELED' WHERE id = $1`, [orderId]);
-            await client.query('COMMIT');
-            return { canceled: true };
-
-        } catch (error) {
             await client.query('ROLLBACK');
-            throw error;
+        } catch {
+            // ignore
+        }
+        throw error;
         } finally {
-            client.release();
+        client.release(); 
         }
     }
-
-    // --- 2. LOGIC ĐỌC (READ) - Tối ưu cho hiển thị ---
 
     static async getOrderById(orderId, userId) {
-        // Lấy chi tiết đơn hàng + list sản phẩm
-        const query = `
-            SELECT o.*, 
-                json_agg(json_build_object(
-                    'product_id', oi.product_id,
-                    'quantity', oi.quantity,
-                    'price', oi.price,
-                    'product_name', p.name,
-                    'image', p.image_urls[1]
-                )) as items
-            FROM orders o
-            LEFT JOIN order_items oi ON o.id = oi.order_id
-            LEFT JOIN products p ON oi.product_id = p.id
-            WHERE o.id = $1 AND (o.customer_id = $2 OR $3 = 'ADMIN') -- Cho phép Admin xem mọi đơn
-            GROUP BY o.id
-        `;
-        // Chú ý: $3 ở đây là role, cần truyền từ Service xuống nếu muốn check role chặt chẽ.
-        // Tuy nhiên để đơn giản, ở đây ta giả định Service đã check quyền.
-        // Tạm thời query này chỉ check customer_id.
-        
-        const strictQuery = `
-             SELECT o.*, 
-                json_agg(json_build_object(
-                    'product_id', oi.product_id,
-                    'quantity', oi.quantity,
-                    'price', oi.price,
-                    'product_name', p.name
-                )) as items
-            FROM orders o
-            LEFT JOIN order_items oi ON o.id = oi.order_id
-            LEFT JOIN products p ON oi.product_id = p.id
-            WHERE o.id = $1
-            GROUP BY o.id
-        `;
-        
-        const rows = await db.query(strictQuery, [orderId]);
-        return rows[0];
+        const client = await db.pool.connect();
+        try {
+        const role = await this._getUserRole(client, userId);
+        if (!role) {
+            throw new Error('User not found');
+        }
+
+        const orderRes = await client.query('SELECT * FROM public.orders WHERE id = $1', [orderId]);
+        const order = orderRes.rows?.[0];
+        if (!order) {
+            throw new Error('Order not found');
+        }
+
+        if (role !== 'ADMIN' && String(order.customer_id) !== String(userId)) {
+            throw new Error('User does not have permission to view this order');
+        }
+
+        const itemsRes = await client.query(
+            `
+            SELECT
+            oi.id,
+            oi.product_id,
+            oi.quantity,
+            oi.price,
+            p.name as product_name
+            FROM public.order_items oi
+            JOIN public.products p ON p.id = oi.product_id
+            WHERE oi.order_id = $1
+            ORDER BY oi.created_at ASC
+            `,
+            [orderId]
+        );
+
+        return {
+            ...order,
+            items: itemsRes.rows || [],
+        };
+            } finally {
+            client.release();
+            }
     }
 
     static async getCustomerOrders(userId, limit = 50, offset = 0, status = null) {
-        let query = `
-            SELECT o.*, 
-            (SELECT json_agg(json_build_object('name', p.name, 'qty', oi.quantity)) 
-             FROM order_items oi JOIN products p ON oi.product_id = p.id 
-             WHERE oi.order_id = o.id) as items_preview
-            FROM orders o 
-            WHERE o.customer_id = $1
-        `;
-        const params = [userId, limit, offset];
-        
-        if (status) {
-            query += ` AND o.order_status = $4`;
-            params.push(status);
-        }
-        
-        query += ` ORDER BY o.created_at DESC LIMIT $2 OFFSET $3`;
-        return await db.query(query, params);
+    const normalizedLimit = Number(limit) || 50;
+    const normalizedOffset = Number(offset) || 0;
+    const normalizedStatus = status ? String(status).toUpperCase() : null;
+
+    const query = `
+      SELECT
+        o.id,
+        o.total_price,
+        o.shipping_address,
+        o.order_status,
+        o.payment_status,
+        o.created_at,
+        (
+          SELECT json_agg(json_build_object(
+            'product_id', oi.product_id,
+            'product_name', p.name,
+            'quantity', oi.quantity,
+            'price', oi.price
+          ))
+          FROM public.order_items oi
+          JOIN public.products p ON p.id = oi.product_id
+          WHERE oi.order_id = o.id
+        ) as items
+      FROM public.orders o
+      WHERE o.customer_id = $1
+        AND ($4::public.order_status IS NULL OR o.order_status = $4::public.order_status)
+      ORDER BY o.created_at DESC
+      LIMIT $2
+      OFFSET $3
+    `;
+
+        return await db.query(query, [userId, normalizedLimit, normalizedOffset, normalizedStatus]);
     }
 
-    static async getAllOrders({ limit, offset, status }) {
-        // Dùng cho trang Admin quản lý đơn hàng
-        let query = `
-            SELECT 
-                o.id, o.total_price, o.order_status, o.payment_status, o.created_at,
-                u.username, u.email, o.shipping_address
-            FROM orders o
-            JOIN users u ON o.customer_id = u.id
-            WHERE o.is_active = true
-        `;
-        const params = [limit, offset];
-        let paramIndex = 3;
+      static async getAllOrders({ id, limit = 100, offset = 0, status = null }) {
+    const client = await db.pool.connect();
+    try {
+      const role = await this._getUserRole(client, id);
+      if (!role) {
+        throw new Error(`User ${id} not found`);
+      }
+      if (role !== 'ADMIN') {
+        throw new Error(`User ${id} does not have permission to view all orders`);
+      }
 
-        if (status) {
-            query += ` AND o.order_status = $${paramIndex}`;
-            params.push(status);
-        }
+      const query = `
+        SELECT
+          o.id,
+          o.customer_id,
+          o.total_price,
+          o.shipping_address,
+          o.order_status,
+          o.payment_status,
+          o.created_at,
+          json_build_object(
+            'username', u.username,
+            'email', u.email,
+            'first_name', u.first_name,
+            'last_name', u.last_name
+          ) as customer_info
+        FROM public.orders o
+        JOIN public.users u ON u.id = o.customer_id
+        WHERE ($3::public.order_status IS NULL OR o.order_status = $3::public.order_status)
+        ORDER BY o.created_at DESC
+        LIMIT $1
+        OFFSET $2
+      `;
 
-        query += ` ORDER BY o.created_at DESC LIMIT $1 OFFSET $2`;
-
-        return await db.query(query, params);
+      const { rows } = await client.query(query, [Number(limit) || 100, Number(offset) || 0, status ? String(status).toUpperCase() : null]);
+      return rows;
+    } finally {
+      client.release();
     }
+  }
+
+ static async updateOrderStatus(orderId, newStatus, userId) {
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const role = await this._getUserRole(client, userId);
+      if (!role) {
+        throw new Error(`User ${userId} not found`);
+      }
+
+      const orderRes = await client.query(
+        'SELECT id, customer_id, order_status FROM public.orders WHERE id = $1 FOR UPDATE',
+        [orderId]
+      );
+      const order = orderRes.rows?.[0];
+      if (!order) {
+        throw new Error(`Order ${orderId} not found`);
+      }
+
+      const currentStatus = String(order.order_status).toUpperCase();
+      const normalizedNewStatus = String(newStatus || '').toUpperCase();
+
+      if (currentStatus === ORDER_STATUS.CANCELED) {
+        throw new Error('Cannot update canceled order');
+      }
+
+      if (currentStatus === ORDER_STATUS.DELIVERED && normalizedNewStatus !== ORDER_STATUS.CANCELED) {
+        throw new Error('Cannot update delivered order');
+      }
+
+      const isAdmin = role === 'ADMIN';
+      const isCustomerCancel = role === 'CUSTOMER' && String(order.customer_id) === String(userId) && normalizedNewStatus === ORDER_STATUS.CANCELED;
+      if (!isAdmin && !isCustomerCancel) {
+        throw new Error('Unauthorized status change attempt');
+      }
+
+      // Keep trigger behavior (order_status_history) consistent if DB uses current_setting.
+      // Use set_config() instead of SET LOCAL because placeholders like $1 are not accepted in some utility commands.
+      await client.query("SELECT set_config('app.current_user_id', $1::text, true)", [String(userId)]);
+
+      await client.query(
+        'UPDATE public.orders SET order_status = $2::public.order_status WHERE id = $1',
+        [orderId, normalizedNewStatus]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+        // ignore
+      }
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+static async cancelOrder(orderId, userId) {
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const orderRes = await client.query(
+        'SELECT id, customer_id, order_status FROM public.orders WHERE id = $1 FOR UPDATE',
+        [orderId]
+      );
+      const order = orderRes.rows?.[0];
+      if (!order) {
+        const err = new Error('Order not found');
+        err.statusCode = 404;
+        throw err;
+      }
+
+      if (String(order.customer_id) !== String(userId)) {
+        const err = new Error('User does not have permission to cancel this order');
+        err.statusCode = 403;
+        throw err;
+      }
+
+      if (String(order.order_status).toUpperCase() === ORDER_STATUS.CANCELED) {
+        await client.query('COMMIT');
+        return { alreadyCanceled: true };
+      }
+
+      if (String(order.order_status).toUpperCase() === ORDER_STATUS.DELIVERED) {
+        const err = new Error('Cannot cancel delivered order');
+        err.statusCode = 400;
+        throw err;
+      }
+
+      await client.query("SELECT set_config('app.current_user_id', $1::text, true)", [String(userId)]);
+      await client.query(
+        'UPDATE public.orders SET order_status = $2::public.order_status WHERE id = $1',
+        [orderId, ORDER_STATUS.CANCELED]
+      );
+
+      await client.query('COMMIT');
+      return { alreadyCanceled: false };
+    } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+        // ignore
+      }
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async createPayment(orderId, amount, paymentMethod, userId) {
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const role = userId ? await this._getUserRole(client, userId) : null;
+      if (userId && !role) {
+        throw new Error(`User ${userId} not found`);
+      }
+
+      const orderRes = await client.query(
+        'SELECT id, customer_id, total_price, payment_status FROM public.orders WHERE id = $1 FOR UPDATE',
+        [orderId]
+      );
+      const order = orderRes.rows?.[0];
+      if (!order) {
+        throw new Error('Invalid order or payment already processed');
+      }
+
+      if (role === 'CUSTOMER' && String(order.customer_id) !== String(userId)) {
+        throw new Error('User does not have permission to pay for this order');
+      }
+
+      if (String(order.payment_status).toUpperCase() !== PAYMENT_STATUS.PENDING) {
+        throw new Error('Invalid order or payment already processed');
+      }
+
+      const normalizedAmount = Number(amount);
+      if (!Number.isFinite(normalizedAmount) || normalizedAmount < 0) {
+        throw new Error('Invalid payment amount');
+      }
+
+      const orderTotal = Number(order.total_price);
+      if (normalizedAmount !== orderTotal) {
+        throw new Error('Payment amount does not match order total');
+      }
+
+      const paymentId = this._newHexId(28).toUpperCase();
+      await client.query(
+        `
+        INSERT INTO public.payments(
+          id, order_id, amount, payment_status, payment_method, created_at
+        ) VALUES (
+          $1, $2, $3, $4::public.payment_status, $5::public.payment_method, current_timestamp
+        )
+        `,
+        [paymentId, orderId, normalizedAmount, PAYMENT_STATUS.PENDING, paymentMethod]
+      );
+
+      // NOTE: We intentionally keep order.payment_status update logic in DB trigger (if present).
+      await client.query('COMMIT');
+      return paymentId;
+    } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch {
+        // ignore
+      }
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async getCustomerPayments(userId, limit = 50, offset = 0) {
+    const normalizedLimit = Number(limit) || 50;
+    const normalizedOffset = Number(offset) || 0;
+
+    const query = `
+      SELECT
+        p.id,
+        p.order_id,
+        p.amount,
+        p.payment_status,
+        p.payment_method,
+        p.created_at,
+        json_build_object(
+          'order_status', o.order_status,
+          'total_price', o.total_price,
+          'items_count', (
+            SELECT count(*)
+            FROM public.order_items oi
+            WHERE oi.order_id = o.id
+          )
+        ) as order_info
+      FROM public.payments p
+      JOIN public.orders o ON o.id = p.order_id
+      WHERE o.customer_id = $1
+      ORDER BY p.created_at DESC
+      LIMIT $2
+      OFFSET $3
+    `;
+
+    return await db.query(query, [userId, normalizedLimit, normalizedOffset]);
+  }
+
 
     static async softDeleteOrder(orderId, userId) {
         // Soft delete order bằng cách set is_active = false

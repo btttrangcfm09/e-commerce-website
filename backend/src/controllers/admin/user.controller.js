@@ -14,7 +14,7 @@ const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await UserService.getUserByIdService(id);
-        res.status(200).json(user);
+        res.status(200).json({ user }); // Wrap in object with 'user' key
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

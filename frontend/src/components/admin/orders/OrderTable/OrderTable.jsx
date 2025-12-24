@@ -125,10 +125,10 @@ const OrderTable = ({ orders = [], onSort, sortConfig, loading, onViewOrder, onO
                                         <div className={styles.customerInfo}>
                                             {/* FIX 3: Dùng Optional Chaining (?.) và fallback */}
                                             <span className={styles.customerName}>
-                                                {order.username || 'Unknown'} 
+                                                {order.customer_info?.username || 'Unknown'} 
                                             </span>
                                             <span className={styles.customerEmail}>
-                                                {order.email || 'No Email'}
+                                                {order.customer_info?.email || 'No Email'}
                                             </span>
                                         </div>
                                     </TableCell>

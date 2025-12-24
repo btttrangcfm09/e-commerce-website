@@ -61,7 +61,7 @@ class UserController {
     static async updateProfileImage(req, res) {
         try {
             const userId = req.user.userId;
-            // uploadProfileImage middleware sẽ set req.body.image (Google Drive link)
+            // uploadProfileImage middleware sets req.body.image (Google Drive link or local URL)
             const profile = await ProfileService.updateMyProfile(userId, { image: req.body.image });
             res.status(200).json({ message: 'Profile image updated successfully', profile });
         } catch (error) {

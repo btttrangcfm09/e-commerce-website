@@ -12,9 +12,6 @@ class UserRepository {
                 last_name,
                 role,
                 created_at,
-                is_active,
-                phone,
-                address,
                 image
             FROM public.users
             WHERE id = $1
@@ -37,9 +34,6 @@ class UserRepository {
                 last_name,
                 role,
                 created_at,
-                is_active,
-                phone,
-                address,
                 image
             FROM public.users
             WHERE username = $1
@@ -65,7 +59,7 @@ class UserRepository {
     }
 
     static async updateProfile(userId, updateFields) {
-        // updateFields: keys in DB column names (email, first_name, last_name, phone, address, image)
+        // updateFields: keys in DB column names (email, first_name, last_name, image, ...)
         const entries = Object.entries(updateFields).filter(([, v]) => v !== undefined);
         if (entries.length === 0) {
             return await UserRepository.findById(userId);
@@ -92,9 +86,6 @@ class UserRepository {
                 last_name,
                 role,
                 created_at,
-                is_active,
-                phone,
-                address,
                 image
             `,
             values
@@ -117,9 +108,6 @@ class UserRepository {
                 last_name,
                 role,
                 created_at,
-                is_active,
-                phone,
-                address,
                 image
             `,
             [userId]

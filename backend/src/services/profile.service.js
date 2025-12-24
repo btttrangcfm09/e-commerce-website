@@ -7,9 +7,7 @@ function normalizeProfileUpdate(body) {
         email: body.email,
         firstName: body.firstName ?? body.first_name,
         lastName: body.lastName ?? body.last_name,
-        phone: body.phone,
-        address: body.address,
-        image: body.image,
+		image: body.image,
     };
 }
 
@@ -48,9 +46,7 @@ class ProfileService {
             email: normalized.email,
             first_name: normalized.firstName,
             last_name: normalized.lastName,
-            phone: normalized.phone,
-            address: normalized.address,
-            image: normalized.image,
+			image: normalized.image,
         };
 
         const row = await UserRepository.updateProfile(userId, updateFields);

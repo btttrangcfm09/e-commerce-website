@@ -9,10 +9,7 @@ function toPublicUser(row) {
         lastName: row.last_name,
         role: row.role,
         createdAt: row.created_at,
-        isActive: row.is_active,
-        phone: row.phone,
-        address: row.address,
-        image: row.image,
+        image: row.image ?? null,
     };
 }
 

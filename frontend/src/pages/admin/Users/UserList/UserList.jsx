@@ -67,7 +67,7 @@ const UserList = () => {
     };
 
     const handleRowClick = (user) => {
-        navigate(`/admin/users/${user.id}/edit`);
+        navigate(`/admin/users/${user.id}`);
     };
 
     if (error) {

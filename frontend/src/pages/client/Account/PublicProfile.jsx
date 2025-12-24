@@ -5,6 +5,8 @@ import FormLabel from "@mui/material/FormLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import {
   deleteMyProfileImage,
   getMyProfile,
@@ -48,10 +50,11 @@ const PublicProfile = () => {
     lastName: "",
     email: "",
     profession: "",
-    bio: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+
+	const [toast, setToast] = useState({ open: false, message: "" });
 
   useEffect(() => {
     // 1) Pre-fill nhanh từ localStorage profile (lúc login trả về)
@@ -155,10 +158,11 @@ const PublicProfile = () => {
       });
 
       localStorage.setItem("profile", JSON.stringify(p));
+		setToast({ open: true, message: "Profile updated successfully." });
     } catch (e) {
       setStatus({
         type: "error",
-        message: e?.response?.data?.message || e?.message || "Lưu profile thất bại",
+        message: e?.response?.data?.message || e?.message || "Failed to save profile.",
       });
     } finally {
       setIsLoading(false);
@@ -267,16 +271,6 @@ const PublicProfile = () => {
             value={form.profession}
             onChange={handleChange("profession")}
           /> */}
-          <FormLabel>Bio</FormLabel>
-          <OutlinedInput
-            placeholder="Write your bio here..."
-            multiline
-            rows={4}
-            fullWidth
-            sx={{ marginBottom: "16px" }}
-            value={form.bio}
-            onChange={handleChange("bio")}
-          />
         </Grid>
         <Grid item xs={12} textAlign="right">
           <Button
@@ -289,6 +283,22 @@ const PublicProfile = () => {
           </Button>
         </Grid>
       </Grid>
+
+    <Snackbar
+      open={toast.open}
+      autoHideDuration={2500}
+      onClose={() => setToast({ open: false, message: "" })}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+    >
+      <Alert
+        onClose={() => setToast({ open: false, message: "" })}
+        severity="success"
+        variant="filled"
+        sx={{ width: "100%" }}
+      >
+        {toast.message}
+      </Alert>
+    </Snackbar>
     </Container>
   );
 };
