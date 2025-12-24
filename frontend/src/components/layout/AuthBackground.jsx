@@ -26,7 +26,7 @@ const AuthBackground = () => {
             <div key={index} className="mb-3 break-inside-avoid inline-block w-full">
               <img 
                 src={src} 
-                alt="Coffee Decor" 
+                alt="E-commerce background" 
                 loading="lazy"
                 className="w-full h-auto rounded-sm object-cover transition-all duration-700 opacity-60 hover:opacity-100" 
               />
