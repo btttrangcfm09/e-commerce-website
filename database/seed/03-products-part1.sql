@@ -18,9 +18,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     45,
     (SELECT id FROM categories WHERE name = 'Smartphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1695048133142-1a20484d2569',
-        'https://images.unsplash.com/photo-1695653422715-991ec3a0db7a',
-        'https://images.unsplash.com/photo-1592286927505-b0c5c9d60b36'
+        '/images/products/1695048133142-1a20484d2569.jpg',
+        '/images/products/1695653422715-991ec3a0db7a.jpg',
+        '/images/products/1592286927505-b0c5c9d60b36.jpg'
     ]
 ),
 (
@@ -30,9 +30,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     38,
     (SELECT id FROM categories WHERE name = 'Smartphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c',
-        'https://images.unsplash.com/photo-1598327105666-5b89351aff97',
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9'
+        '/images/products/1610945415295-d9bbf067e59c.jpg',
+        '/images/products/1598327105666-5b89351aff97.jpg',
+        '/images/products/1511707171634-5f897ff02aa9.jpg'
     ]
 ),
 (
@@ -42,9 +42,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     52,
     (SELECT id FROM categories WHERE name = 'Smartphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1598327105666-5b89351aff97',
-        'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb',
-        'https://images.unsplash.com/photo-1585060544812-6b45742d762f'
+        '/images/products/1598327105666-5b89351aff97.jpg',
+        '/images/products/1601784551446-20c9e07cdbdb.jpg',
+        '/images/products/1585060544812-6b45742d762f.jpg'
     ]
 ),
 (
@@ -54,9 +54,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     67,
     (SELECT id FROM categories WHERE name = 'Smartphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-        'https://images.unsplash.com/photo-1592286927505-b0c5c9d60b36',
-        'https://images.unsplash.com/photo-1585060544812-6b45742d762f'
+        '/images/products/1511707171634-5f897ff02aa9.jpg',
+        '/images/products/1592286927505-b0c5c9d60b36.jpg',
+        '/images/products/1585060544812-6b45742d762f.jpg'
     ]
 );
 
@@ -71,9 +71,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     28,
     (SELECT id FROM categories WHERE name = 'Laptops & Computers'),
     ARRAY[
-        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8',
-        'https://images.unsplash.com/photo-1541807084-5c52b6b3adef',
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853'
+        '/images/products/1517336714731-489689fd1ca8.jpg',
+        '/images/products/1541807084-5c52b6b3adef.jpg',
+        '/images/products/1496181133206-80ce9b88a853.jpg'
     ]
 ),
 (
@@ -83,9 +83,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     35,
     (SELECT id FROM categories WHERE name = 'Laptops & Computers'),
     ARRAY[
-        'https://images.unsplash.com/photo-1593642632823-8f785ba67e45',
-        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed',
-        'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2'
+        '/images/products/1593642632823-8f785ba67e45.jpg',
+        '/images/products/1588872657578-7efd1f1555ed.jpg',
+        '/images/products/1525547719571-a2d4ac8945e2.jpg'
     ]
 ),
 (
@@ -95,9 +95,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     24,
     (SELECT id FROM categories WHERE name = 'Laptops & Computers'),
     ARRAY[
-        'https://images.unsplash.com/photo-1603302576837-37561b2e2302',
-        'https://images.unsplash.com/photo-1625842268584-8f3296236761',
-        'https://images.unsplash.com/photo-1593642632823-8f785ba67e45'
+        '/images/products/1603302576837-37561b2e2302.jpg',
+        '/images/products/1625842268584-8f3296236761.jpg',
+        '/images/products/1593642632823-8f785ba67e45.jpg'
     ]
 ),
 (
@@ -107,9 +107,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     48,
     (SELECT id FROM categories WHERE name = 'Laptops & Computers'),
     ARRAY[
-        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed',
-        'https://images.unsplash.com/photo-1541807084-5c52b6b3adef',
-        'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2'
+        '/images/products/1588872657578-7efd1f1555ed.jpg',
+        '/images/products/1541807084-5c52b6b3adef.jpg',
+        '/images/products/1525547719571-a2d4ac8945e2.jpg'
     ]
 ),
 (
@@ -119,9 +119,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     31,
     (SELECT id FROM categories WHERE name = 'Laptops & Computers'),
     ARRAY[
-        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',
-        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8',
-        'https://images.unsplash.com/photo-1593642632823-8f785ba67e45'
+        '/images/products/1496181133206-80ce9b88a853.jpg',
+        '/images/products/1517336714731-489689fd1ca8.jpg',
+        '/images/products/1593642632823-8f785ba67e45.jpg'
     ]
 );
 
@@ -136,9 +136,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     42,
     (SELECT id FROM categories WHERE name = 'Tablets'),
     ARRAY[
-        'https://images.unsplash.com/photo-1585790050230-5dd28404f869',
-        'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0',
-        'https://images.unsplash.com/photo-1611532736597-de2d4265fba3'
+        '/images/products/1585790050230-5dd28404f869.jpg',
+        '/images/products/1544244015-0df4b3ffc6b0.jpg',
+        '/images/products/1611532736597-de2d4265fba3.jpg'
     ]
 ),
 (
@@ -148,9 +148,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     56,
     (SELECT id FROM categories WHERE name = 'Tablets'),
     ARRAY[
-        'https://images.unsplash.com/photo-1561154464-82e9adf32764',
-        'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0',
-        'https://images.unsplash.com/photo-1585790050230-5dd28404f869'
+        '/images/products/1561154464-82e9adf32764.jpg',
+        '/images/products/1544244015-0df4b3ffc6b0.jpg',
+        '/images/products/1585790050230-5dd28404f869.jpg'
     ]
 ),
 (
@@ -160,9 +160,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     78,
     (SELECT id FROM categories WHERE name = 'Tablets'),
     ARRAY[
-        'https://images.unsplash.com/photo-1611532736597-de2d4265fba3',
-        'https://images.unsplash.com/photo-1585790050230-5dd28404f869',
-        'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0'
+        '/images/products/1611532736597-de2d4265fba3.jpg',
+        '/images/products/1585790050230-5dd28404f869.jpg',
+        '/images/products/1544244015-0df4b3ffc6b0.jpg'
     ]
 );
 
@@ -177,9 +177,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     94,
     (SELECT id FROM categories WHERE name = 'Audio & Headphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-        'https://images.unsplash.com/photo-1484704849700-f032a568e944',
-        'https://images.unsplash.com/photo-1545127398-14699f92334b'
+        '/images/products/1505740420928-5e560c06d30e.jpg',
+        '/images/products/1484704849700-f032a568e944.jpg',
+        '/images/products/1545127398-14699f92334b.jpg'
     ]
 ),
 (
@@ -189,9 +189,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     156,
     (SELECT id FROM categories WHERE name = 'Audio & Headphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7',
-        'https://images.unsplash.com/photo-1590658268037-6bf12165a8df',
-        'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb'
+        '/images/products/1606841837239-c5a1a4a07af7.jpg',
+        '/images/products/1590658268037-6bf12165a8df.jpg',
+        '/images/products/1572569511254-d8f925fe2cbb.jpg'
     ]
 ),
 (
@@ -201,9 +201,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     72,
     (SELECT id FROM categories WHERE name = 'Audio & Headphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1484704849700-f032a568e944',
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-        'https://images.unsplash.com/photo-1545127398-14699f92334b'
+        '/images/products/1484704849700-f032a568e944.jpg',
+        '/images/products/1505740420928-5e560c06d30e.jpg',
+        '/images/products/1545127398-14699f92334b.jpg'
     ]
 ),
 (
@@ -213,9 +213,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     145,
     (SELECT id FROM categories WHERE name = 'Audio & Headphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1',
-        'https://images.unsplash.com/photo-1545127398-14699f92334b',
-        'https://images.unsplash.com/photo-1589492477829-5e65395b66cc'
+        '/images/products/1608043152269-423dbba4e7e1.jpg',
+        '/images/products/1545127398-14699f92334b.jpg',
+        '/images/products/1589492477829-5e65395b66cc.jpg'
     ]
 ),
 (
@@ -225,9 +225,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     38,
     (SELECT id FROM categories WHERE name = 'Audio & Headphones'),
     ARRAY[
-        'https://images.unsplash.com/photo-1590602847861-f357a9332bbc',
-        'https://images.unsplash.com/photo-1589492477829-5e65395b66cc',
-        'https://images.unsplash.com/photo-1590658268037-6bf12165a8df'
+        '/images/products/1590602847861-f357a9332bbc.jpg',
+        '/images/products/1589492477829-5e65395b66cc.jpg',
+        '/images/products/1590658268037-6bf12165a8df.jpg'
     ]
 );
 
@@ -242,9 +242,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     18,
     (SELECT id FROM categories WHERE name = 'Cameras & Photography'),
     ARRAY[
-        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',
-        'https://images.unsplash.com/photo-1502920917128-1aa500764cbd',
-        'https://images.unsplash.com/photo-1606248897732-2c5ffe759c04'
+        '/images/products/1516035069371-29a1b244cc32.jpg',
+        '/images/products/1502920917128-1aa500764cbd.jpg',
+        '/images/products/1606248897732-2c5ffe759c04.jpg'
     ]
 ),
 (
@@ -254,9 +254,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     22,
     (SELECT id FROM categories WHERE name = 'Cameras & Photography'),
     ARRAY[
-        'https://images.unsplash.com/photo-1502920917128-1aa500764cbd',
-        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',
-        'https://images.unsplash.com/photo-1606248897732-2c5ffe759c04'
+        '/images/products/1502920917128-1aa500764cbd.jpg',
+        '/images/products/1516035069371-29a1b244cc32.jpg',
+        '/images/products/1606248897732-2c5ffe759c04.jpg'
     ]
 ),
 (
@@ -266,9 +266,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     29,
     (SELECT id FROM categories WHERE name = 'Cameras & Photography'),
     ARRAY[
-        'https://images.unsplash.com/photo-1606248897732-2c5ffe759c04',
-        'https://images.unsplash.com/photo-1502920917128-1aa500764cbd',
-        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32'
+        '/images/products/1606248897732-2c5ffe759c04.jpg',
+        '/images/products/1502920917128-1aa500764cbd.jpg',
+        '/images/products/1516035069371-29a1b244cc32.jpg'
     ]
 ),
 (
@@ -278,9 +278,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     87,
     (SELECT id FROM categories WHERE name = 'Cameras & Photography'),
     ARRAY[
-        'https://images.unsplash.com/photo-1568301289194-c6f14b26daea',
-        'https://images.unsplash.com/photo-1606248897732-2c5ffe759c04',
-        'https://images.unsplash.com/photo-1502920917128-1aa500764cbd'
+        '/images/products/1568301289194-c6f14b26daea.jpg',
+        '/images/products/1606248897732-2c5ffe759c04.jpg',
+        '/images/products/1502920917128-1aa500764cbd.jpg'
     ]
 ),
 (
@@ -290,9 +290,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     64,
     (SELECT id FROM categories WHERE name = 'Cameras & Photography'),
     ARRAY[
-        'https://images.unsplash.com/photo-1606093204630-c69f06d99a8d',
-        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',
-        'https://images.unsplash.com/photo-1502920917128-1aa500764cbd'
+        '/images/products/1606093204630-c69f06d99a8d.jpg',
+        '/images/products/1516035069371-29a1b244cc32.jpg',
+        '/images/products/1502920917128-1aa500764cbd.jpg'
     ]
 );
 
@@ -307,9 +307,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     42,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3',
-        'https://images.unsplash.com/photo-1622297845775-5ff3fef71d13',
-        'https://images.unsplash.com/photo-1607853202273-797f1c22a38e'
+        '/images/products/1606144042614-b2417e99c4e3.jpg',
+        '/images/products/1622297845775-5ff3fef71d13.jpg',
+        '/images/products/1607853202273-797f1c22a38e.jpg'
     ]
 ),
 (
@@ -319,9 +319,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     38,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        'https://images.unsplash.com/photo-1621259182978-fbf93132d53d',
-        'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3',
-        'https://images.unsplash.com/photo-1622297845775-5ff3fef71d13'
+        '/images/products/1621259182978-fbf93132d53d.jpg',
+        '/images/products/1606144042614-b2417e99c4e3.jpg',
+        '/images/products/1622297845775-5ff3fef71d13.jpg'
     ]
 ),
 (
@@ -331,9 +331,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     76,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e',
-        'https://images.unsplash.com/photo-1585857198771-82762233f93f',
-        'https://images.unsplash.com/photo-1622297845775-5ff3fef71d13'
+        '/images/products/1578303512597-81e6cc155b3e.jpg',
+        '/images/products/1585857198771-82762233f93f.jpg',
+        '/images/products/1622297845775-5ff3fef71d13.jpg'
     ]
 ),
 (
@@ -343,9 +343,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     124,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46',
-        'https://images.unsplash.com/photo-1563297007-0686b7003af7',
-        'https://images.unsplash.com/photo-1625948515291-69613efd103f'
+        '/images/products/1527864550417-7fd91fc51a46.jpg',
+        '/images/products/1563297007-0686b7003af7.jpg',
+        '/images/products/1625948515291-69613efd103f.jpg'
     ]
 ),
 (
@@ -355,9 +355,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     67,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        'https://images.unsplash.com/photo-1595225476474-87563907a212',
-        'https://images.unsplash.com/photo-1587829741301-dc798b83add3',
-        'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef'
+        '/images/products/1595225476474-87563907a212.jpg',
+        '/images/products/1587829741301-dc798b83add3.jpg',
+        '/images/products/1618384887929-16ec33fab9ef.jpg'
     ]
 ),
 (
@@ -367,9 +367,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     45,
     (SELECT id FROM categories WHERE name = 'Gaming'),
     ARRAY[
-        'https://images.unsplash.com/photo-1599669454699-248893623440',
-        'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcf',
-        'https://images.unsplash.com/photo-1484704849700-f032a568e944'
+        '/images/products/1599669454699-248893623440.jpg',
+        '/images/products/1618366712010-f4ae9c647dcf.jpg',
+        '/images/products/1484704849700-f032a568e944.jpg'
     ]
 );
 
@@ -384,9 +384,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     134,
     (SELECT id FROM categories WHERE name = 'Wearables & Smartwatches'),
     ARRAY[
-        'https://images.unsplash.com/photo-1579586337278-3befd40fd17a',
-        'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d',
-        'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1'
+        '/images/products/1579586337278-3befd40fd17a.jpg',
+        '/images/products/1434493789847-2f02dc6ca35d.jpg',
+        '/images/products/1508685096489-7aacd43bd3b1.jpg'
     ]
 ),
 (
@@ -396,9 +396,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     87,
     (SELECT id FROM categories WHERE name = 'Wearables & Smartwatches'),
     ARRAY[
-        'https://images.unsplash.com/photo-1617625802912-cde586faf331',
-        'https://images.unsplash.com/photo-1579586337278-3befd40fd17a',
-        'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d'
+        '/images/products/1617625802912-cde586faf331.jpg',
+        '/images/products/1579586337278-3befd40fd17a.jpg',
+        '/images/products/1434493789847-2f02dc6ca35d.jpg'
     ]
 ),
 (
@@ -408,9 +408,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     156,
     (SELECT id FROM categories WHERE name = 'Wearables & Smartwatches'),
     ARRAY[
-        'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6',
-        'https://images.unsplash.com/photo-1617625802912-cde586faf331',
-        'https://images.unsplash.com/photo-1579586337278-3befd40fd17a'
+        '/images/products/1575311373937-040b8e1fd5b6.jpg',
+        '/images/products/1617625802912-cde586faf331.jpg',
+        '/images/products/1579586337278-3befd40fd17a.jpg'
     ]
 ),
 (
@@ -420,9 +420,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     34,
     (SELECT id FROM categories WHERE name = 'Wearables & Smartwatches'),
     ARRAY[
-        'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d',
-        'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1',
-        'https://images.unsplash.com/photo-1579586337278-3befd40fd17a'
+        '/images/products/1434493789847-2f02dc6ca35d.jpg',
+        '/images/products/1508685096489-7aacd43bd3b1.jpg',
+        '/images/products/1579586337278-3befd40fd17a.jpg'
     ]
 );
 
@@ -437,9 +437,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     245,
     (SELECT id FROM categories WHERE name = 'Men''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1542272604-787c3835535d',
-        'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80',
-        'https://images.unsplash.com/photo-1473966968600-fa801b869a1a'
+        '/images/products/1542272604-787c3835535d.jpg',
+        '/images/products/1624378439575-d8705ad7ae80.jpg',
+        '/images/products/1473966968600-fa801b869a1a.jpg'
     ]
 ),
 (
@@ -449,9 +449,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     378,
     (SELECT id FROM categories WHERE name = 'Men''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
-        'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a',
-        'https://images.unsplash.com/photo-1576566588028-4147f3842f27'
+        '/images/products/1521572163474-6864f9cf17ab.jpg',
+        '/images/products/1583743814966-8936f5b7be1a.jpg',
+        '/images/products/1576566588028-4147f3842f27.jpg'
     ]
 ),
 (
@@ -461,9 +461,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     124,
     (SELECT id FROM categories WHERE name = 'Men''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1551028719-00167b16eac5',
-        'https://images.unsplash.com/photo-1591047139829-d91aecb6caea',
-        'https://images.unsplash.com/photo-1544022613-e87ca75a784a'
+        '/images/products/1551028719-00167b16eac5.jpg',
+        '/images/products/1591047139829-d91aecb6caea.jpg',
+        '/images/products/1544022613-e87ca75a784a.jpg'
     ]
 ),
 (
@@ -473,9 +473,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     456,
     (SELECT id FROM categories WHERE name = 'Men''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1576566588028-4147f3842f27',
-        'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
-        'https://images.unsplash.com/photo-1594938291221-94f18ceeea60'
+        '/images/products/1576566588028-4147f3842f27.jpg',
+        '/images/products/1521572163474-6864f9cf17ab.jpg',
+        '/images/products/1594938291221-94f18ceeea60.jpg'
     ]
 ),
 (
@@ -485,9 +485,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     178,
     (SELECT id FROM categories WHERE name = 'Men''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf',
-        'https://images.unsplash.com/photo-1620012253295-c15cc3e65df4',
-        'https://images.unsplash.com/photo-1596755094514-f87e34085b2c'
+        '/images/products/1602810318383-e386cc2a3ccf.jpg',
+        '/images/products/1620012253295-c15cc3e65df4.jpg',
+        '/images/products/1596755094514-f87e34085b2c.jpg'
     ]
 );
 
@@ -502,9 +502,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     267,
     (SELECT id FROM categories WHERE name = 'Women''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1506629082955-511b1aa562c8',
-        'https://images.unsplash.com/photo-1562157873-818bc0726f68',
-        'https://images.unsplash.com/photo-1506629082955-511b1aa562c8'
+        '/images/products/1506629082955-511b1aa562c8.jpg',
+        '/images/products/1562157873-818bc0726f68.jpg',
+        '/images/products/1506629082955-511b1aa562c8.jpg'
     ]
 ),
 (
@@ -514,9 +514,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     145,
     (SELECT id FROM categories WHERE name = 'Women''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446',
-        'https://images.unsplash.com/photo-1496747611176-843222e1e57c',
-        'https://images.unsplash.com/photo-1591369822096-ffd140ec948f'
+        '/images/products/1515372039744-b8f02a3ae446.jpg',
+        '/images/products/1496747611176-843222e1e57c.jpg',
+        '/images/products/1591369822096-ffd140ec948f.jpg'
     ]
 ),
 (
@@ -526,9 +526,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     198,
     (SELECT id FROM categories WHERE name = 'Women''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105',
-        'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa',
-        'https://images.unsplash.com/photo-1581338834647-b0fb40704e21'
+        '/images/products/1434389677669-e08b4cac3105.jpg',
+        '/images/products/1583496661160-fb5886a0aaaa.jpg',
+        '/images/products/1581338834647-b0fb40704e21.jpg'
     ]
 ),
 (
@@ -538,9 +538,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     234,
     (SELECT id FROM categories WHERE name = 'Women''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1541099649105-f69ad21f3246',
-        'https://images.unsplash.com/photo-1582418702059-97ebafb35d09',
-        'https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec'
+        '/images/products/1541099649105-f69ad21f3246.jpg',
+        '/images/products/1582418702059-97ebafb35d09.jpg',
+        '/images/products/1584370848010-d7fe6bc767ec.jpg'
     ]
 ),
 (
@@ -550,9 +550,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     167,
     (SELECT id FROM categories WHERE name = 'Women''s Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1618932260643-eee4a2f652a6',
-        'https://images.unsplash.com/photo-1485968579580-b6d095142e6e',
-        'https://images.unsplash.com/photo-1624206112918-f140f087f9b5'
+        '/images/products/1618932260643-eee4a2f652a6.jpg',
+        '/images/products/1485968579580-b6d095142e6e.jpg',
+        '/images/products/1624206112918-f140f087f9b5.jpg'
     ]
 );
 
@@ -567,9 +567,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     289,
     (SELECT id FROM categories WHERE name = 'Kids'' Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea',
-        'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2',
-        'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8'
+        '/images/products/1519238263530-99bdd11df2ea.jpg',
+        '/images/products/1503944583220-79d8926ad5e2.jpg',
+        '/images/products/1622290291468-a28f7a7dc6a8.jpg'
     ]
 ),
 (
@@ -579,9 +579,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     345,
     (SELECT id FROM categories WHERE name = 'Kids'' Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4',
-        'https://images.unsplash.com/photo-1519689680058-324335c77eba',
-        'https://images.unsplash.com/photo-1472163799897-e24c89146923'
+        '/images/products/1515488042361-ee00e0ddd4e4.jpg',
+        '/images/products/1519689680058-324335c77eba.jpg',
+        '/images/products/1472163799897-e24c89146923.jpg'
     ]
 ),
 (
@@ -591,9 +591,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     234,
     (SELECT id FROM categories WHERE name = 'Kids'' Fashion'),
     ARRAY[
-        'https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf',
-        'https://images.unsplash.com/photo-1514989940723-e8e51635b782',
-        'https://images.unsplash.com/photo-1512374382149-233c42b6a83b'
+        '/images/products/1508609349937-5ec4ae374ebf.jpg',
+        '/images/products/1514989940723-e8e51635b782.jpg',
+        '/images/products/1512374382149-233c42b6a83b.jpg'
     ]
 );
 
@@ -608,9 +608,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     456,
     (SELECT id FROM categories WHERE name = 'Sportswear'),
     ARRAY[
-        'https://images.unsplash.com/photo-1591195853828-11db59a44f6b',
-        'https://images.unsplash.com/photo-1598032895397-b9af2f5f8ce9',
-        'https://images.unsplash.com/photo-1577809686012-89e8b4e477e3'
+        '/images/products/1591195853828-11db59a44f6b.jpg',
+        '/images/products/1598032895397-b9af2f5f8ce9.jpg',
+        '/images/products/1577809686012-89e8b4e477e3.jpg'
     ]
 ),
 (
@@ -620,9 +620,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     298,
     (SELECT id FROM categories WHERE name = 'Sportswear'),
     ARRAY[
-        'https://images.unsplash.com/photo-1556821840-3a63f95609a7',
-        'https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb',
-        'https://images.unsplash.com/photo-1562157873-818bc0726f68'
+        '/images/products/1556821840-3a63f95609a7.jpg',
+        '/images/products/1571731956672-f2b94d7dd0cb.jpg',
+        '/images/products/1562157873-818bc0726f68.jpg'
     ]
 ),
 (
@@ -632,9 +632,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     167,
     (SELECT id FROM categories WHERE name = 'Sportswear'),
     ARRAY[
-        'https://images.unsplash.com/photo-1556821840-3a63f95609a7',
-        'https://images.unsplash.com/photo-1591047139829-d91aecb6caea',
-        'https://images.unsplash.com/photo-1591369822096-ffd140ec948f'
+        '/images/products/1556821840-3a63f95609a7.jpg',
+        '/images/products/1591047139829-d91aecb6caea.jpg',
+        '/images/products/1591369822096-ffd140ec948f.jpg'
     ]
 );
 
@@ -649,9 +649,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     189,
     (SELECT id FROM categories WHERE name = 'Shoes'),
     ARRAY[
-        'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
-        'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519',
-        'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a'
+        '/images/products/1542291026-7eec264c27ff.jpg',
+        '/images/products/1600185365483-26d7a4cc7519.jpg',
+        '/images/products/1595950653106-6c9ebd614d3a.jpg'
     ]
 ),
 (
@@ -661,9 +661,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     145,
     (SELECT id FROM categories WHERE name = 'Shoes'),
     ARRAY[
-        'https://images.unsplash.com/photo-1539185441755-769473a23570',
-        'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa',
-        'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb'
+        '/images/products/1539185441755-769473a23570.jpg',
+        '/images/products/1606107557195-0e29a4b5b4aa.jpg',
+        '/images/products/1600185365926-3a2ce3cdb9eb.jpg'
     ]
 ),
 (
@@ -673,9 +673,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     567,
     (SELECT id FROM categories WHERE name = 'Shoes'),
     ARRAY[
-        'https://images.unsplash.com/photo-1607522370275-f14206abe5d3',
-        'https://images.unsplash.com/photo-1595341888016-a392ef81b7de',
-        'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f'
+        '/images/products/1607522370275-f14206abe5d3.jpg',
+        '/images/products/1595341888016-a392ef81b7de.jpg',
+        '/images/products/1526170375885-4d8ecf77b99f.jpg'
     ]
 ),
 (
@@ -685,9 +685,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     123,
     (SELECT id FROM categories WHERE name = 'Shoes'),
     ARRAY[
-        'https://images.unsplash.com/photo-1605348532760-6753d2c43329',
-        'https://images.unsplash.com/photo-1608256246200-53e635b5b65f',
-        'https://images.unsplash.com/photo-1520639888713-7851133b1ed0'
+        '/images/products/1605348532760-6753d2c43329.jpg',
+        '/images/products/1608256246200-53e635b5b65f.jpg',
+        '/images/products/1520639888713-7851133b1ed0.jpg'
     ]
 ),
 (
@@ -697,9 +697,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     278,
     (SELECT id FROM categories WHERE name = 'Shoes'),
     ARRAY[
-        'https://images.unsplash.com/photo-1603487742131-4160ec999306',
-        'https://images.unsplash.com/photo-1562183241-b937e95585b6',
-        'https://images.unsplash.com/photo-1602293589930-45aad59ba3ab'
+        '/images/products/1603487742131-4160ec999306.jpg',
+        '/images/products/1562183241-b937e95585b6.jpg',
+        '/images/products/1602293589930-45aad59ba3ab.jpg'
     ]
 );
 
@@ -714,9 +714,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     234,
     (SELECT id FROM categories WHERE name = 'Accessories'),
     ARRAY[
-        'https://images.unsplash.com/photo-1511499767150-a48a237f0083',
-        'https://images.unsplash.com/photo-1509695507497-903c140c43b0',
-        'https://images.unsplash.com/photo-1574258495973-f010dfbb5371'
+        '/images/products/1511499767150-a48a237f0083.jpg',
+        '/images/products/1509695507497-903c140c43b0.jpg',
+        '/images/products/1574258495973-f010dfbb5371.jpg'
     ]
 ),
 (
@@ -726,9 +726,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     167,
     (SELECT id FROM categories WHERE name = 'Accessories'),
     ARRAY[
-        'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
-        'https://images.unsplash.com/photo-1524805444758-089113d48a6d',
-        'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3'
+        '/images/products/1523275335684-37898b6baf30.jpg',
+        '/images/products/1524805444758-089113d48a6d.jpg',
+        '/images/products/1522312346375-d1a52e2b99b3.jpg'
     ]
 ),
 (
@@ -738,9 +738,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     145,
     (SELECT id FROM categories WHERE name = 'Accessories'),
     ARRAY[
-        'https://images.unsplash.com/photo-1584917865442-de89df76afd3',
-        'https://images.unsplash.com/photo-1590874103328-eac38a683ce7',
-        'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d'
+        '/images/products/1584917865442-de89df76afd3.jpg',
+        '/images/products/1590874103328-eac38a683ce7.jpg',
+        '/images/products/1566150905458-1bf1fc113f0d.jpg'
     ]
 ),
 (
@@ -750,9 +750,9 @@ INSERT INTO products (name, description, price, stock, category_id, image_urls) 
     234,
     (SELECT id FROM categories WHERE name = 'Accessories'),
     ARRAY[
-        'https://images.unsplash.com/photo-1553062407-98eeb64c6a62',
-        'https://images.unsplash.com/photo-1577733966973-d680bffd2e80',
-        'https://images.unsplash.com/photo-1622260614927-9a74caa37414'
+        '/images/products/1553062407-98eeb64c6a62.jpg',
+        '/images/products/1577733966973-d680bffd2e80.jpg',
+        '/images/products/1622260614927-9a74caa37414.jpg'
     ]
 );
 
