@@ -134,7 +134,7 @@ class OrderRepository {
             throw new Error('User not found');
         }
 
-        const orderRes = await client.query('SELECT * FROM public.orders WHERE id = $1', [orderId]);
+        const orderRes = await client.query('SELECT * FROM public.orders WHERE id = $1 AND is_active = true', [orderId]);
         const order = orderRes.rows?.[0];
         if (!order) {
             throw new Error('Order not found');
@@ -195,6 +195,7 @@ class OrderRepository {
         ) as items
       FROM public.orders o
       WHERE o.customer_id = $1
+        AND o.is_active = true
         AND ($4::public.order_status IS NULL OR o.order_status = $4::public.order_status)
       ORDER BY o.created_at DESC
       LIMIT $2
@@ -232,7 +233,8 @@ class OrderRepository {
           ) as customer_info
         FROM public.orders o
         JOIN public.users u ON u.id = o.customer_id
-        WHERE ($3::public.order_status IS NULL OR o.order_status = $3::public.order_status)
+        WHERE o.is_active = true 
+          AND ($3::public.order_status IS NULL OR o.order_status = $3::public.order_status)
         ORDER BY o.created_at DESC
         LIMIT $1
         OFFSET $2
@@ -527,6 +529,7 @@ static async cancelOrder(orderId, userId) {
                 COUNT(*) FILTER (WHERE order_status = 'PENDING') as pending_orders,
                 COUNT(DISTINCT customer_id) as active_customers
             FROM orders
+            WHERE is_active = true
         `;
         const result = await db.query(query);
         return result[0];
@@ -551,6 +554,7 @@ static async cancelOrder(orderId, userId) {
         LEFT JOIN orders o ON 
             DATE(o.created_at) = ds.date 
             AND o.order_status != 'CANCELED'
+            AND o.is_active = true
         GROUP BY ds.date
         ORDER BY ds.date ASC
     `;
@@ -575,6 +579,7 @@ static async cancelOrder(orderId, userId) {
         ) as customer_info
       FROM orders o
       LEFT JOIN users u ON u.id = o.customer_id
+      WHERE o.is_active = true
       ORDER BY o.created_at DESC
       LIMIT $1
     `;
