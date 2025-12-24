@@ -12,7 +12,7 @@ class User {
     // Tìm user theo ID (để xem profile)
     static async findById(id) {
         const query = `
-            SELECT id, username, email, first_name, last_name, role, 
+            SELECT id, username, email, first_name, last_name, role, phone, address, image,
                 created_at
             FROM users WHERE id = $1
         `;

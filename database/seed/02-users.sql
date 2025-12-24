@@ -13,7 +13,11 @@ TRUNCATE TABLE users CASCADE;
 -- Password: admin123 (bcrypt hash)
 -- Note: You should change these passwords in production!
 
-INSERT INTO users (id, username, password, email, first_name, last_name, role, created_at) VALUES
+-- ====================================
+-- ADMIN USERS
+-- ====================================
+
+INSERT INTO users (id, username, password, email, first_name, last_name, role, created_at, image, phone, address) VALUES
 (
     'admin001',
     'admin',
@@ -22,7 +26,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Admin',
     'System',
     'ADMIN',
-    NOW()
+    NOW(),
+    'https://i.pravatar.cc/150?img=33',
+    '+84901234567',
+    '123 Nguyen Hue, District 1, Ho Chi Minh City'
 ),
 (
     'admin002',
@@ -32,14 +39,17 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'John',
     'Smith',
     'ADMIN',
-    NOW()
+    NOW(),
+    'https://i.pravatar.cc/150?img=12',
+    '+84907654321',
+    '456 Le Loi, District 1, Ho Chi Minh City'
 );
 
 -- ====================================
 -- CUSTOMER USERS
 -- ====================================
 
-INSERT INTO users (id, username, password, email, first_name, last_name, role, created_at) VALUES
+INSERT INTO users (id, username, password, email, first_name, last_name, role, created_at, image, phone, address) VALUES
 -- Customer 1
 (
     gen_random_uuid()::varchar,
@@ -49,7 +59,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Sarah',
     'Wilson',
     'CUSTOMER',
-    NOW() - INTERVAL '120 days'
+    NOW() - INTERVAL '120 days',
+    'https://i.pravatar.cc/150?img=47',
+    '+84912345001',
+    '15 Tran Hung Dao, Hoan Kiem, Hanoi'
 ),
 -- Customer 2
 (
@@ -60,7 +73,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Michael',
     'Johnson',
     'CUSTOMER',
-    NOW() - INTERVAL '110 days'
+    NOW() - INTERVAL '110 days',
+    'https://i.pravatar.cc/150?img=15',
+    '+84912345002',
+    '28 Vo Van Tan, District 3, Ho Chi Minh City'
 ),
 -- Customer 3
 (
@@ -71,7 +87,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Emma',
     'Davis',
     'CUSTOMER',
-    NOW() - INTERVAL '95 days'
+    NOW() - INTERVAL '95 days',
+    'https://i.pravatar.cc/150?img=45',
+    '+84912345003',
+    '72 Nguyen Trai, Thanh Xuan, Hanoi'
 ),
 -- Customer 4
 (
@@ -82,7 +101,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'James',
     'Brown',
     'CUSTOMER',
-    NOW() - INTERVAL '87 days'
+    NOW() - INTERVAL '87 days',
+    'https://i.pravatar.cc/150?img=13',
+    '+84912345004',
+    '91 Pasteur, District 1, Ho Chi Minh City'
 ),
 -- Customer 5
 (
@@ -93,7 +115,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Olivia',
     'Garcia',
     'CUSTOMER',
-    NOW() - INTERVAL '75 days'
+    NOW() - INTERVAL '75 days',
+    'https://i.pravatar.cc/150?img=44',
+    '+84912345005',
+    '34 Ba Trieu, Hoan Kiem, Hanoi'
 ),
 -- Customer 6
 (
@@ -104,7 +129,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'William',
     'Miller',
     'CUSTOMER',
-    NOW() - INTERVAL '68 days'
+    NOW() - INTERVAL '68 days',
+    'https://i.pravatar.cc/150?img=14',
+    '+84912345006',
+    '56 Cach Mang Thang Tam, District 10, Ho Chi Minh City'
 ),
 -- Customer 7
 (
@@ -115,7 +143,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Sophia',
     'Martinez',
     'CUSTOMER',
-    NOW() - INTERVAL '61 days'
+    NOW() - INTERVAL '61 days',
+    'https://i.pravatar.cc/150?img=48',
+    '+84912345007',
+    '88 Hang Bong, Hoan Kiem, Hanoi'
 ),
 -- Customer 8
 (
@@ -126,7 +157,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Robert',
     'Taylor',
     'CUSTOMER',
-    NOW() - INTERVAL '55 days'
+    NOW() - INTERVAL '55 days',
+    'https://i.pravatar.cc/150?img=52',
+    '+84912345008',
+    '123 Hai Ba Trung, District 3, Ho Chi Minh City'
 ),
 -- Customer 9
 (
@@ -137,7 +171,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Isabella',
     'Anderson',
     'CUSTOMER',
-    NOW() - INTERVAL '48 days'
+    NOW() - INTERVAL '48 days',
+    'https://i.pravatar.cc/150?img=49',
+    '+84912345009',
+    '45 Ly Thuong Kiet, Hoan Kiem, Hanoi'
 ),
 -- Customer 10
 (
@@ -148,7 +185,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'David',
     'Thomas',
     'CUSTOMER',
-    NOW() - INTERVAL '42 days'
+    NOW() - INTERVAL '42 days',
+    'https://i.pravatar.cc/150?img=59',
+    '+84912345010',
+    '67 Nguyen Hue, District 1, Ho Chi Minh City'
 ),
 -- Customer 11
 (
@@ -159,7 +199,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Mia',
     'Jackson',
     'CUSTOMER',
-    NOW() - INTERVAL '35 days'
+    NOW() - INTERVAL '35 days',
+    'https://i.pravatar.cc/150?img=41',
+    '+84912345011',
+    '99 Hoang Hoa Tham, Ba Dinh, Hanoi'
 ),
 -- Customer 12
 (
@@ -170,7 +213,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Daniel',
     'White',
     'CUSTOMER',
-    NOW() - INTERVAL '28 days'
+    NOW() - INTERVAL '28 days',
+    'https://i.pravatar.cc/150?img=17',
+    '+84912345012',
+    '111 Dien Bien Phu, Binh Thanh, Ho Chi Minh City'
 ),
 -- Customer 13
 (
@@ -181,7 +227,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Charlotte',
     'Harris',
     'CUSTOMER',
-    NOW() - INTERVAL '21 days'
+    NOW() - INTERVAL '21 days',
+    'https://i.pravatar.cc/150?img=43',
+    '+84912345013',
+    '22 Tay Son, Dong Da, Hanoi'
 ),
 -- Customer 14
 (
@@ -192,7 +241,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Matthew',
     'Clark',
     'CUSTOMER',
-    NOW() - INTERVAL '14 days'
+    NOW() - INTERVAL '14 days',
+    'https://i.pravatar.cc/150?img=68',
+    '+84912345014',
+    '55 Phan Xich Long, Phu Nhuan, Ho Chi Minh City'
 ),
 -- Customer 15
 (
@@ -203,7 +255,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Amelia',
     'Lewis',
     'CUSTOMER',
-    NOW() - INTERVAL '10 days'
+    NOW() - INTERVAL '10 days',
+    'https://i.pravatar.cc/150?img=20',
+    '+84912345015',
+    '77 Kim Ma, Ba Dinh, Hanoi'
 ),
 -- Customer 16
 (
@@ -214,7 +269,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Joseph',
     'Robinson',
     'CUSTOMER',
-    NOW() - INTERVAL '7 days'
+    NOW() - INTERVAL '7 days',
+    'https://i.pravatar.cc/150?img=51',
+    '+84912345016',
+    '88 Tran Quoc Toan, District 3, Ho Chi Minh City'
 ),
 -- Customer 17
 (
@@ -225,7 +283,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Harper',
     'Walker',
     'CUSTOMER',
-    NOW() - INTERVAL '5 days'
+    NOW() - INTERVAL '5 days',
+    'https://i.pravatar.cc/150?img=23',
+    '+84912345017',
+    '33 Giang Vo, Dong Da, Hanoi'
 ),
 -- Customer 18
 (
@@ -236,7 +297,10 @@ INSERT INTO users (id, username, password, email, first_name, last_name, role, c
     'Benjamin',
     'Hall',
     'CUSTOMER',
-    NOW() - INTERVAL '3 days'
+    NOW() - INTERVAL '3 days',
+    'https://i.pravatar.cc/150?img=60',
+    '+84912345018',
+    '44 Nguyen Thi Minh Khai, District 1, Ho Chi Minh City'
 );
 
 -- ====================================
