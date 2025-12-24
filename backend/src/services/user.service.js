@@ -17,16 +17,26 @@ class UserService {
 
         // 2. So sánh mật khẩu (Bcrypt compare)
         // Lưu ý: Code cũ dùng MD5, code mới dùng Bcrypt. 
-        // Nếu bạn đăng nhập tài khoản cũ (tạo bằng Python fake) sẽ bị lỗi vì nó là MD5.
-        // Bạn nên tạo tài khoản mới để test logic này.
-        const isMatch = await bcrypt.compare(password, user.password);
+        let isMatch = await bcrypt.compare(password, user.password);
         
         // *Fallback cho các user cũ dùng MD5 (chỉ dùng trong giai đoạn chuyển giao)*
-        // Nếu bcrypt check false, thử check MD5 thủ công (chỉ nếu bạn cần giữ user cũ)
-        /* if (!isMatch) {
-            // Logic check MD5 cũ ở đây nếu cần thiết, nhưng tốt nhất là nên reset DB
+        // Nếu bcrypt check false, thử check MD5 thủ công
+        if (!isMatch) {
+            const md5Hash = require('crypto').createHash('md5').update(password).digest('hex');
+            isMatch = (user.password === md5Hash);
+            
+            // Nếu match MD5, tự động upgrade sang bcrypt
+            if (isMatch) {
+                try {
+                    const salt = await bcrypt.genSalt(10);
+                    const hashedPassword = await bcrypt.hash(password, salt);
+                    await db.query('UPDATE public.users SET password = $1 WHERE id = $2', [hashedPassword, user.id]);
+                } catch (e) {
+                    // Log error nhưng vẫn cho login
+                    console.error('Failed to upgrade MD5 password to bcrypt:', e);
+                }
+            }
         }
-        */
 
         if (!isMatch) {
             throw new Error('Invalid login credentials');

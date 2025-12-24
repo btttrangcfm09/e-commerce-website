@@ -16,6 +16,9 @@ create table public.users (
     first_name varchar(255) not null,
     last_name varchar(255) not null,
     role public.user_role not null,
+    phone varchar(15),              -- Migration 004: User phone number
+    address text,                   -- Migration 004: User address
+    image text,                     -- Migration 003: User profile image
     created_at timestamp not null default now(),
     constraint pk_users primary key (id)
 );
@@ -81,7 +84,7 @@ create table public.order_status_history (
 
 
 create table public.carts (
-    id char(255) not null,
+    id varchar(255) not null,       -- Migration 002: Changed from char(255) to varchar for flexibility
     customer_id varchar(255) not null,
     created_at timestamp not null default now(),
     constraint pk_carts primary key (id),
@@ -89,8 +92,8 @@ create table public.carts (
 );
 
 create table public.cart_items (
-    id char(50) not null,
-    cart_id char(50) not null,
+    id varchar(255) not null,       -- Migration 002: Changed from char(50) to varchar(255) for consistency
+    cart_id varchar(255) not null,  -- Migration 002: Match carts.id type
     product_id integer not null,
     quantity integer not null default 1,
     created_at timestamp not null default now(),

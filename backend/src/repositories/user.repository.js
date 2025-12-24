@@ -116,14 +116,19 @@ class UserRepository {
     }
 
     static async updatePasswordMd5(userId, newPassword) {
+        // Đổi tên method này nhưng giữ tương thích, giờ dùng bcrypt
+        const bcrypt = require('bcryptjs');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        
         const rows = await db.query(
             `
             UPDATE public.users
-            SET password = md5($2)
+            SET password = $2
             WHERE id = $1
             RETURNING id
             `,
-            [userId, newPassword]
+            [userId, hashedPassword]
         );
         return rows[0] || null;
     }

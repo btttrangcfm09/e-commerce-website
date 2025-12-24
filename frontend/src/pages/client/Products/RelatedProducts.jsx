@@ -1,6 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAllProducts } from "@/hooks/useAllProducts";
+import { API_URL } from "@/utils/constants";
+
+// Hàm xử lý URL ảnh từ backend
+const normalizeImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    if (typeof imageUrl === 'string' && imageUrl.startsWith('/uploads')) {
+        const backendUrl = API_URL || 'http://localhost:3000';
+        return `${backendUrl}${imageUrl}`;
+    }
+    return imageUrl;
+};
 
 const RelatedProducts = ({ currentCategoryName }) => {
     const { allProducts, isLoading, error } = useAllProducts();
@@ -35,7 +46,7 @@ const RelatedProducts = ({ currentCategoryName }) => {
                             <Link to={`/products/${product.product_id}`} className="block">
                                 {product.product_image_urls && product.product_image_urls.length > 0 ? (
                                     <img
-                                        src={product.product_image_urls[0]} // Accessing first image in array
+                                        src={normalizeImageUrl(product.product_image_urls[0])} // Accessing first image in array
                                         alt={product.product_name}
                                         className="h-48 w-full object-cover mb-4 rounded hover:scale-105 transition-transform duration-300"
                                     />
