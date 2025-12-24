@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
+const { toPublicUser } = require('../models/user.model');
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET;
 class UserService {
@@ -38,10 +39,10 @@ class UserService {
             { expiresIn: '1d' }
         );
 
-        // Lọc bỏ thông tin nhạy cảm
-        const { password: _, created_at, ...filteredProfile } = user;
 
-        return { token, filteredProfile };
+        // Chuẩn hóa profile trả về giống format các API /client/profile
+        const publicProfile = toPublicUser(user);
+        return { token, filteredProfile: publicProfile };
     }
 
     static async createAccount(data) {

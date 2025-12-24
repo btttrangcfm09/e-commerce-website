@@ -7,6 +7,7 @@ function normalizeProfileUpdate(body) {
         email: body.email,
         firstName: body.firstName ?? body.first_name,
         lastName: body.lastName ?? body.last_name,
+		image: body.image,
     };
 }
 
@@ -45,6 +46,7 @@ class ProfileService {
             email: normalized.email,
             first_name: normalized.firstName,
             last_name: normalized.lastName,
+			image: normalized.image,
         };
 
         const row = await UserRepository.updateProfile(userId, updateFields);
@@ -57,9 +59,13 @@ class ProfileService {
     }
 
     static async deleteMyProfileImage(userId) {
-        const err = new Error('Profile image is not supported (missing database column)');
-        err.status = 400;
-        throw err;
+        const row = await UserRepository.clearProfileImage(userId);
+        if (!row) {
+            const err = new Error('User not found');
+            err.status = 404;
+            throw err;
+        }
+        return toPublicUser(row);
     }
 }
 

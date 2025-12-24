@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/signin', UserController.signIn);
 router.post('/signup', UserController.createAccount);
 router.post('/logout', UserController.signOut);
+router.get('/profile', authenticate, UserController.getProfile);
 router.put('/profile', authenticate, uploadProfileImage, UserController.updateProfile);
 router.post('/profile/image', authenticate, uploadProfileImage, UserController.updateProfileImage);
 router.delete('/profile/image', authenticate, UserController.deleteProfileImage);
