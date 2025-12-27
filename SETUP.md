@@ -249,3 +249,141 @@ docker-compose up -d --build
 cd database\seed
 .\clear-and-reseed.bat
 ```
+
+
+# Quick Setup - AI Shopping Assistant
+
+## Các Bước Setup Nhanh (5 phút)
+
+### 1️. Lấy API Key (1 phút)
+```
+1. Truy cập: https://aistudio.google.com/app/apikey
+2. Đăng nhập Google
+3. Click "Create API Key"
+4. Copy key
+```
+
+### 2️. Cập Nhật .env (30 giây)
+```bash
+# File: d:\e-commerce-website\.env
+GEMINI_API_KEY=paste-your-key-here
+```
+
+### 3️. Chạy Migration (1 phút)
+```bash
+# Khởi động Docker
+docker-compose up -d
+
+# Chạy migration
+cd database
+psql -h localhost -p "cổng chạy postgres" -U postgres -d ecommerce -f sql/005-ai-features.sql
+psql -h localhost -p "cổng chạy postgres" -U postgres -d ecommerce -f sql/add-electronics-tags.sql
+psql -h localhost -p "cổng chạy postgres" -U postgres -d ecommerce -f sql/simple-add-tags.sql
+```
+
+### 4️. Khởi Động Servers (2 phút)
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend  
+npm run dev
+```
+
+### 5️. Test (30 giây)
+```
+1. Mở: http://localhost:3000
+2. Click nút chat (góc dưới phải) 🌟💬
+3. Nhập: "Tìm áo sơ mi nam"
+4. Xem kết quả!
+```
+
+---
+
+##  Checklist
+
+- [ ] API Key đã lấy và cập nhật vào .env
+- [ ] Docker đang chạy
+- [ ] Migration đã chạy thành công
+- [ ] Backend chạy ở port 5000
+- [ ] Frontend chạy ở port 3000
+- [ ] Test chat hoạt động
+
+---
+
+##  Nếu Gặp Lỗi
+
+### Backend không start
+```bash
+cd backend
+npm install @google/generative-ai
+npm run dev
+```
+
+### Migration fail
+```bash
+# Check Docker
+docker-compose ps
+
+# Restart database
+docker-compose restart postgres
+```
+
+### Chat không hoạt động
+```
+1. Check backend logs
+2. Test API: http://localhost:5000/client/ai-chat/health
+3. Check browser console (F12)
+```
+
+---
+
+## Files Đã Tạo
+
+### Backend (9 files)
+```
+backend/src/
+├── services/ai/
+│   ├── gemini.service.js
+│   ├── product-matcher.service.js
+│   └── ai-chat.service.js
+├── controllers/client/
+│   └── ai-chat.controller.js
+├── routes/client/
+│   └── ai-chat.routes.js
+├── middleware/auth/
+│   └── optional-auth.middleware.js
+└── routes/index.js (updated)
+```
+
+### Frontend (6 files)
+```
+frontend/src/
+├── components/features/ai-chat/
+│   ├── AIChatButton.jsx
+│   ├── AIChatWindow.jsx
+│   ├── ChatMessage.jsx
+│   └── ProductSuggestionCard.jsx
+├── services/
+│   └── ai-chat.js
+├── hooks/
+│   └── useAIChat.js
+└── App.jsx (updated)
+```
+
+### Database (2 files)
+```
+database/
+├── sql/005-ai-features.sql
+└── run-ai-migration.bat
+```
+
+### Documentation (2 files)
+```
+AI-SHOPPING-ASSISTANT-README.md
+AI-QUICK-SETUP.md (this file)
+```
+
+---
