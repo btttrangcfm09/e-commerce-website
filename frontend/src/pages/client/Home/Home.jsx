@@ -14,6 +14,40 @@ const Home = () => {
     useHomeLogic();
   const { addItem } = useCartQuery();
 
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 ${
+      type === 'success' ? 'bg-green-500' :
+      type === 'error' ? 'bg-red-500' :
+      type === 'warning' ? 'bg-yellow-500' :
+      'bg-blue-500'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+  };
+
+  const handleAddToCart = async (productId, productName) => {
+    const isAuthenticated = !!localStorage.getItem('auth');
+    
+    if (!isAuthenticated) {
+      showToast('Please login to add items to cart', 'warning');
+      return;
+    }
+
+    try {
+      await addItem({ productId, quantity: 1 });
+      showToast(`${productName} added to cart!`, 'success');
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      showToast('Failed to add to cart. Please try again.', 'error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -192,31 +226,31 @@ const Home = () => {
             {products.slice(0, 8).map((product) => (
               <div
                 key={product.id}
-                className="relative flex flex-col my-6 bg-white shadow-sm border border-slate-200 rounded-lg"
+                className="relative flex flex-col bg-white shadow-sm border border-slate-200 rounded-lg h-full"
               >
-                <Link to={`/products/${product.id}`} className="relative p-2.5 h-96 overflow-hidden rounded-xl bg-clip-border">
+                <Link to={`/products/${product.id}`} className="relative h-64 overflow-hidden rounded-t-lg bg-clip-border">
                   <img
                     src={product.image || "https://via.placeholder.com/200"}
                     alt={product.name}
-                    className="h-full w-full object-cover rounded-md hover:scale-105 transition-transform duration-300"
+                    className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
-                <div className="p-4 ">
+                <div className="p-4 flex flex-col flex-grow">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <Link to={`/products/${product.id}`} className="text-slate-800 text-xl font-semibold leading-tight text-left break-words max-w-[70%] hover:text-rose-600 transition-colors">
+                    <Link to={`/products/${product.id}`} className="text-slate-800 text-lg font-semibold leading-tight text-left break-words hover:text-rose-600 transition-colors line-clamp-2 flex-1">
                       {product.name}
                     </Link>
-                    <p className="text-rose-600 text-xl font-semibold text-right whitespace-nowrap">
+                    <p className="text-rose-600 text-lg font-semibold text-right whitespace-nowrap ml-2">
                       ${product.price}
                     </p>
                   </div>
 
-                  <p className="text-slate-600 leading-normal text-left font-light line-clamp-2">
+                  <p className="text-slate-600 text-sm leading-normal text-left font-light line-clamp-2 mb-4 flex-grow">
                     {product.description || "No description available."}
                   </p>
                   <button
-                    onClick={() => addItem({ productId: product.id, quantity: 1 })}
-                    className="rounded-md w-full mt-6 bg-rose-500 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-rose-600 focus:shadow-none active:bg-rose-600 hover:bg-rose-600 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                    onClick={() => handleAddToCart(product.id, product.name)}
+                    className="rounded-md w-full mt-auto bg-rose-500 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-rose-600 focus:shadow-none active:bg-rose-600 hover:bg-rose-600 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                     type="button"
                   >
                     Add to Cart
@@ -244,31 +278,31 @@ const Home = () => {
             {bestSellingProducts.slice(0, 4).map((product) => (
               <div
                 key={product.id}
-                className="relative flex flex-col my-6 bg-white shadow-sm border border-slate-200 rounded-lg"
+                className="relative flex flex-col bg-white shadow-sm border border-slate-200 rounded-lg h-full"
               >
-                <Link to={`/products/${product.id}`} className="relative p-2.5 h-96 overflow-hidden rounded-xl bg-clip-border">
+                <Link to={`/products/${product.id}`} className="relative h-64 overflow-hidden rounded-t-lg bg-clip-border">
                   <img
                     src={product.image || "https://via.placeholder.com/300x200"}
                     alt={product.name}
-                    className="h-full w-full object-cover rounded-md hover:scale-105 transition-transform duration-300"
+                    className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
-                <div className="p-2">
+                <div className="p-4 flex flex-col flex-grow">
                   <div className="mb-2 flex items-start justify-between gap-2">
-                    <Link to={`/products/${product.id}`} className="text-slate-800 text-xl font-semibold leading-tight break-words max-w-[70%] hover:text-rose-600 transition-colors">
+                    <Link to={`/products/${product.id}`} className="text-slate-800 text-lg font-semibold leading-tight break-words hover:text-rose-600 transition-colors line-clamp-2 flex-1">
                       {product.name}
                     </Link>
-                    <p className="text-rose-600 text-xl font-semibold whitespace-nowrap">
+                    <p className="text-rose-600 text-lg font-semibold whitespace-nowrap ml-2">
                       ${product.price}
                     </p>
                   </div>
 
-                  <p className="text-slate-600 leading-normal font-light line-clamp-2">
+                  <p className="text-slate-600 text-sm leading-normal font-light line-clamp-2 mb-4 flex-grow">
                     {product.description || "No description available."}
                   </p>
                   <button
-                    onClick={() => addItem({ productId: product.id, quantity: 1 })}
-                    className="rounded-md w-full mt-6 bg-rose-500 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-rose-700 focus:shadow-none active:bg-rose-700 hover:bg-rose-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                    onClick={() => handleAddToCart(product.id, product.name)}
+                    className="rounded-md w-full mt-auto bg-rose-500 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-rose-700 focus:shadow-none active:bg-rose-700 hover:bg-rose-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                     type="button"
                   >
                     Add to Cart

@@ -3,10 +3,13 @@ import { cartService } from '@/services/cart';
 
 export const useCartQuery = () => {
     const queryClient = useQueryClient();
+    const isAuthenticated = !!localStorage.getItem('auth');
 
     const cart = useQuery({
         queryKey: ['cart'],
         queryFn: () => cartService.getCart(),
+        enabled: isAuthenticated, // Only fetch when authenticated
+        retry: false, // Don't retry on 401
     });
 
     const addItem = useMutation({

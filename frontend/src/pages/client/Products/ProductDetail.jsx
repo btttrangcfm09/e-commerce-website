@@ -6,6 +6,7 @@ import { useCartQuery } from '@/hooks/useCart';
 import Banner from '@/components/common/Banner';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { API_URL } from '@/utils/constants';
+import FavoriteButton from '@/components/features/favorites/FavoriteButton';
 // import RelatedProducts from './RelatedProducts';
 
 // Hàm xử lý URL ảnh từ backend
@@ -50,8 +51,37 @@ const ProductDetail = () => {
     };
 
     const handleBuyNow = async () => {
-        await addItem({ productId: id, quantity });
-        // Add navigation logic here
+        const isAuthenticated = !!localStorage.getItem('auth');
+        
+        if (!isAuthenticated) {
+            showToast('Please login to add items to cart', 'warning');
+            return;
+        }
+
+        try {
+            await addItem({ productId: id, quantity });
+            showToast(`${quantity} item(s) added to cart!`, 'success');
+        } catch (error) {
+            console.error('Failed to add to cart:', error);
+            showToast('Failed to add to cart. Please try again.', 'error');
+        }
+    };
+
+    const showToast = (message, type = 'info') => {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500' :
+            type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-yellow-500' :
+            'bg-blue-500'
+        }`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
     };
 
     if (isLoading) return <LoadingSpinner />;
@@ -137,9 +167,7 @@ const ProductDetail = () => {
                                     Add to Cart
                                 </button>
 
-                                <button className="border p-3 rounded">
-                                    <FaHeart />
-                                </button>
+                                <FavoriteButton productId={mappedProduct.id} size="lg" />
                             </div>
 
                             {/* Delivery Info */}

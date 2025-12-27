@@ -141,6 +141,7 @@ export default function CommonTable({
   title,
   onDelete,
   onFilter,
+  onRowClick,
   deleteTooltip = 'Delete',
   confirmTitle = 'Confirm',
   confirmMessage = 'Are you sure you want to proceed?',
@@ -174,6 +175,8 @@ export default function CommonTable({
   };
 
   const handleClick = (event, id) => {
+    // Prevent selection when clicking on checkbox area
+    event.stopPropagation();
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
@@ -186,6 +189,13 @@ export default function CommonTable({
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
     }
     setSelected(newSelected);
+  };
+
+  const handleRowClick = (event, row) => {
+    // Only call onRowClick if it exists and the click wasn't on a checkbox
+    if (onRowClick && !event.defaultPrevented) {
+      onRowClick(row);
+    }
   };
 
   const handleChangePage = (event, newPage) => setPage(newPage);
@@ -253,7 +263,7 @@ export default function CommonTable({
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
+                    onClick={(event) => handleRowClick(event, row)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
@@ -261,7 +271,7 @@ export default function CommonTable({
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
-                    <TableCell padding="checkbox">
+                    <TableCell padding="checkbox" onClick={(event) => handleClick(event, row.id)}>
                       <Checkbox color="primary" checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                     </TableCell>
                     {headCells.map((headCell) => (
@@ -321,6 +331,7 @@ CommonTable.propTypes = {
   title: PropTypes.string.isRequired,
   onDelete: PropTypes.func.isRequired,
   onFilter: PropTypes.func.isRequired,
+  onRowClick: PropTypes.func,
   deleteTooltip: PropTypes.string,
   confirmTitle: PropTypes.string,
   confirmMessage: PropTypes.string,

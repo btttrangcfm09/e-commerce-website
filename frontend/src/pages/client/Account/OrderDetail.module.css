@@ -1,0 +1,43 @@
+.container {
+  @apply space-y-6;
+}
+
+.header {
+  @apply flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b;
+}
+
+.title {
+  @apply text-2xl sm:text-3xl font-bold;
+}
+
+.date {
+  @apply text-sm text-muted-foreground mt-1;
+}
+
+.gridContainer {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+.fullWidth {
+  @apply lg:col-span-2;
+}
+
+.infoGrid {
+  @apply space-y-4;
+}
+
+.label {
+  @apply text-sm font-medium text-muted-foreground;
+}
+
+.value {
+  @apply text-base mt-1;
+}
+
+.orderSummary {
+  @apply mt-6 pt-4 border-t;
+}
+
+.summaryTotal {
+  @apply flex justify-between items-center;
+}

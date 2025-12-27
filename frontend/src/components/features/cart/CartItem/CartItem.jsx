@@ -1,6 +1,7 @@
 // src/components/features/cart/CartItem/CartItem.jsx
 import React from 'react';
 import { FaHeart, FaTimes, FaMinus, FaPlus } from 'react-icons/fa';
+import FavoriteButton from '@/components/features/favorites/FavoriteButton';
 
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
     const handleDecrease = () => {
@@ -54,13 +55,9 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
                     </a>
 
                     <div className="flex items-center gap-4">
-                        <button
-                            type="button"
-                            className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 hover:underline"
-                        >
-                            <FaHeart className="me-1.5 h-4 w-4" />
-                            Add to Favorites
-                        </button>
+                        <div className="inline-flex items-center text-sm font-medium text-gray-500">
+                            <FavoriteButton productId={item.id} size="sm" showText={true} />
+                        </div>
                         <button
                             type="button"
                             onClick={onRemove}
