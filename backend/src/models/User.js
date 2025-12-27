@@ -92,6 +92,85 @@ class User {
         return await db.query(query);
     }
 
+    // Tìm user theo Google ID
+    static async findByGoogleId(googleId) {
+        const query = 'SELECT * FROM users WHERE google_id = $1';
+        const result = await db.query(query, [googleId]);
+        return result[0];
+    }
+
+    // Tìm hoặc tạo user từ Google OAuth (PROPER IMPLEMENTATION)
+    static async findOrCreateGoogleUser(googleData) {
+        const { googleId, email, firstName, lastName, image } = googleData;
+        
+        // Tìm user theo Google ID trước
+        let user = await this.findByGoogleId(googleId);
+        if (user) return user;
+
+        // Nếu không tìm thấy, kiểm tra xem email đã tồn tại chưa
+        user = await this.findByEmail(email);
+        if (user) {
+            // ⭐ ACCOUNT LINKING: User đã tồn tại với email này
+            // → Liên kết tài khoản với Google
+            const updateQuery = `
+                UPDATE users 
+                SET google_id = $1, 
+                    provider = CASE 
+                        WHEN provider = 'local' THEN 'local,google'
+                        ELSE provider || ',google'
+                    END,
+                    image = COALESCE(image, $2)
+                WHERE id = $3 
+                RETURNING *
+            `;
+            const result = await db.query(updateQuery, [googleId, image, user.id]);
+            return result[0];
+        }
+
+        // ⭐ NEW GOOGLE USER: Tạo user mới từ Google
+        const { v4: uuidv4 } = require('uuid');
+        const newId = uuidv4().replace(/-/g, '');
+        
+        const insertQuery = `
+            INSERT INTO users (
+                id, username, email, first_name, last_name, 
+                google_id, image, role, provider, created_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+            RETURNING *
+        `;
+        
+        const username = email.split('@')[0] + '_' + Math.random().toString(36).substr(2, 5);
+        const values = [
+            newId,
+            username,
+            email,
+            firstName,
+            lastName,
+            googleId,
+            image,
+            'CUSTOMER',
+            'google'  // ⭐ Provider = google
+        ];
+
+        const result = await db.query(insertQuery, values);
+        return result[0];
+    }
+
+    // ⭐ Check if user can login with password
+    static async canLoginWithPassword(userId) {
+        const query = 'SELECT password FROM users WHERE id = $1';
+        const result = await db.query(query, [userId]);
+        return result[0]?.password !== null;
+    }
+
+    // ⭐ Check if user can login with Google
+    static async canLoginWithGoogle(userId) {
+        const query = 'SELECT google_id FROM users WHERE id = $1';
+        const result = await db.query(query, [userId]);
+        return result[0]?.google_id !== null;
+    }
+
 }
 
 module.exports = User;
