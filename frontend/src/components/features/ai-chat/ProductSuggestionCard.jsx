@@ -69,31 +69,8 @@ const ProductSuggestionCard = ({ product, onAddToCart, onTrackView }) => {
                 {/* Price */}
                 <div className="flex items-center justify-between mb-3">
                     <span className="text-lg font-bold text-blue-600">
-                        {product.formattedPrice || new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        }).format(product.price)}
+                        ${Number(product.price).toFixed(2)}
                     </span>
-                </div>
-
-                {/* Action buttons */}
-                <div className="flex gap-2">
-                    <button
-                        onClick={handleViewProduct}
-                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 text-xs py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1"
-                    >
-                        <Eye className="w-4 h-4" />
-                        Xem
-                    </button>
-
-                    <button
-                        onClick={handleAddToCart}
-                        disabled={product.stock === 0}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-xs py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-1"
-                    >
-                        <ShoppingCart className="w-4 h-4" />
-                        Thêm
-                    </button>
                 </div>
             </div>
         </div>

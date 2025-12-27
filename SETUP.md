@@ -275,10 +275,11 @@ GEMINI_API_KEY=paste-your-key-here
 docker-compose up -d
 
 # Chạy migration
+```
 cd database
-psql -h localhost -p "cổng chạy postgres" -U postgres -d ecommerce -f sql/005-ai-features.sql
-psql -h localhost -p "cổng chạy postgres" -U postgres -d ecommerce -f sql/add-electronics-tags.sql
-psql -h localhost -p "cổng chạy postgres" -U postgres -d ecommerce -f sql/simple-add-tags.sql
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\005-ai-features.sql
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\add-electronics-tags.sql
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\simple-add-tags.sql
 ```
 
 ### 4️. Khởi Động Servers (2 phút)
@@ -387,3 +388,19 @@ AI-QUICK-SETUP.md (this file)
 ```
 
 ---
+
+# Smart Product Recommendations - Complete Guide
+
+## Database Setup
+
+### Bước 1: Setup Database
+
+```bash
+cd database/sql
+```
+
+# 1. Chạy migration để tạo bảng recommendations
+```
+docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\006-product-recommendations.sql
+
+```
