@@ -114,6 +114,22 @@ const useAIChat = () => {
             console.error('Error sending message:', err);
             setError('Failed to send message');
             
+            // Check if session is invalid (foreign key error or not found)
+            if (err.response?.data?.code === 'SESSION_NOT_FOUND' ||
+                err.response?.data?.error?.includes('foreign key') || 
+                err.response?.data?.error?.includes('session_id') ||
+                err.response?.status === 404) {
+                console.log('Invalid session, creating new one...');
+                localStorage.removeItem('ai_chat_session_id');
+                setSessionId(null);
+                setMessages([]);
+                toast.error('Session hết hạn. Đang tạo mới...');
+                await initializeSession();
+                // Retry sending the message
+                setTimeout(() => sendMessage(message), 1000);
+                return;
+            }
+            
             // Add error message
             setMessages(prev => [...prev, {
                 id: `error-${Date.now()}`,

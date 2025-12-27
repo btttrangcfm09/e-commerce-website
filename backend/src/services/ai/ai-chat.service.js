@@ -11,6 +11,20 @@ const productMatcherService = require('./product-matcher.service');
 
 class AIChatService {
     /**
+     * Check if session exists in database
+     */
+    async checkSessionExists(sessionId) {
+        try {
+            const query = 'SELECT id FROM ai_chat_sessions WHERE id = $1';
+            const result = await db.query(query, [sessionId]);
+            return result.length > 0;
+        } catch (error) {
+            console.error('Error checking session:', error);
+            return false;
+        }
+    }
+
+    /**
      * Create a new chat session
      * Each user can have multiple chat sessions (conversation threads)
      */

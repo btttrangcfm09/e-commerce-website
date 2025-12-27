@@ -84,6 +84,16 @@ class AIChatController {
                 });
             }
 
+            // Check if session exists
+            const sessionExists = await aiChatService.checkSessionExists(sessionId);
+            if (!sessionExists) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Session not found. Please create a new session.',
+                    code: 'SESSION_NOT_FOUND'
+                });
+            }
+
             // Process query
             const result = await aiChatService.processUserQuery(sessionId, message.trim());
 
