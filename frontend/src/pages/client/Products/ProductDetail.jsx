@@ -3,11 +3,12 @@ import { useParams } from 'react-router-dom';
 import { FaHeart, FaMinus, FaPlus, FaTruck, FaUndo } from 'react-icons/fa';
 import useProductsById from '@/hooks/useProductsById';
 import { useCartQuery } from '@/hooks/useCart';
+import { useTrackProductView } from '@/hooks/useRecommendations';
 import Banner from '@/components/common/Banner';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { API_URL } from '@/utils/constants';
 import FavoriteButton from '@/components/features/favorites/FavoriteButton';
-// import RelatedProducts from './RelatedProducts';
+import { ProductRecommendations } from '@/components/features/recommendations';
 
 // Hàm xử lý URL ảnh từ backend
 const normalizeImageUrl = (imageUrl) => {
@@ -23,6 +24,7 @@ const ProductDetail = () => {
     const { id } = useParams();
     const { product, loading: isLoading } = useProductsById(id);
     const { addItem } = useCartQuery();
+    const { trackView } = useTrackProductView();
 
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -44,7 +46,12 @@ const ProductDetail = () => {
         if (mappedProduct?.images?.length > 0) {
             setSelectedImage(mappedProduct.images[0]);
         }
-    }, [product]);
+        
+        // Track product view when product loads
+        if (id) {
+            trackView(parseInt(id));
+        }
+    }, [product, id]);
 
     const handleQuantityChange = (e) => {
         setQuantity(Math.max(1, Math.floor(e.target.value)));
@@ -194,11 +201,26 @@ const ProductDetail = () => {
                 </div>
             </section>
 
-            {/* <section className="py-10">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <RelatedProducts categoryId={product.categoryId} currentProductId={id} />
-                </div>
-            </section> */}
+            {/* Product Recommendations - "Customers Also Liked" */}
+            {mappedProduct && (
+                <ProductRecommendations 
+                    type="product-page"
+                    params={{ productId: id }}
+                    limit={8}
+                    columns={4}
+                    className="bg-gray-50"
+                />
+            )}
+
+            {/* Recently Viewed Products (if user is logged in) */}
+            <ProductRecommendations 
+                type="recently-viewed"
+                title="Sản phẩm bạn đã xem"
+                description="Các sản phẩm bạn đã xem gần đây"
+                limit={6}
+                columns={6}
+                className="bg-white"
+            />
         </div>
     );
 };
