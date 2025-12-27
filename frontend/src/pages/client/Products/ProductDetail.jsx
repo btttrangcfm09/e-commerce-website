@@ -6,6 +6,7 @@ import { useCartQuery } from '@/hooks/useCart';
 import Banner from '@/components/common/Banner';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { API_URL } from '@/utils/constants';
+import FavoriteButton from '@/components/features/favorites/FavoriteButton';
 // import RelatedProducts from './RelatedProducts';
 
 // Hàm xử lý URL ảnh từ backend
@@ -137,9 +138,7 @@ const ProductDetail = () => {
                                     Add to Cart
                                 </button>
 
-                                <button className="border p-3 rounded">
-                                    <FaHeart />
-                                </button>
+                                <FavoriteButton productId={mappedProduct.id} size="lg" />
                             </div>
 
                             {/* Delivery Info */}

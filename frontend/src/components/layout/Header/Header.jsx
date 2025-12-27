@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
+import { FaSearch, FaShoppingCart, FaBars, FaTimes, FaHeart } from 'react-icons/fa';
 import { ProfilePopup } from '@/components/common/ProfilePopup';
 import CartPopup from '@/components/common/CartPopUp';
 import { useCartQuery } from '@/hooks/useCart'; // Import useCartQuery
@@ -57,6 +57,13 @@ const Header = () => {
                 )}
             </div>
 
+            <Link to="/favorites" className="relative cursor-pointer group">
+                <FaHeart className="text-2xl hover:text-rose-500 transition" />
+                <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                    My Favorites
+                </span>
+            </Link>
+
             <div 
                 className="relative w-10 h-10 rounded-full cursor-pointer border-2 border-white"
                 onClick={() => setIsProfilePopupOpen(true)}
@@ -96,6 +103,9 @@ const Header = () => {
 
                 <button className="md:hidden text-2xl focus:outline-none" onClick={() => setMenuOpen(!menuOpen)}>
                     {menuOpen ? <FaTimes /> : <FaBars />}
+                    {isAuthenticated && (
+                        <Link to="/favorites" className="hover:text-rose-500 transition duration-200 md:hidden">Favorites</Link>
+                    )}
                 </button>
 
                 <nav className={`${menuOpen ? 'flex' : 'hidden md:flex'} absolute md:relative top-16 md:top-0 left-0 md:left-auto w-full md:w-auto bg-black md:bg-transparent z-50 flex-col md:flex-row gap-4 md:gap-8 text-base font-medium items-center md:items-end p-4 md:p-0`}>

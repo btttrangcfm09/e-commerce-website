@@ -125,6 +125,16 @@ create table public.payments (
     check (amount >= 0)
 );
 
+create table public.favorites (
+    id serial primary key,
+    user_id varchar(255) not null,
+    product_id integer not null,
+    created_at timestamp not null default now(),
+    constraint fk_user_id foreign key (user_id) references users(id) on delete cascade,
+    constraint fk_product_id foreign key (product_id) references products(id) on delete cascade,
+    constraint unique_user_product unique (user_id, product_id)
+);
+
 alter table public.cart_items add unique (cart_id, product_id);
 alter table public.order_items drop constraint if exists order_items_order_id_key;
 
@@ -140,3 +150,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_is_active ON orders(is_active);
 CREATE INDEX IF NOT EXISTS idx_products_category_active ON products(category_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_orders_customer_active ON orders(customer_id, is_active);
 CREATE INDEX IF NOT EXISTS idx_orders_status_active ON orders(order_status, is_active);
+
+-- Indexes for favorites
+CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_product_id ON favorites(product_id);

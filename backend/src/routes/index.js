@@ -14,6 +14,7 @@ const clientCartRoutes = require('./client/cart.routes');
 const clientOrderRoutes = require('./client/order.routes');
 const clientCategoryRoutes = require('./client/category.routes');
 const clientProductRoutes = require('./client/product.routes');
+const clientFavoriteRoutes = require('./client/favorite.routes');
 
 // Gắn các route admin
 router.use('/admin/auth', adminAuthRoutes);
@@ -29,5 +30,6 @@ router.use('/client/orders', clientOrderRoutes);
 router.use('/categories', clientCategoryRoutes);
 router.use('/products', clientProductRoutes);
 router.use('/categories', clientCategoryRoutes);
+router.use('/client/favorites', clientFavoriteRoutes);
 
 module.exports = router;

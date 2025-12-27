@@ -13,6 +13,7 @@ import { Outlet } from 'react-router-dom';
 import ProductDetail from '@/pages/client/Products';
 import Register from '@/pages/client/Register';
 import OrderDetail from '@/pages/client/Account/OrderDetail';
+import Favorites from '@/pages/client/Favorites';
 
 const clientRoutes = [
     {
@@ -53,6 +54,10 @@ const clientRoutes = [
                     {
                         path: '/cart',
                         element: <Cart />,
+                    },
+                    {
+                        path: '/favorites',
+                        element: <Favorites />,
                     },
                     {
                         path: '/checkout',
