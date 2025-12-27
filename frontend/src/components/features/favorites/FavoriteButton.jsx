@@ -27,7 +27,7 @@ export default function FavoriteButton({ productId, size = 'md', showText = fals
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      alert('Please login to add favorites');
+      showToast('Please login to add favorites', 'warning');
       return;
     }
 
@@ -36,15 +36,38 @@ export default function FavoriteButton({ productId, size = 'md', showText = fals
       const result = await FavoritesService.toggleFavorite(productId);
       setIsFavorite(result.isFavorite);
       
+      // Show success message
+      showToast(
+        result.isFavorite ? 'Added to favorites!' : 'Removed from favorites',
+        'success'
+      );
+      
       if (onToggle) {
         onToggle(result.isFavorite);
       }
     } catch (error) {
       console.error('Failed to toggle favorite:', error);
-      alert('Failed to update favorite');
+      showToast('Failed to update favorite. Please try again.', 'error');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const showToast = (message, type = 'info') => {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 ${
+      type === 'success' ? 'bg-green-500' :
+      type === 'error' ? 'bg-red-500' :
+      type === 'warning' ? 'bg-yellow-500' :
+      'bg-blue-500'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
   };
 
   const sizeClasses = {
