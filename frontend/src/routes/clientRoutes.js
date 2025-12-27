@@ -12,6 +12,7 @@ import NotFound from '@/pages/client/NotFound';
 import { Outlet } from 'react-router-dom';
 import ProductDetail from '@/pages/client/Products';
 import Register from '@/pages/client/Register';
+import OrderDetail from '@/pages/client/Account/OrderDetail';
 
 const clientRoutes = [
     {
@@ -60,6 +61,10 @@ const clientRoutes = [
                     {
                         path: '/account',
                         element: <Account />,
+                    },
+                    {
+                        path: '/orders/:orderId',
+                        element: <OrderDetail />,
                     },
                 ],
             },

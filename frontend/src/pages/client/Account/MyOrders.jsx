@@ -65,6 +65,11 @@ export default function MyOrders() {
     return undefined;
   }, [loadOrders]);
 
+  const handleRowClick = (row) => {
+    // Navigate to order detail page
+    navigate(`/orders/${row.orderId}`);
+  };
+
   const handleDelete = async (selected) => {
     try {
       // CommonTable stores selected ids. We use orderId as row.id
@@ -110,6 +115,7 @@ export default function MyOrders() {
       errorMessage="Failed to cancel order"
       onDelete={handleDelete}
       onFilter={handleFilter}
+      onRowClick={handleRowClick}
     />
   );
 }
