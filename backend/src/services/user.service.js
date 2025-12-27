@@ -15,6 +15,11 @@ class UserService {
             throw new Error('Invalid login credentials'); // Không nói rõ lỗi để bảo mật
         }
 
+        // ⭐ CHECK: User có password không? (OAuth users không có password)
+        if (!user.password) {
+            throw new Error('This account does not support password login. Please use Google Sign-In.');
+        }
+
         // 2. So sánh mật khẩu (Bcrypt compare)
         // Lưu ý: Code cũ dùng MD5, code mới dùng Bcrypt. 
         let isMatch = await bcrypt.compare(password, user.password);

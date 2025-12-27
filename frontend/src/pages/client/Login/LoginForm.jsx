@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import GoogleLoginButton from '@/components/common/GoogleLoginButton';
 
 export default function LoginForm() {
     const navigate = useNavigate();
@@ -140,6 +141,19 @@ export default function LoginForm() {
                 >
                     {isLoading ? 'Logging In...' : 'Log In'}
                 </button>
+
+                {/* Divider */}
+                <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                        <span className="px-4 bg-white text-gray-500 font-medium">OR</span>
+                    </div>
+                </div>
+
+                {/* Google Login Button */}
+                <GoogleLoginButton text="Continue with Google" />
             </form>
 
             <div className="mt-8 text-center">

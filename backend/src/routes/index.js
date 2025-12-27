@@ -17,6 +17,7 @@ const clientProductRoutes = require('./client/product.routes');
 const clientFavoriteRoutes = require('./client/favorite.routes');
 const clientAIChatRoutes = require('./client/ai-chat.routes');
 const clientRecommendationRoutes = require('./client/recommendation.routes');
+const googleAuthRoutes = require('./client/google-auth.routes');
 
 // Gắn các route admin
 router.use('/admin/auth', adminAuthRoutes);
@@ -35,5 +36,6 @@ router.use('/categories', clientCategoryRoutes);
 router.use('/client/favorites', clientFavoriteRoutes);
 router.use('/client/ai-chat', clientAIChatRoutes);
 router.use('/recommendations', clientRecommendationRoutes);
+router.use('/client/auth', googleAuthRoutes);
 
 module.exports = router;

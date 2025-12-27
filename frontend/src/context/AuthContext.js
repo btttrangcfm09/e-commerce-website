@@ -82,9 +82,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 4. Hàm đăng nhập bằng Google
+  const loginWithGoogle = () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    window.location.href = `${backendUrl}/client/auth/google`;
+  };
+
+  // 5. Xử lý callback từ Google (gọi sau khi redirect về)
+  const handleGoogleCallback = (token, profile) => {
+    try {
+      // Lưu thông tin vào localStorage
+      localStorage.setItem('auth', token);
+      localStorage.setItem('profile', JSON.stringify(profile));
+      
+      // Cập nhật state
+      setUser(profile);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Google callback handling error:', error);
+      return { success: false, message: 'Failed to process Google login' };
+    }
+  };
+
   const value = {
     user,
     login,
+    loginWithGoogle,
+    handleGoogleCallback,
     logout,
     loading,
     isAuthenticated: !!user,

@@ -14,6 +14,7 @@ import ProductDetail from '@/pages/client/Products';
 import Register from '@/pages/client/Register';
 import OrderDetail from '@/pages/client/Account/OrderDetail';
 import Favorites from '@/pages/client/Favorites';
+import GoogleCallback from '@/pages/auth/GoogleCallback';
 
 const clientRoutes = [
     {
@@ -46,6 +47,10 @@ const clientRoutes = [
             {
                 path: '/register',
                 element: <Register />,
+            },
+            {
+                path: '/auth/google/callback',
+                element: <GoogleCallback />,
             },
             {
                 // element: <ProtectedRoute roles={['ADMIN', 'CUSTOMER']}/>,

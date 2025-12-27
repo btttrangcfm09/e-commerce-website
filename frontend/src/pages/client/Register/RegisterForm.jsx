@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/services/api';
+import GoogleLoginButton from '@/components/common/GoogleLoginButton';
 
 export default function RegisterForm() {
     const navigate = useNavigate();
@@ -117,6 +118,19 @@ export default function RegisterForm() {
                         {isLoading ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </div>
+
+                {/* Divider */}
+                <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                        <span className="px-4 bg-white text-gray-500 font-medium">OR</span>
+                    </div>
+                </div>
+
+                {/* Google Login Button */}
+                <GoogleLoginButton text="Sign up with Google" />
             </form>
 
             <div className="mt-8 text-center">
