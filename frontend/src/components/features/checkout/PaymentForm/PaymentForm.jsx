@@ -20,6 +20,7 @@ import AccountBalanceRoundedIcon from '@mui/icons-material/AccountBalanceRounded
 import CreditCardRoundedIcon from '@mui/icons-material/CreditCardRounded';
 import SimCardRoundedIcon from '@mui/icons-material/SimCardRounded';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import { CardElement } from '@stripe/react-stripe-js';
 
 const Card = styled(MuiCard)(({ theme, selected }) => ({
   border: '1px solid',
@@ -148,72 +149,11 @@ export default function PaymentForm({ paymentInfo, onPaymentTypeChange, onPaymen
                 color: 'text.secondary',
               }}
             />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                width: '100%',
-                gap: 2,
-              }}
-            >
-              <FormGrid sx={{ flexGrow: 1 }}>
-                <FormLabel htmlFor="card-number" required>
-                  Card number
-                </FormLabel>
-                <OutlinedInput
-                  id="card-number"
-                  autoComplete="card-number"
-                  placeholder="0000 0000 0000 0000"
-                  required
-                  size="small"
-                  value={paymentInfo.cardNumber}
-                  onChange={handleCardNumberChange}
-                />
-              </FormGrid>
-              <FormGrid sx={{ maxWidth: '20%' }}>
-                <FormLabel htmlFor="cvv" required>
-                  CVV
-                </FormLabel>
-                <OutlinedInput
-                  id="cvv"
-                  autoComplete="CVV"
-                  placeholder="123"
-                  required
-                  size="small"
-                  value={paymentInfo.cvv}
-                  onChange={handleCvvChange}
-                />
-              </FormGrid>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormGrid sx={{ flexGrow: 1 }}>
-                <FormLabel htmlFor="card-name" required>
-                  Name
-                </FormLabel>
-                <OutlinedInput
-                  id="card-name"
-                  autoComplete="card-name"
-                  placeholder="John Smith"
-                  required
-                  size="small"
-                  value={paymentInfo.cardName}
-                  onChange={(e) => onPaymentFieldChange('cardName', e.target.value)}
-                />
-              </FormGrid>
-              <FormGrid sx={{ flexGrow: 1 }}>
-                <FormLabel htmlFor="card-expiration" required>
-                  Expiration date
-                </FormLabel>
-                <OutlinedInput
-                  id="card-expiration"
-                  autoComplete="card-expiration"
-                  placeholder="MM/YY"
-                  required
-                  size="small"
-                  value={paymentInfo.expirationDate}
-                  onChange={handleExpirationDateChange}
-                />
-              </FormGrid>
+            <Box sx={{ mt: 2 }}>
+              <FormLabel required>Card details</FormLabel>
+              <Box sx={{ p: 2, border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}>
+                <CardElement options={{ style: { base: { fontSize: '16px' } } }} />
+              </Box>
             </Box>
           </PaymentContainer>
           <FormControlLabel

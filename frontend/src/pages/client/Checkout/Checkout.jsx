@@ -18,16 +18,21 @@ import AddressForm from '@/components/features/checkout/AddressForm';
 import Info from '@/components/features/checkout/Info';
 import InfoMobile from '@/components/features/checkout/InfoMobile';
 import PaymentForm from '@/components/features/checkout/PaymentForm';
+import { Elements, useElements, useStripe, CardElement } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 import Review from '@/components/features/checkout/Review';
 import SitemarkIcon from '@/components/features/checkout/SitemarkIcon';
 import axiosInstance from '@/services/api';
 import { CheckoutProvider, useCheckout } from '@/context/CheckoutContext';
 import { useCartQuery } from '@/hooks/useCart';
 import { useQueryClient } from '@tanstack/react-query';
-
+import Modal from '@/components/common/Modal/Modal';
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
 function CheckoutContent() {
+  const stripe = useStripe();
+  const elements = useElements();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { cart } = useCartQuery();
@@ -71,6 +76,26 @@ function CheckoutContent() {
     };
   }, [cartItems]);
 
+  const [modalState, setModalState] = useState({
+    open: false,
+    title: '',
+    message: '',
+    type: 'error'
+  });
+
+  const showError = (message, title = 'Payment Failed') => {
+    setModalState({
+      open: true,
+      title: title,
+      message: message,
+      type: 'error'
+    });
+  };
+
+  const handleCloseModal = () => {
+    setModalState(prev => ({ ...prev, open: false }));
+  };
+
   const handleAddressChange = (field, value) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
   };
@@ -90,6 +115,8 @@ function CheckoutContent() {
 
   const isPaymentValid = () => {
     if (paymentInfo.paymentType === 'bankTransfer') return true;
+    // When using Stripe CardElement we don't keep raw card fields in state
+    if (paymentInfo.paymentType === 'creditCard') return true;
     const required = ['cardNumber', 'cvv', 'expirationDate', 'cardName'];
     return required.every((key) => Boolean(paymentInfo[key] && String(paymentInfo[key]).trim()));
   };
@@ -112,14 +139,54 @@ function CheckoutContent() {
       const { data: orderResp } = await axiosInstance.post('/client/orders/create', { shippingAddress });
       const orderId = orderResp?.orderId;
 
+      if (!orderId) throw new Error("Could not create order ID.");
+
       let paymentId = null;
-      if (orderId) {
+       // BƯỚC B: Xử lý thanh toán
+      if (paymentInfo.paymentType === 'creditCard') {
+        // B1. Gọi Backend lấy Client Secret (Backend sẽ tạo PaymentIntent PENDING)
+        const { data: intentResp } = await axiosInstance.post('/client/orders/stripe/intent', { orderId });
+        const { clientSecret, paymentId: pid, paymentIntentId } = intentResp || {};
+        paymentId = pid;
+
+        if (!clientSecret) throw new Error('Failed to initialize payment.');
+        if (!stripe || !elements) throw new Error('Payment system not loaded.');
+
+        // B2. Gửi thông tin thẻ lên Stripe để xác thực (Bước quan trọng nhất!)
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: elements.getElement(CardElement) }
+        });
+
+        // B3. KIỂM TRA KẾT QUẢ TỪ STRIPE
+        if (result.error) {
+          // Trường hợp 1: Stripe từ chối thẳng thừng (sai thẻ, hết tiền...)
+          // Dừng ngay lập tức, không update backend thành công.
+          throw new Error(result.error.message || 'Payment declined by bank.');
+        } 
+        
+        if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+          // Trường hợp 2: CHẮC CHẮN THÀNH CÔNG
+          // Lúc này tiền đã về túi Stripe, giờ mới báo Backend cập nhật DB
+          await axiosInstance.post('/client/orders/stripe/confirm', { 
+            paymentId, 
+            paymentIntentId 
+          });
+        } else {
+          // Trường hợp 3: Treo, chờ xử lý, hoặc cần xác thực thêm (3D Secure lằng nhằng)
+          throw new Error('Payment verification failed. Please try another card.');
+        }
+
+      } else {
+        // Logic cho thanh toán tiền mặt/Bank transfer (Giữ nguyên)
         const { data: paymentResp } = await axiosInstance.post('/client/orders/payments', {
           orderId,
           paymentMethod: paymentInfo.paymentType,
         });
-        paymentId = paymentResp?.paymentId || null;
+        paymentId = paymentResp?.paymentId;
       }
+              // BƯỚC C: Mọi thứ OK hết thì mới cập nhật UI
+      setOrderData({ orderId, paymentId });
+      queryClient.invalidateQueries(['cart']);
 
       setOrderData({ orderId, paymentId });
       setActiveStep(steps.length);
@@ -146,7 +213,11 @@ function CheckoutContent() {
         cardName: '',
       });
     } catch (error) {
-      setSubmitError(error?.response?.data?.message || 'Failed to place order');
+      console.error("Checkout Error:", error);
+      // HIỆN MODAL LỖI THAY VÌ CHỈ SET TEXT
+      // Lấy message lỗi từ response backend hoặc từ Stripe error object
+      const msg = error?.response?.data?.message || error.message || 'Transaction failed.';
+      showError(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -178,24 +249,7 @@ function CheckoutContent() {
     setActiveStep((prev) => prev - 1);
   };
 
-  const getStepContent = (step) => {
-    switch (step) {
-      case 0:
-        return <AddressForm address={address} onChange={handleAddressChange} />;
-      case 1:
-        return (
-          <PaymentForm
-            paymentInfo={paymentInfo}
-            onPaymentTypeChange={handlePaymentTypeChange}
-            onPaymentFieldChange={handlePaymentFieldChange}
-          />
-        );
-      case 2:
-        return <Review address={address} paymentInfo={paymentInfo} totals={totals} />;
-      default:
-        throw new Error('Unknown step');
-    }
-  };
+  // --- ĐÃ XÓA hàm getStepContent để chuyển logic vào return bên dưới ---
 
   return (
     <>
@@ -268,8 +322,7 @@ function CheckoutContent() {
         >
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: { sm: 'space-between', md: 'flex-end' },
+              display: { sm: 'space-between', md: 'flex-end' },
               alignItems: 'center',
               width: '100%',
               maxWidth: { sm: '100%', md: 600 },
@@ -372,7 +425,28 @@ function CheckoutContent() {
               </Stack>
             ) : (
               <React.Fragment>
-                {getStepContent(activeStep)}
+                {/* --- BẮT ĐẦU ĐOẠN SỬA --- */}
+                {/* Bước 1: Address - Hiện khi activeStep == 0 */}
+                {activeStep === 0 && (
+                  <AddressForm address={address} onChange={handleAddressChange} />
+                )}
+
+                {/* Bước 2: Payment - QUAN TRỌNG: Luôn render nhưng dùng CSS để ẩn hiện.
+                    Giúp giữ lại trạng thái của CardElement */}
+                <div style={{ display: activeStep === 1 ? 'block' : 'none' }}>
+                  <PaymentForm
+                    paymentInfo={paymentInfo}
+                    onPaymentTypeChange={handlePaymentTypeChange}
+                    onPaymentFieldChange={handlePaymentFieldChange}
+                  />
+                </div>
+
+                {/* Bước 3: Review - Hiện khi activeStep == 2 */}
+                {activeStep === 2 && (
+                  <Review address={address} paymentInfo={paymentInfo} totals={totals} />
+                )}
+                {/* --- KẾT THÚC ĐOẠN SỬA --- */}
+
                 <Box
                   sx={[
                     {
@@ -426,14 +500,23 @@ function CheckoutContent() {
           </Box>
         </Grid>
       </Grid>
+      <Modal 
+        open={modalState.open}
+        onClose={handleCloseModal}
+        title={modalState.title}
+        message={modalState.message}
+        type={modalState.type}
+      />
     </>
   );
 }
 
 export default function Checkout() {
   return (
-    <CheckoutProvider>
-      <CheckoutContent />
-    </CheckoutProvider>
+    <Elements stripe={stripePromise}>
+      <CheckoutProvider>
+        <CheckoutContent />
+      </CheckoutProvider>
+    </Elements>
   );
 }

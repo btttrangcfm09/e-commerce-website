@@ -8,6 +8,10 @@ router.post('/create', authenticate, OrderController.createOrder);
 
 // Tạo thanh toán cho đơn hàng
 router.post('/payments', authenticate, OrderController.createPayment);
+// Tạo Stripe PaymentIntent (sandbox)
+router.post('/stripe/intent', authenticate, OrderController.createStripePaymentIntent);
+// Xác nhận payment sau khi client hoàn thành thanh toán với Stripe
+router.post('/stripe/confirm', authenticate, OrderController.confirmStripePayment);
 
 // Lịch sử thanh toán của khách hàng hiện tại
 router.get('/payments', authenticate, OrderController.getCustomerPayments);
