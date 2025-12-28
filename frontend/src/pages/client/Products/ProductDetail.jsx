@@ -65,6 +65,12 @@ const ProductDetail = () => {
             return;
         }
 
+        if (quantity > mappedProduct.stock) {
+            // Hiện Toast màu đỏ (error) báo lỗi
+            showToast('Quantity exceeds available stock', 'error');
+            return; // Dừng lại, không cho thêm vào giỏ
+        }
+
         try {
             await addItem({ productId: id, quantity });
             showToast(`${quantity} item(s) added to cart!`, 'success');
@@ -134,8 +140,11 @@ const ProductDetail = () => {
                             {/* Price & Stock */}
                             <div className="flex flex-wrap items-center justify-between">
                                 <span className="text-black text-2xl">${mappedProduct.price}</span>
-                                <span className={`text-sm ${mappedProduct.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {mappedProduct.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                                <span className={`text-sm font-medium ${mappedProduct.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {mappedProduct.stock > 0 
+                                        ? `In Stock (${mappedProduct.stock})`  // Hiện số lượng nếu còn hàng
+                                        : 'Out of Stock'                        // Hết hàng thì giữ nguyên
+                                    }
                                 </span>
                             </div>
 
@@ -171,7 +180,7 @@ const ProductDetail = () => {
                                     disabled={!mappedProduct.stock}
                                     className="bg-rose-500 text-white px-6 py-2 rounded hover:bg-rose-600 disabled:bg-gray-400"
                                 >
-                                    Add to Cart
+                                    {mappedProduct.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
                                 </button>
 
                                 <FavoriteButton productId={mappedProduct.id} size="lg" />

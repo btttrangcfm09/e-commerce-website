@@ -736,3 +736,122 @@ cd database/sql
 docker exec -i ecommerce-db psql -U postgres -d ecommerce -f - < database\sql\006-product-recommendations.sql
 
 ```
+
+---
+
+# Stripe Sandbox - Hướng dẫn Sử dụng Thanh Toán Giả Lập
+
+## 🎯 Giới thiệu
+
+Stripe Sandbox cho phép bạn test tính năng thanh toán mà không tốn tiền thực. Bạn có thể giả lập các kịch bản thanh toán khác nhau bằng các số thẻ đặc biệt của Stripe.
+
+---
+
+## 1️⃣ Setup Stripe Account
+
+### Bước 1: Tạo Stripe Account
+```
+1. Truy cập: https://dashboard.stripe.com/register
+2. Điền email, mật khẩu, tên
+3. Xác nhận email
+4. Hoàn thành setup
+```
+
+### Bước 2: Lấy API Keys
+```
+1. Vào: Developers > API Keys
+2. Xem Publishable Key và Secret Key
+3. Copy cả hai key
+```
+
+### Bước 3: Cập nhật .env
+
+**Backend (.env):**
+```env
+STRIPE_SECRET_KEY=sk_test_your_secret_key_here
+STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
+```
+
+**Frontend (.env):**
+```env
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
+```
+
+---
+
+## 2️⃣ Setup lại Backend và Frontend
+
+Sau khi cập nhật .env với Stripe keys, chạy lại các server:
+
+```bash
+# Backend - Terminal 1
+cd backend
+npm install
+npm run dev
+
+# Frontend - Terminal 2
+cd frontend
+npm install
+npm run dev
+```
+
+Xác nhận:
+- Backend chạy ở port 5000
+- Frontend chạy ở port 3000
+
+---
+
+## 3️⃣ Danh sách Thẻ Test
+
+### ✅ Thanh Toán Thành Công
+
+| Loại | Số thẻ | Hạn | CVC |
+|------|--------|-----|-----|
+| Visa | 4242 4242 4242 4242 | 12/25 | 123 |
+| Mastercard | 5555 5555 5555 4444 | 12/25 | 123 |
+| American Express | 3782 822463 10005 | 12/25 | 1234 |
+
+---
+
+### ❌ Thanh Toán Thất Bại
+
+| Trường hợp | Số thẻ | Hạn | CVC | Lỗi |
+|-----------|--------|-----|-----|-----|
+| Bị từ chối | 4000 0000 0000 0002 | 12/25 | 123 | Transaction declined |
+| Hết hạn | 4000 0000 0000 0069 | 12/25 | 123 | Your card has expired |
+| Sai CVC | 4000 0000 0000 0127 | 12/25 | 999 | Invalid security code |
+| Insufficient Funds | 4000 0000 0000 9995 | 12/25 | 123 | Insufficient funds |
+
+---
+
+### ⚠️ Trường Hợp Đặc Biệt
+
+| Trường hợp | Số thẻ | Hạn | CVC | Kết quả |
+|-----------|--------|-----|-----|---------|
+| 3D Secure | 4000 0025 0000 3155 | 12/25 | 123 | Bảng xác thực 3D Secure |
+| OTP | 4000 0040 0000 0010 | 12/25 | 123 | Yêu cầu OTP (123456) |
+
+---
+
+## 4️⃣ Troubleshooting
+
+### Lỗi: "Invalid API Key"
+```bash
+# Kiểm tra STRIPE_SECRET_KEY trong backend/.env
+# Đảm bảo key bắt đầu với sk_test_
+# Không có khoảng trắng thừa
+# Restart backend server
+```
+
+### Lỗi: "Stripe.js not loaded"
+```bash
+# Kiểm tra VITE_STRIPE_PUBLISHABLE_KEY trong frontend/.env
+# Reload page
+```
+
+### Lỗi: "Card not declined when testing"
+```bash
+# Kiểm tra ở Sandbox mode (không phải Live mode)
+# Sử dụng đúng số thẻ test từ danh sách
+# Không dùng số thẻ thực tế
+```

@@ -1,4 +1,5 @@
 const OrderService = require('../../services/order.service');
+const { OrderRepository } = require('../../repositories/order.repository');
 class OrderController {
   // Tạo đơn hàng từ giỏ hàng
   static async createOrder(req, res) {
@@ -88,6 +89,78 @@ class OrderController {
       return res.status(400).json({ 
         message: err.message || 'Failed to create payment' 
       });
+    }
+  }
+
+  // Tạo Stripe PaymentIntent và trả về client_secret
+  static async createStripePaymentIntent(req, res) {
+    try {
+      const userId = req.user.userId;
+      const { orderId } = req.body;
+      if (!orderId) return res.status(400).json({ message: 'orderId is required' });
+
+      // Verify order and amount
+      const order = await OrderService.getOrderById(orderId, userId);
+      const amount = Number(order?.total_price || 0);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return res.status(400).json({ message: 'Invalid order amount' });
+      }
+
+      // Create payment record in DB (PENDING)
+      const paymentId = await OrderService.createPayment(orderId, amount, 'CREDIT_CARD', userId);
+
+      // Create Stripe PaymentIntent
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+// Log ra xem nó chạy tới đây chưa
+      console.log("Đang tạo Payment Intent với key:", stripeKey);
+      if (!stripeKey) return res.status(500).json({ message: 'Stripe secret key not configured' });
+      const stripe = require('stripe')(stripeKey);
+
+      const pi = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100),
+        currency: 'usd',
+        metadata: { paymentId, orderId },
+      });
+
+      return res.status(201).json({ clientSecret: pi.client_secret, paymentId, paymentIntentId: pi.id });
+    } catch (err) {
+      return res.status(400).json({ message: err.message || 'Failed to create Stripe PaymentIntent' });
+    }
+  }
+
+  // Kiểm tra PaymentIntent với Stripe và cập nhật trạng thái payment trong DB
+  static async confirmStripePayment(req, res) {
+    try {
+      const userId = req.user.userId;
+      const { paymentId, paymentIntentId } = req.body;
+      if (!paymentId || !paymentIntentId) return res.status(400).json({ message: 'paymentId and paymentIntentId are required' });
+
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+      if (!stripeKey) return res.status(500).json({ message: 'Stripe secret key not configured' });
+      const stripe = require('stripe')(stripeKey);
+
+      const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (!pi) return res.status(404).json({ message: 'PaymentIntent not found' });
+
+      // Basic verification: amount and metadata.paymentId
+      if (String(pi.metadata?.paymentId) !== String(paymentId)) {
+        return res.status(400).json({ message: 'Payment intent metadata does not match paymentId' });
+      }
+
+      if (pi.status === 'succeeded') {
+        await OrderRepository.updatePaymentStatus(paymentId, 'COMPLETED');
+        return res.status(200).json({ success: true, message: 'Payment confirmed' });
+      }
+
+      // If not succeeded, still update to failed if final
+      if (pi.status === 'requires_payment_method' || pi.status === 'canceled' || pi.status === 'requires_action') {
+        return res.status(400).json({ success: false, message: `Payment not completed: ${pi.status}` });
+      }
+
+      return res.status(400).json({ success: false, message: 'Payment not completed' });
+    } catch (err) {
+      return res.status(500).json({ message: err.message || 'Failed to confirm Stripe payment' });
     }
   }
 

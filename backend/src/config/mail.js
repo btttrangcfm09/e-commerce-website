@@ -35,6 +35,9 @@ const createTransporter = () => {
 		port: port || 587,
 		secure,
 		auth: { user, pass },
+		tls: {
+			rejectUnauthorized: false
+		}
 	});
 };
 

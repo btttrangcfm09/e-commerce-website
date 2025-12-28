@@ -77,12 +77,12 @@ class OrderRepository {
         await client.query(
             `
             INSERT INTO public.orders(
-            id, customer_id, total_price, shipping_address, order_status, payment_status
+            id, customer_id, total_price, shipping_address, order_status, payment_status, created_at
             ) VALUES (
-            $1, $2, $3, $4, $5::public.order_status, $6::public.payment_status
+            $1, $2, $3, $4, $5::public.order_status, $6::public.payment_status, $7
             )
             `,
-            [orderId, userId, totalPrice, shippingAddress, ORDER_STATUS.PENDING, PAYMENT_STATUS.PENDING]
+            [orderId, userId, totalPrice, shippingAddress, ORDER_STATUS.PENDING, PAYMENT_STATUS.PENDING, new Date()]
         );
 
         for (const item of items) {
@@ -402,10 +402,10 @@ static async cancelOrder(orderId, userId) {
         INSERT INTO public.payments(
           id, order_id, amount, payment_status, payment_method, created_at
         ) VALUES (
-          $1, $2, $3, $4::public.payment_status, $5::public.payment_method, current_timestamp
+          $1, $2, $3, $4::public.payment_status, $5::public.payment_method, $6
         )
         `,
-        [paymentId, orderId, normalizedAmount, PAYMENT_STATUS.PENDING, paymentMethod]
+        [paymentId, orderId, normalizedAmount, PAYMENT_STATUS.PENDING, paymentMethod, new Date()]
       );
 
       // NOTE: We intentionally keep order.payment_status update logic in DB trigger (if present).
@@ -417,6 +417,55 @@ static async cancelOrder(orderId, userId) {
       } catch {
         // ignore
       }
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async updatePaymentStatus(paymentId, newStatus) {
+    if (!paymentId) {
+      throw new Error('Payment id is required');
+    }
+    const normalizedStatus = String(newStatus || '').toUpperCase();
+    const allowed = ['PENDING', 'COMPLETED', 'FAILED'];
+    if (!allowed.includes(normalizedStatus)) {
+      throw new Error('Invalid payment status');
+    }
+
+    const client = await db.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 1. Cập nhật bảng PAYMENTS
+      const queryPayment = `
+        UPDATE public.payments 
+        SET payment_status = $2::public.payment_status 
+        WHERE id = $1 
+        RETURNING id, order_id, payment_status
+      `;
+      const resPayment = await client.query(queryPayment, [paymentId, normalizedStatus]);
+      const paymentRow = resPayment.rows?.[0];
+
+      if (!paymentRow) {
+        throw new Error('Payment not found');
+      }
+
+      // 2. ĐỒNG BỘ: Cập nhật luôn bảng ORDERS
+      // Nếu thanh toán thành công (COMPLETED), cập nhật payment_status của đơn hàng
+      if (normalizedStatus === 'COMPLETED') {
+        const queryOrder = `
+          UPDATE public.orders 
+          SET payment_status = 'COMPLETED' 
+          WHERE id = $1
+        `;
+        await client.query(queryOrder, [paymentRow.order_id]);
+      }
+
+      await client.query('COMMIT');
+      return paymentRow;
+    } catch (error) {
+      await client.query('ROLLBACK');
       throw error;
     } finally {
       client.release();
@@ -454,7 +503,6 @@ static async cancelOrder(orderId, userId) {
 
     return await db.query(query, [userId, normalizedLimit, normalizedOffset]);
   }
-
 
     static async softDeleteOrder(orderId, userId) {
         // Soft delete order bằng cách set is_active = false
