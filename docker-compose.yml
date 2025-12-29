@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database (giữ nguyên)
   postgres:
     image: postgres:16-alpine
     container_name: ecommerce-db
@@ -10,21 +9,13 @@ services:
       POSTGRES_DB: ecommerce
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      TZ: Asia/Ho_Chi_Minh
-      PGTZ: Asia/Ho_Chi_Minh
     ports:
-      - "15432:5432"  # Giữ port mapping để debug từ local
+      - "15432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - ecommerce
 
-  # Backend API (cập nhật expose thay vì ports)
   backend:
     build: ./backend
     container_name: ecommerce-backend
@@ -32,17 +23,10 @@ services:
     env_file:
       - ./.env
     environment:
-      NODE_ENV: ${NODE_ENV:-production}  # Đổi thành production
+      NODE_ENV: production
       PORT: 5000
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-ecommerce}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      JWT_SECRET: ${JWT_SECRET:-change-this-secret-key}
-      # Thêm CORS origin
-      CORS_ORIGIN: https://exclusive.mom,https://www.exclusive.mom
-    # CHỈ expose trong network, không public
     expose:
       - "5000"
     volumes:
@@ -51,81 +35,25 @@ services:
       - ecommerce
     depends_on:
       - postgres
-    # Healthcheck cho backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
-  # Frontend (cập nhật expose)
-  frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-https://exclusive.mom/api}
-        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
-    container_name: ecommerce-frontend
-    restart: unless-stopped
-    depends_on:
-      - backend
-    volumes:
-    - ./frontend/dist:/usr/share/caddy:ro
-    networks:
-      - ecommerce
-
-  # Caddy Reverse Proxy với Auto HTTPS (THAY THẾ nginx)
-  caddy:
-    image: caddy:2.7-alpine
-    container_name: ecommerce-caddy
+  nginx:
+    image: nginx:alpine
+    container_name: ecommerce-nginx
     restart: unless-stopped
     ports:
-      - "80:80"      # HTTP
-      - "443:443"    # HTTPS
-      - "443:443/udp" # HTTP/3 (optional)
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data    # SSL certificates
-      - caddy_config:/config
-      - ./backend/uploads:/app/uploads:ro  # Mount uploads
-    # environment:
-    #   # Email cho Let's Encrypt (cần thiết cho production)
-    #   ACME_EMAIL: ${ACME_EMAIL:-xuanbui2902@gmail.com}
-    #   # Domain (cần thiết cho SSL)
-    #   DOMAIN: ${DOMAIN:-exclusive.mom}
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./backend/uploads:/app/uploads:ro
+      - ./ssl:/etc/nginx/ssl:ro  # ← THÊM DÒNG NÀY
     networks:
       - ecommerce
     depends_on:
       - backend
-      - frontend
-        
-    # Healthcheck cho Caddy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:2019/metrics || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Nginx backup (optional - comment nếu không cần)
-  # nginx:
-  #   image: nginx:1.27-alpine
-  #   container_name: ecommerce-nginx-backup
-  #   restart: unless-stopped
-  #   expose:
-  #     - "8080"
-  #   volumes:
-  #     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-  #   networks:
-  #     - ecommerce
-  #   depends_on:
-  #     - backend
-  #     - frontend
 
 volumes:
   postgres_data:
-  caddy_data:    # Volume cho SSL certificates
-  caddy_config:  # Volume cho Caddy config
 
 networks:
   ecommerce:
