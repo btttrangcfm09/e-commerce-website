@@ -50,8 +50,7 @@ services:
     networks:
       - ecommerce
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     # Healthcheck cho backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
@@ -73,8 +72,7 @@ services:
     expose:
       - "3000"
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - ecommerce
 
@@ -100,13 +98,12 @@ services:
     networks:
       - ecommerce
     depends_on:
-      backend:
-        condition: service_healthy
-      frontend:
-        condition: service_started
+      - backend
+      - frontend
+        
     # Healthcheck cho Caddy
     healthcheck:
-      test: ["CMD", "caddy", "version"]
+      test: ["CMD-SHELL", "curl -f http://localhost:2019/metrics || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
