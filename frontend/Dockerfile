@@ -1,26 +1,14 @@
-FROM node:20-alpine
-
+# Dockerfile frontend CHỈ build, không chạy server
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
+RUN npm ci
 COPY . .
-
-# Build argument for backend URL
-ARG VITE_BACKEND_URL=http://localhost:5000
-ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
-
-# Build application
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 RUN npm run build
 
-# Install serve to run the built app
-RUN npm install -g serve
-
-EXPOSE 3000
-
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Stage 2: CHỈ copy files, không chạy Caddy
+FROM alpine:latest
+RUN mkdir -p /usr/share/caddy
+COPY --from=builder /app/dist /usr/share/caddy

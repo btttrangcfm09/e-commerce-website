@@ -1,26 +1,27 @@
 {
     email xuanbui2902@gmail.com
     admin off
-    # debug  # Bỏ comment để debug nếu cần
 }
 
-# HTTP → HTTPS redirect (cho tất cả domains/IPs)
-http:// {
-    redir https://{host}{uri} permanent
-}
-
-# Config cho domain exclusive.mom (Let's Encrypt)
+# Main domain
 exclusive.mom, www.exclusive.mom {
-    # TLS tự động với Let's Encrypt (HTTP challenge)
-    # Để trống = dùng HTTP challenge
-    
-    # Frontend app
+    # Frontend với proper MIME types
     handle / {
-        reverse_proxy frontend:3000 {
-            header_up Host {host}
-            header_up X-Real-IP {remote}
-            header_up X-Forwarded-For {remote}
-            header_up X-Forwarded-Proto {scheme}
+        root * /usr/share/caddy
+        try_files {path} /index.html
+        file_server {
+            # Đảm bảo MIME types đúng
+            mime_types {
+                .html text/html
+                .css text/css
+                .js application/javascript
+                .json application/json
+                .svg image/svg+xml
+                .png image/png
+                .jpg image/jpeg
+                .woff2 font/woff2
+                .woff font/woff
+            }
         }
     }
     
@@ -29,35 +30,20 @@ exclusive.mom, www.exclusive.mom {
         reverse_proxy backend:5000 {
             header_up Host {host}
             header_up X-Real-IP {remote}
-            header_up X-Forwarded-For {remote}
-            header_up X-Forwarded-Proto {scheme}
         }
     }
     
-    # Uploads static files
+    # Uploads
     handle /uploads/* {
         root * /app/uploads
         file_server
         header Cache-Control "public, max-age=31536000"
     }
-    
-    # Health checks
-    handle /health {
-        respond "OK" 200
-    }
-    
-    handle /api/health {
-        reverse_proxy backend:5000
-    }
-    
-    # Security headers
-    header {
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        X-XSS-Protection "1; mode=block"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        -Server
-    }
+}
+
+# HTTP redirect
+:80 {
+    redir https://{host}{uri} permanent
 }
 
 # Config dự phòng cho IP (self-signed cert)

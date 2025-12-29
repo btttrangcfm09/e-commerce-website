@@ -68,11 +68,10 @@ services:
         VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
     container_name: ecommerce-frontend
     restart: unless-stopped
-    # CHỈ expose trong network
-    expose:
-      - "3000"
     depends_on:
       - backend
+    volumes:
+    - ./frontend/dist:/usr/share/caddy:ro
     networks:
       - ecommerce
 
