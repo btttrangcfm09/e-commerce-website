@@ -43,10 +43,15 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    # volumes:
+      # - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # - ./backend/uploads:/app/uploads:ro
+      # - ./ssl:/etc/nginx/ssl:ro  # ← THÊM DÒNG NÀY
     volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./backend/uploads:/app/uploads:ro
-      - ./ssl:/etc/nginx/ssl:ro  # ← THÊM DÒNG NÀY
+      - ./ssl:/etc/nginx/ssl:ro
+      
     networks:
       - ecommerce
     depends_on:
