@@ -1,0 +1,88 @@
+{
+    # Global settings
+    email xuanbui2902@gmail.com  # Email cho Let's Encrypt
+    admin off                   # Tắt admin interface
+    auto_https disable_redirects  # Tạm thời tắt auto redirect
+}
+
+# HTTP → HTTPS redirect
+http:// {
+    redir https://{host}{uri} permanent
+}
+
+# Main configuration với HTTPS
+exclusive.mom, www.exclusive.mom {
+    # TLS tự động với Let's Encrypt
+    tls {
+        # Nếu có Cloudflare, dùng DNS challenge
+        # dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+        
+        # Hoặc dùng HTTP challenge (cần mở port 80)
+        resolvers 1.1.1.1
+        
+        # Hoặc tự ký certificate cho testing
+        # tls internal
+    }
+    
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+    
+    # Gzip compression
+    encode gzip zstd
+    
+    # Frontend app (Vite)
+    handle / {
+        reverse_proxy frontend:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    
+    # Backend API (Node.js port 5000)
+    handle /api/* {
+        # Strip /api prefix khi proxy đến backend
+        rewrite * /api{path}
+        
+        reverse_proxy backend:5000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+            
+            # Timeouts
+            flush_interval -1
+        }
+    }
+    
+    # Uploads static files
+    handle /uploads/* {
+        root * /app/uploads
+        file_server {
+            hide .git
+            hide .env
+        }
+        header Cache-Control "public, max-age=31536000"
+    }
+    
+    # Health checks
+    handle /health {
+        respond "OK" 200
+    }
+    
+    handle /api/health {
+        reverse_proxy backend:5000
+    }
+}
+
+# Redirect non-www to www (tùy chọn)
+www.your-domain.com {
+    redir https://exclusive.mom{uri}
+}
