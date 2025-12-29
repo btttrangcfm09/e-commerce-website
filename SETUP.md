@@ -81,8 +81,12 @@ chmod +x seed-complete.sh
 
 ## Bước 4: Truy cập
 
-- Frontend: http://localhost:3000
-- Backend: http://localhost:5000
+- Nginx (entrypoint): http://localhost
+- Frontend (qua Nginx): http://localhost
+- Backend API (qua Nginx): http://localhost/api
+
+Nếu bạn vẫn muốn truy cập trực tiếp:
+- Postgres (host): localhost:15432
 
 ### Test Accounts
 
