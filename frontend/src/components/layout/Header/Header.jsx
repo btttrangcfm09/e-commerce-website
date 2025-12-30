@@ -17,6 +17,10 @@ const Header = () => {
     const [cartPopupOpen, setCartPopupOpen] = useState(false);
     const searchInputRef = useRef(null);
     const isAuthenticated = localStorage.getItem('auth');
+    
+    // Lấy thông tin user từ localStorage (bao gồm avatar thực)
+    const profile = JSON.parse(localStorage.getItem('profile') || '{}');
+    const userAvatar = profile?.image || avatar;
 
     const handleSearch = useCallback((e) => {
         e.preventDefault();
@@ -69,7 +73,7 @@ const Header = () => {
                 onClick={() => setIsProfilePopupOpen(true)}
             >
                 <img
-                    src={avatar}
+                    src={userAvatar}
                     alt="User Avatar"
                     className="w-full h-full object-cover rounded-full"
                 />
