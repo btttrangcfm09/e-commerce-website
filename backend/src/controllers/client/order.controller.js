@@ -93,42 +93,113 @@ class OrderController {
   }
 
   // Tạo Stripe PaymentIntent và trả về client_secret
+//   static async createStripePaymentIntent(req, res) {
+//     try {
+//       const userId = req.user.userId;
+//       const { orderId } = req.body;
+//       if (!orderId) return res.status(400).json({ message: 'orderId is required' });
+
+//       // Verify order and amount
+//       const order = await OrderService.getOrderById(orderId, userId);
+//       const amount = Number(order?.total_price || 0);
+//       if (!Number.isFinite(amount) || amount <= 0) {
+//         return res.status(400).json({ message: 'Invalid order amount' });
+//       }
+
+//       // Create payment record in DB (PENDING)
+//       const paymentId = await OrderService.createPayment(orderId, amount, 'CREDIT_CARD', userId);
+
+//       // Create Stripe PaymentIntent
+//       const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+// // Log ra xem nó chạy tới đây chưa
+//       console.log("Đang tạo Payment Intent với key:", stripeKey);
+//       if (!stripeKey) return res.status(500).json({ message: 'Stripe secret key not configured' });
+//       const stripe = require('stripe')(stripeKey);
+
+//       const pi = await stripe.paymentIntents.create({
+//         amount: Math.round(amount * 100),
+//         currency: 'usd',
+//         metadata: { paymentId, orderId },
+//       });
+
+//       return res.status(201).json({ clientSecret: pi.client_secret, paymentId, paymentIntentId: pi.id });
+//     } catch (err) {
+//       return res.status(400).json({ message: err.message || 'Failed to create Stripe PaymentIntent' });
+//     }
+//   }
+
   static async createStripePaymentIntent(req, res) {
-    try {
-      const userId = req.user.userId;
-      const { orderId } = req.body;
-      if (!orderId) return res.status(400).json({ message: 'orderId is required' });
+  try {
+    const userId = req.user.userId;
+    const { orderId } = req.body;
+    if (!orderId) return res.status(400).json({ message: 'orderId is required' });
 
-      // Verify order and amount
-      const order = await OrderService.getOrderById(orderId, userId);
-      const amount = Number(order?.total_price || 0);
-      if (!Number.isFinite(amount) || amount <= 0) {
-        return res.status(400).json({ message: 'Invalid order amount' });
-      }
-
-      // Create payment record in DB (PENDING)
-      const paymentId = await OrderService.createPayment(orderId, amount, 'CREDIT_CARD', userId);
-
-      // Create Stripe PaymentIntent
-      const stripeKey = process.env.STRIPE_SECRET_KEY;
-
-// Log ra xem nó chạy tới đây chưa
-      console.log("Đang tạo Payment Intent với key:", stripeKey);
-      if (!stripeKey) return res.status(500).json({ message: 'Stripe secret key not configured' });
-      const stripe = require('stripe')(stripeKey);
-
-      const pi = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100),
-        currency: 'usd',
-        metadata: { paymentId, orderId },
-      });
-
-      return res.status(201).json({ clientSecret: pi.client_secret, paymentId, paymentIntentId: pi.id });
-    } catch (err) {
-      return res.status(400).json({ message: err.message || 'Failed to create Stripe PaymentIntent' });
+    // Verify order and amount
+    const order = await OrderService.getOrderById(orderId, userId);
+    
+    // 🟢 FIX: Xử lý total_price đúng cách
+    // order.total_price là string "1199.99", cần parseFloat trước
+    const amount = parseFloat(order?.total_price || 0);
+    
+    console.log("🔍 Debug - total_price từ DB:", order?.total_price);
+    console.log("🔍 Debug - amount sau parseFloat:", amount);
+    
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid order amount' });
     }
-  }
 
+    // 🟢 FIX: Chuyển đổi sang cent ĐÚNG CÁCH
+    const amountInCents = Math.round(amount * 100);
+    console.log("🔍 Debug - amountInCents (cho Stripe):", amountInCents);
+
+    // Create payment record in DB (PENDING)
+    const paymentId = await OrderService.createPayment(orderId, amount, 'CREDIT_CARD', userId);
+
+    // Create Stripe PaymentIntent
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    
+    console.log("🔍 Debug - Stripe Key (5 ký tự đầu):", stripeKey?.substring(0, 5) + "...");
+    
+    if (!stripeKey) return res.status(500).json({ message: 'Stripe secret key not configured' });
+    const stripe = require('stripe')(stripeKey);
+
+    // 🟢 FIX: Thêm cấu hình cần thiết cho Stripe
+    console.log("🔍 Debug - Đang gọi Stripe API với amountInCents:", amountInCents);
+    
+    const pi = await stripe.paymentIntents.create({
+      amount: amountInCents,  // Dùng amountInCents đã tính toán
+      currency: 'usd',
+      automatic_payment_methods: {  // 🟢 THÊM DÒNG NÀY (bắt buộc cho Stripe hiện đại)
+        enabled: true,
+      },
+      metadata: { 
+        paymentId, 
+        orderId,
+        userId: String(userId)
+      },
+    });
+
+    console.log("✅ Payment Intent tạo thành công:", pi.id);
+    return res.status(201).json({ 
+      clientSecret: pi.client_secret, 
+      paymentId, 
+      paymentIntentId: pi.id 
+    });
+    
+  } catch (err) {
+    // 🟢 FIX: Log lỗi chi tiết
+    console.error("❌ LỖI TẠO PAYMENT INTENT:", {
+      message: err.message,
+      type: err.type,
+      code: err.code,
+      raw: err.raw
+    });
+    return res.status(400).json({ 
+      message: err.message || 'Failed to create Stripe PaymentIntent' 
+    });
+  }
+}
   // Kiểm tra PaymentIntent với Stripe và cập nhật trạng thái payment trong DB
   static async confirmStripePayment(req, res) {
     try {
