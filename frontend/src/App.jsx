@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import clientRoutes from './routes/clientRoutes';
 import adminRoutes from './routes/adminRoutes';
@@ -11,8 +11,12 @@ import { useState } from 'react';
 
 const queryClient = new QueryClient();
 
-function App() {
+function AppContent() {
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const location = useLocation();
+    
+    // Chỉ hiển thị AI Chat cho trang client (không phải admin)
+    const isAdminPage = location.pathname.startsWith('/admin');
 
     const renderRoutes = (routes) => {
         return routes.map((route, index) => (
@@ -31,25 +35,38 @@ function App() {
             </Route>
         ));
     };
+
+    return (
+        <>
+            <Routes>
+                {renderRoutes(clientRoutes)}
+                {renderRoutes(adminRoutes)}
+            </Routes>
+            <Toaster />
+            
+            {/* AI Shopping Assistant - Chỉ hiển thị cho trang customer */}
+            {!isAdminPage && (
+                <>
+                    <AIChatButton 
+                        onClick={() => setIsChatOpen(true)} 
+                    />
+                    <AIChatWindow 
+                        isOpen={isChatOpen} 
+                        onClose={() => setIsChatOpen(false)} 
+                    />
+                </>
+            )}
+        </>
+    );
+}
+
+function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <AuthProvider>
                     <CartProvider>
-                        <Routes>
-                            {renderRoutes(clientRoutes)}
-                            {renderRoutes(adminRoutes)}
-                        </Routes>
-                        <Toaster />
-                        
-                        {/* AI Shopping Assistant */}
-                        <AIChatButton 
-                            onClick={() => setIsChatOpen(true)} 
-                        />
-                        <AIChatWindow 
-                            isOpen={isChatOpen} 
-                            onClose={() => setIsChatOpen(false)} 
-                        />
+                        <AppContent />
                     </CartProvider>
                 </AuthProvider>
             </BrowserRouter>
