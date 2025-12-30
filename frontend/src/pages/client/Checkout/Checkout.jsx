@@ -240,10 +240,8 @@ function CheckoutContent() {
       await handlePlaceOrder();
       return;
     }
-
     setActiveStep((prev) => prev + 1);
   };
-
   const handleBack = () => {
     setSubmitError(null);
     setActiveStep((prev) => prev - 1);
