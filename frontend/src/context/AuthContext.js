@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
   // 4. Hàm đăng nhập bằng Google
   const loginWithGoogle = () => {
     // Trong production, dùng API_URL (/api) để Nginx proxy đến backend
-    const googleAuthUrl = `${API_URL || '/api'}/client/auth/google`;
+    const googleAuthUrl = `/api/client/auth/google`;
     window.location.href = googleAuthUrl;
   };
 
