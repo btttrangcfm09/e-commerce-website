@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 app.use(express.raw({ limit: '100mb' }));
-// app.set('trust proxy', 1);
+app.set('trust proxy', 1);
 
 const corsOptions = {
     origin: true,
