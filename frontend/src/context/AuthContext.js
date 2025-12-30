@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '@/services/api';
+import { API_URL } from '@/utils/constants';
 
 const AuthContext = createContext(null);
 
@@ -84,8 +85,9 @@ export const AuthProvider = ({ children }) => {
 
   // 4. Hàm đăng nhập bằng Google
   const loginWithGoogle = () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-    window.location.href = `${backendUrl}/client/auth/google`;
+    // Trong production, dùng API_URL (/api) để Nginx proxy đến backend
+    const googleAuthUrl = `${API_URL || '/api'}/client/auth/google`;
+    window.location.href = googleAuthUrl;
   };
 
   // 5. Xử lý callback từ Google (gọi sau khi redirect về)
