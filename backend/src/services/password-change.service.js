@@ -42,7 +42,7 @@ class PasswordChangeService {
 
         const code = generateSixDigitCode();
         const codeHash = hashCode(userId, code);
-        const expiresAt = new Date(Date.now() + CODE_MINUTES * 60 * 1000);
+        const expiresAt = new Date(Date.now() + CODE_MINUTES * 60 * 1000).toISOString();
 
         await PasswordChangeRepository.invalidateActiveCodes(userId);
         await PasswordChangeRepository.insertCode({
