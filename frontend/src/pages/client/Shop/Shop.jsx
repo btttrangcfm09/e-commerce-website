@@ -86,8 +86,8 @@ const Shop = () => {
             </div>
 
             {/* Filter Controls */}
-            <div className="bg-white shadow-sm py-4 px-6">
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <div className="bg-white shadow-sm py-4 px-4 sm:px-6">
+                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-0 sm:justify-between sm:items-center">
                     <div className="flex gap-4 items-center">
                         <button
                             onClick={() => setIsFilterVisible(!isFilterVisible)}
@@ -99,17 +99,17 @@ const Shop = () => {
                         <FaBars className="cursor-pointer text-xl text-gray-600" />
                     </div>
 
-                    <div className="text-gray-600">
+                    <div className="text-gray-600 text-sm sm:text-base order-3 sm:order-2">
                         Showing {(pagination.page - 1) * pagination.pageSize + 1}-
                         {Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total}{' '}
                         results
                     </div>
 
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-2 sm:gap-4 items-center order-2 sm:order-3">
                         <select
                             value={filters.pageSize}
                             onChange={(e) => updateFilters({ pageSize: Number(e.target.value) })}
-                            className="border px-3 py-1 rounded bg-white text-gray-700"
+                            className="border px-2 sm:px-3 py-1 rounded bg-white text-gray-700 text-sm"
                         >
                             {[4, 8, 16].map((size) => (
                                 <option key={size} value={size}>
@@ -124,7 +124,7 @@ const Shop = () => {
                                 const [sortBy, sortOrder] = e.target.value.split('-');
                                 updateFilters({ sortBy, sortOrder });
                             }}
-                            className="border px-3 py-1 rounded bg-white text-gray-700"
+                            className="border px-2 sm:px-3 py-1 rounded bg-white text-gray-700 text-sm"
                         >
                             <option value="id-asc">Default</option>
                             <option value="price-asc">Price: Low to High</option>
@@ -135,8 +135,8 @@ const Shop = () => {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-6 py-8">
-                <div className="flex gap-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                     {/* Filter Sidebar */}
                     {isFilterVisible && (
                         <FilterBar

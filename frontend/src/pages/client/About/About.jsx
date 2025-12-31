@@ -25,8 +25,8 @@ import 'swiper/css/pagination';
 
 const About = () => {
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6 py-12">
-            <div className="max-w-7xl bg-white shadow-lg rounded-lg p-8 flex flex-col gap-12">
+        <div className="min-h-screen bg-gray-50 flex items-start sm:items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
+            <div className="w-full max-w-7xl bg-white shadow-lg rounded-lg p-4 sm:p-8 flex flex-col gap-12">
                 {/* Our Story */}
                 <div className="flex flex-col lg:flex-row items-start gap-12">
                     <div className="flex-1">
@@ -45,48 +45,24 @@ const About = () => {
                     </div>
 
                     <div className="flex-1 flex h-full w-full items-center justify-center">
-                        <div className="grid h-[550px] w-full gap-4 p-2 grid-cols-9 grid-rows-10 rounded-lg shadow-md">
-                            <div className="col-span-3 row-span-7 bg-pink-200 rounded-lg shadow-md flex items-center justify-center">
-                                <img
-                                    src={ecommerce2}
-                                    alt="Ecommerce 1"
-                                    className="object-cover h-full w-full rounded-lg"
-                                />
+                        <div className="grid w-full gap-3 sm:gap-4 p-2 grid-cols-2 sm:grid-cols-9 sm:grid-rows-10 rounded-lg shadow-md aspect-[4/3] sm:aspect-auto sm:h-[550px] auto-rows-fr">
+                            <div className="col-span-1 row-span-1 sm:col-span-3 sm:row-span-7 bg-pink-200 rounded-lg shadow-md relative overflow-hidden aspect-[4/3] sm:aspect-auto">
+                                <img src={ecommerce2} alt="Ecommerce 1" className="absolute inset-0 h-full w-full object-cover" />
                             </div>
-                            <div className="col-span-6 row-span-3 bg-lime-200 rounded-lg shadow-md flex items-center justify-center">
-                                <img
-                                    src={ecommerce}
-                                    alt="Ecommerce 2"
-                                    className="object-cover h-full w-full rounded-lg"
-                                />
+                            <div className="col-span-1 row-span-1 sm:col-span-6 sm:row-span-3 bg-lime-200 rounded-lg shadow-md relative overflow-hidden aspect-[4/3] sm:aspect-auto">
+                                <img src={ecommerce} alt="Ecommerce 2" className="absolute inset-0 h-full w-full object-cover" />
                             </div>
-                            <div className="col-span-3 row-span-4 bg-yellow-200 rounded-lg shadow-md flex items-center justify-center">
-                                <img
-                                    src={ecommerce3}
-                                    alt="Ecommerce 3"
-                                    className="object-cover h-full w-full rounded-lg"
-                                />
+                            <div className="col-span-1 row-span-1 sm:col-span-3 sm:row-span-4 bg-yellow-200 rounded-lg shadow-md relative overflow-hidden aspect-[4/3] sm:aspect-auto">
+                                <img src={ecommerce3} alt="Ecommerce 3" className="absolute inset-0 h-full w-full object-cover" />
                             </div>
-                            <div className="col-span-3 row-span-4 bg-tan-200 rounded-lg shadow-md flex items-center justify-center">
-                                <img
-                                    src={ecommerce4}
-                                    alt="Ecommerce 4"
-                                    className="object-cover h-full w-full rounded-lg"
-                                />
+                            <div className="col-span-1 row-span-1 sm:col-span-3 sm:row-span-4 bg-tan-200 rounded-lg shadow-md relative overflow-hidden aspect-[4/3] sm:aspect-auto">
+                                <img src={ecommerce4} alt="Ecommerce 4" className="absolute inset-0 h-full w-full object-cover" />
                             </div>
-                            <div className="col-span-6 row-span-4 bg-green-200 rounded-lg shadow-md flex items-center justify-center">
-                                <img
-                                    src={ecommerce6}
-                                    alt="Ecommerce 5"
-                                    className="object-cover h-full w-full rounded-lg"
-                                />
+                            <div className="col-span-2 row-span-1 sm:col-span-6 sm:row-span-4 bg-green-200 rounded-lg shadow-md relative overflow-hidden aspect-[16/9] sm:aspect-auto">
+                                <img src={ecommerce6} alt="Ecommerce 5" className="absolute inset-0 h-full w-full object-cover" />
                             </div>
-                            <div className="col-span-3 row-span-4 bg-red-200 rounded-lg shadow-md flex items-center justify-center">
-                                <img
-                                    src={ecommerce5}
-                                    alt="Ecommerce 6"
-                                    className="object-cover h-full w-full rounded-lg"
-                                />
+                            <div className="col-span-2 row-span-1 sm:col-span-3 sm:row-span-4 bg-red-200 rounded-lg shadow-md relative overflow-hidden aspect-[16/9] sm:aspect-auto">
+                                <img src={ecommerce5} alt="Ecommerce 6" className="absolute inset-0 h-full w-full object-cover" />
                             </div>
                         </div>
                     </div>
@@ -94,28 +70,28 @@ const About = () => {
 
                 <h2 className="text-3xl font-bold text-gray-800 text-center">Some Achievements</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                    <div className="w-full sm:w-64 min-h-56 mx-auto flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
                         <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
                             <img src={Items} alt="Items" className="w-10 h-10 object-contain grayscale contrast-125" />
                         </div>
                         <h3 className="text-3xl font-bold">10.5k</h3>
                         <p className="text-center font-Poppins">Items on stock</p>
                     </div>
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                    <div className="w-full sm:w-64 min-h-56 mx-auto flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
                         <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
                             <img src={Revenue} alt="Revenue" className="w-10 h-10 object-contain grayscale contrast-125" />
                         </div>
                         <h3 className="text-3xl font-bold">33k</h3>
                         <p className="text-center font-Poppins">Monthly Recurring Revenue</p>
                     </div>
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                    <div className="w-full sm:w-64 min-h-56 mx-auto flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
                         <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
                             <img src={Customer} alt="Customer" className="w-10 h-10 object-contain grayscale contrast-125" />
                         </div>
                         <h3 className="text-3xl font-bold">45.5k</h3>
                         <p className="text-center font-Poppins">Customers active on site</p>
                     </div>
-                    <div className="w-64 h-56 flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
+                    <div className="w-full sm:w-64 min-h-56 mx-auto flex flex-col items-center justify-center rounded-lg bg-red-500 shadow-md p-4 text-white">
                         <div className="bg-white rounded-full p-3 mb-2 w-16 h-16 flex items-center justify-center ring-2 ring-gray-300 ring-offset-2 ring-offset-amber-100">
                             <img src={Gross} alt="Gross" className="w-10 h-10 object-contain grayscale contrast-125" />
                         </div>
@@ -159,9 +135,9 @@ const About = () => {
                                 },
                             ].map((member, index) => (
                                 <SwiperSlide key={index} className="flex justify-center">
-                                    <div className="flex flex-col items-center gap-6 p-6 bg-white shadow-lg rounded-lg border border-gray-300 hover:shadow-xl transition-shadow duration-300 w-80">
+                                    <div className="flex flex-col items-center gap-6 p-6 bg-white shadow-lg rounded-lg border border-gray-300 hover:shadow-xl transition-shadow duration-300 w-[85vw] sm:w-80">
                                         {/* Card Image */}
-                                        <div className="relative w-72 h-96 overflow-hidden rounded-lg">
+                                        <div className="relative w-full max-w-72 h-72 sm:h-96 overflow-hidden rounded-lg">
                                             <img
                                                 src={member.img}
                                                 alt={member.name}

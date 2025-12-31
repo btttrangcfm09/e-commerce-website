@@ -60,11 +60,11 @@ const Home = () => {
   }
 
   return (
-    <div className="relative bg-gray-50 px-6 lg:px-8">
+    <div className="relative bg-gray-50 px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <section
         id="hero"
-        className="relative flex flex-col-reverse lg:flex-row items-center justify-between w-full min-h-screen px-6 py-14 lg:px-12"
+        className="relative flex flex-col-reverse lg:flex-row items-center justify-between w-full min-h-screen px-4 sm:px-6 py-10 sm:py-14 lg:px-12"
       >
         {/* Left Content */}
         <div className="lg:w-1/2 flex flex-col items-start justify-center text-left space-y-6">
@@ -106,16 +106,16 @@ const Home = () => {
         </div>
 
         {/* Right Content */}
-        <div className="flex h-[90vh] w-full items-center justify-center">
-          <div className="grid h-full w-full gap-4 bg-gray-200 p-2 grid-cols-4 grid-rows-6 rounded-lg shadow-md">
+        <div className="flex w-full items-center justify-center mt-10 lg:mt-0 lg:h-[90vh]">
+          <div className="grid w-full max-w-xl sm:max-w-none gap-3 sm:gap-4 bg-gray-200 p-2 grid-cols-2 sm:grid-cols-4 grid-rows-3 sm:grid-rows-6 rounded-lg shadow-md aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-full auto-rows-fr">
             {categories.slice(0, 6).map((category, index) => {
               const gridClasses = [
-                "col-span-2 row-span-2",
-                "col-span-2 row-span-2", 
-                "col-span-1 row-span-4",
-                "col-span-2 row-span-2",
-                "col-span-1 row-span-2",
-                "col-span-3 row-span-2"
+                "sm:col-span-2 sm:row-span-2",
+                "sm:col-span-2 sm:row-span-2",
+                "sm:col-span-1 sm:row-span-4",
+                "sm:col-span-2 sm:row-span-2",
+                "sm:col-span-1 sm:row-span-2",
+                "sm:col-span-3 sm:row-span-2",
               ];
               
               const categoryTileImages = {
@@ -134,7 +134,7 @@ const Home = () => {
                 <Link
                   key={category.id}
                   to={`/shop?category=${category.id}`}
-                  className={`${gridClasses[index]} rounded-lg shadow-md relative overflow-hidden group cursor-pointer`}
+                  className={`col-span-1 row-span-1 ${gridClasses[index]} rounded-lg shadow-md relative overflow-hidden group cursor-pointer`}
                 >
                   <img
                     src={categoryTileImages[category.name] || category.image}
@@ -142,7 +142,7 @@ const Home = () => {
                     className="h-full w-full object-cover rounded-lg transition-transform duration-300 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 flex items-center justify-center rounded-lg transition-all duration-300">
-                    <p className="text-white text-lg font-bold">{category.name}</p>
+                    <p className="text-white text-sm sm:text-lg font-bold px-2 text-center">{category.name}</p>
                   </div>
                 </Link>
               );

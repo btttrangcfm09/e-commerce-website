@@ -79,7 +79,7 @@ const FilterBar = memo(({ filters, onFilterChange, onClose }) => {
     );
 
     return (
-        <div className="w-96 h-auto max-h-screen px-6 py-5 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-y-auto">
+        <div className="fixed lg:static inset-0 lg:inset-auto z-50 lg:z-0 lg:w-96 w-full h-screen lg:h-auto max-h-screen px-4 sm:px-6 py-5 bg-white lg:rounded-2xl shadow-2xl lg:shadow-lg border-0 lg:border border-gray-200 overflow-y-auto">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-black">Filters</h2>

@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ForgotPassword({ onSwitchToSignIn }) {
   return (
-    <div className="bg-white px-16 py-8 rounded-3xl border-2 border-gray-200 mr-4 max-[553px]:px-4">
+    <div className="bg-white px-4 sm:px-8 lg:px-16 py-8 rounded-3xl border-2 border-gray-200">
       <div className="flex items-center mt-2">
       <svg
           width="30"

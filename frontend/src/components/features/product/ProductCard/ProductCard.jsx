@@ -48,7 +48,7 @@ const ProductCard = ({ product }) => {
     };
 
     return (
-        <div className="bg-white shadow-sm border rounded-lg p-4 hover:shadow-lg transition-shadow duration-300 flex flex-col h-[420px]">
+        <div className="bg-white shadow-sm border rounded-lg p-4 hover:shadow-lg transition-shadow duration-300 flex flex-col h-auto sm:h-[420px]">
             <Link to={`/products/${product.product_id}`} className="block">
                 <img
                     src={productImage}

@@ -106,9 +106,9 @@ const ProductDetail = () => {
 
             <section className="py-10">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white shadow-lg rounded-lg p-6">
-                        {/* Thumbnails */}
-                        <div className="col-span-2 hidden lg:block overflow-hidden max-h-[600px]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 bg-white shadow-lg rounded-lg p-4 sm:p-6">
+                        {/* Thumbnails - Hidden on mobile/tablet */}
+                        <div className="col-span-2 hidden xl:block overflow-hidden max-h-[600px]">
                             <div className="h-full overflow-y-auto space-y-4 pr-2">
                                 {mappedProduct.images?.map((image, index) => (
                                     <img
@@ -125,7 +125,7 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Main Image */}
-                        <div className="col-span-1 lg:col-span-5 flex items-center justify-center max-h-[600px]">
+                        <div className="col-span-1 lg:col-span-5 xl:col-span-5 flex items-center justify-center max-h-[400px] sm:max-h-[500px] lg:max-h-[600px]">
                             <img
                                 src={selectedImage || mappedProduct.images?.[0]}
                                 alt={mappedProduct.name}
@@ -134,7 +134,7 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Details */}
-                        <div className="col-span-1 lg:col-span-5 flex flex-col gap-5">
+                        <div className="col-span-1 lg:col-span-7 xl:col-span-5 flex flex-col gap-4 sm:gap-5">
                             <h2 className="text-black text-2xl font-semibold">{mappedProduct.name}</h2>
 
                             {/* Price & Stock */}
